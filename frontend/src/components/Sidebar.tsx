@@ -379,6 +379,9 @@ export default function Sidebar() {
             <LogOut className="w-4 h-4" />
           </button>
         </div>
+        <div className="px-3 py-1">
+          <span className="text-[10px] text-dark-600">v2024-12-21 18:38</span>
+        </div>
       </div>
     </div>
   )
