@@ -166,6 +166,7 @@ export const api = {
         embedded_count: number
         has_rag_collection: boolean
         rag_points: number
+        admin_pinned: boolean
       }>
       total_rag_collections: number
     }>('/admin/system/overview'),
