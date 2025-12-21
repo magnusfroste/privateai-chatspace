@@ -49,6 +49,7 @@ class WorkspaceResponse(BaseModel):
     similarity_threshold: Optional[float]
     use_hybrid_search: Optional[bool]
     use_web_search: Optional[bool]
+    admin_pinned: Optional[bool]
     owner_id: int
 
     class Config:
@@ -61,7 +62,12 @@ async def list_workspaces(
     current_user: User = Depends(get_current_user)
 ):
     if current_user.role == "admin":
-        result = await db.execute(select(Workspace))
+        # Admin sees own workspaces + pinned workspaces from other users
+        result = await db.execute(
+            select(Workspace).where(
+                (Workspace.owner_id == current_user.id) | (Workspace.admin_pinned == True)
+            )
+        )
         workspaces = result.scalars().all()
     else:
         result = await db.execute(

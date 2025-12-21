@@ -12,6 +12,7 @@ export interface Workspace {
   similarity_threshold: number | null
   use_hybrid_search: boolean | null
   use_web_search: boolean | null
+  admin_pinned: boolean | null
   owner_id: number
 }
 
@@ -190,5 +191,6 @@ export const api = {
       total_collections?: number
       error?: string
     }>('/admin/test/qdrant'),
+    toggleWorkspacePin: (workspaceId: number) => fetchApi<{ id: number; admin_pinned: boolean }>(`/admin/workspaces/${workspaceId}/pin`, { method: 'PUT' }),
   },
 }

@@ -223,6 +223,7 @@ class WorkspaceInfo(BaseModel):
     embedded_count: int
     has_rag_collection: bool
     rag_points: int
+    admin_pinned: bool
 
 
 class SystemOverviewResponse(BaseModel):
@@ -317,7 +318,8 @@ async def get_system_overview(
             document_count=doc_count,
             embedded_count=embedded_count,
             has_rag_collection=has_collection,
-            rag_points=rag_points
+            rag_points=rag_points,
+            admin_pinned=workspace.admin_pinned or False
         ))
     
     return SystemOverviewResponse(
@@ -406,3 +408,23 @@ async def test_qdrant_connection(
         }
     except Exception as e:
         return {"status": "error", "url": settings.QDRANT_URL, "error": str(e)}
+
+
+@router.put("/workspaces/{workspace_id}/pin")
+async def toggle_workspace_pin(
+    workspace_id: int,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """Toggle admin_pinned status for a workspace"""
+    result = await db.execute(select(Workspace).where(Workspace.id == workspace_id))
+    workspace = result.scalar_one_or_none()
+    
+    if not workspace:
+        raise HTTPException(status_code=404, detail="Workspace not found")
+    
+    workspace.admin_pinned = not workspace.admin_pinned
+    await db.commit()
+    await db.refresh(workspace)
+    
+    return {"id": workspace.id, "admin_pinned": workspace.admin_pinned}

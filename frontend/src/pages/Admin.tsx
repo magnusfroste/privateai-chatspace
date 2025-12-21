@@ -60,6 +60,7 @@ interface WorkspaceInfo {
   embedded_count: number
   has_rag_collection: boolean
   rag_points: number
+  admin_pinned: boolean
 }
 
 interface SystemOverview {
@@ -154,6 +155,22 @@ export default function Admin() {
       setTestResults(prev => ({ ...prev, [service]: { status: 'error', url: '', error: String(err) } }))
     } finally {
       setTesting(prev => ({ ...prev, [service]: false }))
+    }
+  }
+
+  const handleTogglePin = async (workspaceId: number) => {
+    try {
+      const result = await api.admin.toggleWorkspacePin(workspaceId)
+      if (overview) {
+        setOverview({
+          ...overview,
+          workspaces: overview.workspaces.map(ws => 
+            ws.id === workspaceId ? { ...ws, admin_pinned: result.admin_pinned } : ws
+          )
+        })
+      }
+    } catch (err) {
+      console.error('Failed to toggle pin:', err)
     }
   }
 
@@ -335,6 +352,7 @@ export default function Admin() {
                       <table className="w-full">
                         <thead>
                           <tr className="border-b border-dark-700">
+                            <th className="text-center px-4 py-3 text-sm font-medium text-dark-400">Pin</th>
                             <th className="text-left px-4 py-3 text-sm font-medium text-dark-400">Workspace</th>
                             <th className="text-left px-4 py-3 text-sm font-medium text-dark-400">Owner</th>
                             <th className="text-left px-4 py-3 text-sm font-medium text-dark-400">Documents</th>
@@ -345,6 +363,15 @@ export default function Admin() {
                         <tbody>
                           {overview.workspaces.map((ws) => (
                             <tr key={ws.id} className="border-b border-dark-700 last:border-0">
+                              <td className="px-4 py-3 text-center">
+                                <input
+                                  type="checkbox"
+                                  checked={ws.admin_pinned}
+                                  onChange={() => handleTogglePin(ws.id)}
+                                  className="w-4 h-4 rounded bg-dark-700 border-dark-600 text-blue-600 cursor-pointer"
+                                  title="Show in admin sidebar"
+                                />
+                              </td>
                               <td className="px-4 py-3 text-sm text-white">{ws.name}</td>
                               <td className="px-4 py-3 text-sm text-dark-300">{ws.owner_email}</td>
                               <td className="px-4 py-3 text-sm text-dark-300">
