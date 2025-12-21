@@ -380,7 +380,7 @@ export default function Sidebar() {
           </button>
         </div>
         <div className="px-3 py-1">
-          <span className="text-[10px] text-dark-600">v2024-12-21 18:38</span>
+          <span className="text-[10px] text-dark-600">v2024-12-21 18:45</span>
         </div>
       </div>
     </div>

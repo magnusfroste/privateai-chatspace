@@ -75,37 +75,49 @@ async def qdrant_health_check():
         raise HTTPException(status_code=503, detail=str(e))
 
 
-# Find static directory
-static_dir = None
-static_paths = [
+# Static directory paths to check
+STATIC_PATHS = [
     "/app/static",  # Docker container
     os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "static")),  # Local dev
 ]
-for path in static_paths:
-    if os.path.exists(path) and os.path.isdir(path):
-        static_dir = path
-        break
 
-# Mount static files for assets
+def get_static_dir():
+    """Find the static directory"""
+    for path in STATIC_PATHS:
+        if os.path.exists(path) and os.path.isdir(path):
+            return path
+    return None
+
+# Mount static files for assets if directory exists
+static_dir = get_static_dir()
 if static_dir:
-    app.mount("/assets", StaticFiles(directory=os.path.join(static_dir, "assets")), name="assets")
+    assets_dir = os.path.join(static_dir, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+# SPA fallback - serve index.html for all non-API routes
+@app.get("/{full_path:path}")
+async def serve_spa(request: Request, full_path: str):
+    # Don't serve index.html for API routes
+    if full_path.startswith("api/"):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Not Found")
     
-    # SPA fallback - serve index.html for all non-API routes
-    @app.get("/{full_path:path}")
-    async def serve_spa(request: Request, full_path: str):
-        # Don't serve index.html for API routes
-        if full_path.startswith("api/"):
-            from fastapi import HTTPException
-            raise HTTPException(status_code=404, detail="Not Found")
-        
-        index_path = os.path.join(static_dir, "index.html")
-        if os.path.exists(index_path):
-            return FileResponse(index_path)
-        
-        # Try to serve static file
-        file_path = os.path.join(static_dir, full_path)
-        if os.path.exists(file_path) and os.path.isfile(file_path):
-            return FileResponse(file_path)
-        
-        # Fallback to index.html for SPA routing
+    static_dir = get_static_dir()
+    if not static_dir:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Static files not found")
+    
+    index_path = os.path.join(static_dir, "index.html")
+    
+    # Try to serve static file first
+    file_path = os.path.join(static_dir, full_path)
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+        return FileResponse(file_path)
+    
+    # Fallback to index.html for SPA routing
+    if os.path.exists(index_path):
         return FileResponse(index_path)
+    
+    from fastapi import HTTPException
+    raise HTTPException(status_code=404, detail="index.html not found")
