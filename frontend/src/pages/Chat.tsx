@@ -184,7 +184,7 @@ export default function Chat() {
     }
   }
 
-  const handleSendToChat = async (chatId: number, content: string, files?: File[]) => {
+  const handleSendToChat = async (chatId: number, content: string, _files?: File[]) => {
     const userMessage: Message = {
       id: Date.now(),
       role: 'user',

@@ -1,4 +1,4 @@
-# AutoVersio
+# Privateai-chatspace
 
 A modern, self-hosted LLM chat application with RAG (Retrieval-Augmented Generation) support. Inspired by AnythingLLM and OpenWebUI, but simpler and focused on local LLM inference.
 
