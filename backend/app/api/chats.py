@@ -215,13 +215,25 @@ async def send_message(
     history = [{"role": m.role, "content": m.content} for m in messages]
     
     rag_context = None
+    rag_sources = []
     if data.use_rag:
         top_n = chat.workspace.top_n if chat.workspace and chat.workspace.top_n else 4
         threshold = chat.workspace.similarity_threshold if chat.workspace and chat.workspace.similarity_threshold else 0.0
         use_hybrid = chat.workspace.use_hybrid_search if chat.workspace and chat.workspace.use_hybrid_search is not None else True
         rag_results = await rag_service.search(chat.workspace_id, data.content, limit=top_n, score_threshold=threshold, hybrid=use_hybrid)
         if rag_results:
-            rag_context = "\n\n---\n\n".join([r["content"] for r in rag_results])
+            # Format context with source markers like [1], [2], etc.
+            context_parts = []
+            seen_files = {}
+            for i, r in enumerate(rag_results, 1):
+                filename = r.get("filename", "Unknown")
+                if filename not in seen_files:
+                    seen_files[filename] = len(seen_files) + 1
+                source_num = seen_files[filename]
+                context_parts.append(f"[{source_num}] {r['content']}")
+                if filename not in [s["filename"] for s in rag_sources]:
+                    rag_sources.append({"num": source_num, "filename": filename})
+            rag_context = "\n\n---\n\n".join(context_parts)
     
     # Web search via external agent (n8n)
     web_search_context = None
@@ -386,13 +398,25 @@ async def send_message_with_files(
     history = [{"role": m.role, "content": m.content} for m in messages]
     
     rag_context = None
+    rag_sources = []
     if use_rag:
         top_n = chat.workspace.top_n if chat.workspace and chat.workspace.top_n else 4
         threshold = chat.workspace.similarity_threshold if chat.workspace and chat.workspace.similarity_threshold else 0.0
         use_hybrid = chat.workspace.use_hybrid_search if chat.workspace and chat.workspace.use_hybrid_search is not None else True
         rag_results = await rag_service.search(chat.workspace_id, content, limit=top_n, score_threshold=threshold, hybrid=use_hybrid)
         if rag_results:
-            rag_context = "\n\n---\n\n".join([r["content"] for r in rag_results])
+            # Format context with source markers like [1], [2], etc.
+            context_parts = []
+            seen_files = {}
+            for i, r in enumerate(rag_results, 1):
+                filename = r.get("filename", "Unknown")
+                if filename not in seen_files:
+                    seen_files[filename] = len(seen_files) + 1
+                source_num = seen_files[filename]
+                context_parts.append(f"[{source_num}] {r['content']}")
+                if filename not in [s["filename"] for s in rag_sources]:
+                    rag_sources.append({"num": source_num, "filename": filename})
+            rag_context = "\n\n---\n\n".join(context_parts)
     
     # Web search via external agent (n8n)
     web_search_context = None

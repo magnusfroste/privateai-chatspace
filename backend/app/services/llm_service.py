@@ -94,10 +94,16 @@ class LLMService:
                 )
             else:
                 prompts.append(
-                    "The following context is retrieved from the workspace's document store. "
-                    "Use this information to answer the user's question. "
-                    "If the context contains relevant information, prioritize it over your general knowledge.\n\n"
-                    "Context:\n" + rag_context
+                    "DOCUMENT CONTEXT: The following information is retrieved from the workspace's document store. "
+                    "Each piece of context is marked with a source number like [1], [2], etc.\n\n"
+                    "INSTRUCTIONS:\n"
+                    "- Base your answer primarily on the provided context\n"
+                    "- Use inline citations like [1], [2] when referencing specific information\n"
+                    "- At the END of your response, add a '---' separator followed by a 'Källor:' (Sources) section\n"
+                    "- List each source with format: 📄 **[1]** filename.pdf\n"
+                    "- Only cite sources you actually used in your answer\n"
+                    "- If the context doesn't contain relevant information, you may use your general knowledge but mention this\n\n"
+                    "CONTEXT:\n" + rag_context
                 )
         
         # File content if attached (CAG)
