@@ -77,14 +77,23 @@ class LLMService:
         if workspace_prompt:
             prompts.append(workspace_prompt)
         
-        # RAG context from vector store - with clear instruction to prioritize
+        # RAG context from vector store or web search - with strong instruction to use it
         if rag_context:
-            prompts.append(
-                "The following context is retrieved from the workspace's document store. "
-                "Use this information to answer the user's question. "
-                "If the context contains relevant information, prioritize it over your general knowledge.\n\n"
-                "Context:\n" + rag_context
-            )
+            # Check if this contains web search results
+            if "Web Search Results:" in rag_context:
+                prompts.append(
+                    "IMPORTANT: The following contains CURRENT web search results that are MORE UP-TO-DATE than your training data. "
+                    "You MUST base your answer on this information. Do NOT use your own knowledge about current events - use ONLY the provided search results. "
+                    "Summarize and present the information from the search results in a clear, helpful way.\n\n"
+                    + rag_context
+                )
+            else:
+                prompts.append(
+                    "The following context is retrieved from the workspace's document store. "
+                    "Use this information to answer the user's question. "
+                    "If the context contains relevant information, prioritize it over your general knowledge.\n\n"
+                    "Context:\n" + rag_context
+                )
         
         # File content if attached (CAG)
         if file_content:
