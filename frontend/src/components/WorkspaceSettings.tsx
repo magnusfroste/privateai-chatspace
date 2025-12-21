@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useWorkspaceStore } from '../store/workspace'
 import { api, Workspace } from '../lib/api'
+import { ChevronDown, ChevronRight } from 'lucide-react'
 
 interface WorkspaceSettingsProps {
   workspace: Workspace
@@ -15,11 +16,12 @@ export default function WorkspaceSettings({
   const [description, setDescription] = useState(workspace.description || '')
   const [systemPrompt, setSystemPrompt] = useState(workspace.system_prompt || '')
   const [chatMode, setChatMode] = useState<'chat' | 'query'>((workspace.chat_mode as 'chat' | 'query') || 'chat')
-  const [topN, setTopN] = useState(workspace.top_n || 4)
+  const [topN, setTopN] = useState(workspace.top_n || 5)
   const [similarityThreshold, setSimilarityThreshold] = useState(workspace.similarity_threshold || 0.25)
   const [useHybridSearch, setUseHybridSearch] = useState(workspace.use_hybrid_search !== false)
   const [useWebSearch, setUseWebSearch] = useState(workspace.use_web_search === true)
   const [saving, setSaving] = useState(false)
+  const [showAdvanced, setShowAdvanced] = useState(false)
   const { setCurrentWorkspace, setWorkspaces, workspaces } = useWorkspaceStore()
 
   const handleSave = async () => {
@@ -73,77 +75,11 @@ export default function WorkspaceSettings({
         <textarea
           value={systemPrompt}
           onChange={(e) => setSystemPrompt(e.target.value)}
-          rows={8}
+          rows={6}
           className="w-full px-3 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-blue-500 resize-y"
           placeholder="Instructions for the AI assistant..."
         />
       </div>
-
-      <div>
-        <label className="block text-sm font-medium text-dark-300 mb-2">Chat Mode</label>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="radio"
-              checked={chatMode === 'chat'}
-              onChange={() => setChatMode('chat')}
-              className="w-4 h-4 text-blue-600"
-            />
-            <span className="text-sm text-white">Chat</span>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="radio"
-              checked={chatMode === 'query'}
-              onChange={() => setChatMode('query')}
-              className="w-4 h-4 text-blue-600"
-            />
-            <span className="text-sm text-white">Query</span>
-          </label>
-        </div>
-        <p className="mt-1 text-xs text-dark-500">
-          Chat: AI uses docs + knowledge. Query: Only docs.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm font-medium text-dark-300 mb-1">Top N</label>
-          <input
-            type="number"
-            min="1"
-            max="20"
-            value={topN}
-            onChange={(e) => setTopN(parseInt(e.target.value) || 4)}
-            className="w-full px-3 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-dark-300 mb-1">Similarity</label>
-          <input
-            type="number"
-            min="0"
-            max="1"
-            step="0.05"
-            value={similarityThreshold}
-            onChange={(e) => setSimilarityThreshold(parseFloat(e.target.value) || 0.25)}
-            className="w-full px-3 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
-          />
-        </div>
-      </div>
-
-      <label className="flex items-center gap-3 cursor-pointer">
-        <input
-          type="checkbox"
-          checked={useHybridSearch}
-          onChange={(e) => setUseHybridSearch(e.target.checked)}
-          className="w-4 h-4 rounded bg-dark-700 border-dark-600 text-blue-600"
-        />
-        <div>
-          <span className="text-sm text-white">Hybrid Search</span>
-          <p className="text-xs text-dark-500">Semantic + keyword search</p>
-        </div>
-      </label>
 
       <label className="flex items-center gap-3 cursor-pointer">
         <input
@@ -154,9 +90,97 @@ export default function WorkspaceSettings({
         />
         <div>
           <span className="text-sm text-white">Web Search</span>
-          <p className="text-xs text-dark-500">Use external search agent (n8n)</p>
+          <p className="text-xs text-dark-500">Include real-time web results</p>
         </div>
       </label>
+
+      {/* Advanced Settings - Collapsible */}
+      <div className="border border-dark-600 rounded-lg">
+        <button
+          type="button"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-dark-300 hover:text-white transition-colors"
+        >
+          <span>Advanced Settings</span>
+          {showAdvanced ? (
+            <ChevronDown className="w-4 h-4" />
+          ) : (
+            <ChevronRight className="w-4 h-4" />
+          )}
+        </button>
+        
+        {showAdvanced && (
+          <div className="px-4 pb-4 space-y-4 border-t border-dark-600">
+            <div className="pt-4">
+              <label className="block text-sm font-medium text-dark-300 mb-2">Chat Mode</label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    checked={chatMode === 'chat'}
+                    onChange={() => setChatMode('chat')}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <span className="text-sm text-white">Chat</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    checked={chatMode === 'query'}
+                    onChange={() => setChatMode('query')}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <span className="text-sm text-white">Query</span>
+                </label>
+              </div>
+              <p className="mt-1 text-xs text-dark-500">
+                Chat: AI uses docs + knowledge. Query: Only docs.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-dark-300 mb-1">Context Chunks</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="20"
+                  value={topN}
+                  onChange={(e) => setTopN(parseInt(e.target.value) || 5)}
+                  className="w-full px-3 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                />
+                <p className="mt-1 text-xs text-dark-500">Number of document chunks</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-dark-300 mb-1">Similarity</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={similarityThreshold}
+                  onChange={(e) => setSimilarityThreshold(parseFloat(e.target.value) || 0.25)}
+                  className="w-full px-3 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                />
+                <p className="mt-1 text-xs text-dark-500">Minimum relevance score</p>
+              </div>
+            </div>
+
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={useHybridSearch}
+                onChange={(e) => setUseHybridSearch(e.target.checked)}
+                className="w-4 h-4 rounded bg-dark-700 border-dark-600 text-blue-600"
+              />
+              <div>
+                <span className="text-sm text-white">Hybrid Search</span>
+                <p className="text-xs text-dark-500">Combine semantic + keyword search</p>
+              </div>
+            </label>
+          </div>
+        )}
+      </div>
 
       <div className="flex gap-2 pt-2">
         <button

@@ -50,13 +50,19 @@ When given context or documents, use them to inform your answers."""
     EMBEDDER_BASE_URL: str = "http://172.17.0.1:8001/v1"
     EMBEDDER_API_KEY: str = ""
     EMBEDDER_MODEL: str = "default"
-    EMBEDDING_DIMENSION: int = 2560  # Match your embedder model output
     
     # Qdrant
     QDRANT_URL: str = "http://172.17.0.1:6333"
     
     # Search Agent (n8n webhook for web search)
     SEARCH_AGENT_URL: str = ""  # e.g. https://agent.froste.eu/webhook/xxx/chat
+    
+    # Default RAG Settings (used when creating new workspaces)
+    DEFAULT_TOP_N: int = 5  # Number of document chunks to retrieve
+    DEFAULT_SIMILARITY_THRESHOLD: float = 0.25  # Minimum similarity score
+    DEFAULT_USE_HYBRID_SEARCH: bool = True  # Use hybrid (dense + sparse) search
+    DEFAULT_USE_WEB_SEARCH: bool = False  # Use external search agent
+    DEFAULT_CHAT_MODE: str = "chat"  # "chat" or "query"
     
     # Storage paths
     DATA_DIR: str = "/data"

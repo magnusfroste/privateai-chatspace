@@ -21,11 +21,11 @@ class WorkspaceCreate(BaseModel):
     name: str
     description: Optional[str] = None
     system_prompt: Optional[str] = None
-    chat_mode: Optional[str] = "chat"  # "chat" or "query"
-    top_n: Optional[int] = 4  # Number of document chunks to retrieve
-    similarity_threshold: Optional[float] = 0.25  # Minimum similarity score
-    use_hybrid_search: Optional[bool] = True  # Use hybrid (dense + sparse) search
-    use_web_search: Optional[bool] = False  # Use external search agent
+    chat_mode: Optional[str] = None  # Uses env default if not specified
+    top_n: Optional[int] = None  # Uses env default if not specified
+    similarity_threshold: Optional[float] = None  # Uses env default if not specified
+    use_hybrid_search: Optional[bool] = None  # Uses env default if not specified
+    use_web_search: Optional[bool] = None  # Uses env default if not specified
 
 
 class WorkspaceUpdate(BaseModel):
@@ -81,6 +81,11 @@ async def list_workspaces(
                 name="My Workspace",
                 description="Your personal workspace",
                 system_prompt=settings.DEFAULT_SYSTEM_PROMPT,
+                chat_mode=settings.DEFAULT_CHAT_MODE,
+                top_n=settings.DEFAULT_TOP_N,
+                similarity_threshold=settings.DEFAULT_SIMILARITY_THRESHOLD,
+                use_hybrid_search=settings.DEFAULT_USE_HYBRID_SEARCH,
+                use_web_search=settings.DEFAULT_USE_WEB_SEARCH,
                 owner_id=current_user.id
             )
             db.add(default_workspace)
@@ -101,7 +106,12 @@ async def create_workspace(
     workspace = Workspace(
         name=data.name,
         description=data.description,
-        system_prompt=data.system_prompt or settings.DEFAULT_SYSTEM_PROMPT,  # Use default if none provided
+        system_prompt=data.system_prompt or settings.DEFAULT_SYSTEM_PROMPT,
+        chat_mode=data.chat_mode or settings.DEFAULT_CHAT_MODE,
+        top_n=data.top_n if data.top_n is not None else settings.DEFAULT_TOP_N,
+        similarity_threshold=data.similarity_threshold if data.similarity_threshold is not None else settings.DEFAULT_SIMILARITY_THRESHOLD,
+        use_hybrid_search=data.use_hybrid_search if data.use_hybrid_search is not None else settings.DEFAULT_USE_HYBRID_SEARCH,
+        use_web_search=data.use_web_search if data.use_web_search is not None else settings.DEFAULT_USE_WEB_SEARCH,
         owner_id=current_user.id
     )
     db.add(workspace)

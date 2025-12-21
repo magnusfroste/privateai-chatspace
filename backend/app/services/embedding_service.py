@@ -8,7 +8,6 @@ class EmbeddingService:
         self.base_url = settings.EMBEDDER_BASE_URL.rstrip('/')
         self.api_key = settings.EMBEDDER_API_KEY
         self.model = settings.EMBEDDER_MODEL
-        self.dimension = settings.EMBEDDING_DIMENSION
     
     def _get_headers(self) -> Dict[str, str]:
         headers = {"Content-Type": "application/json"}

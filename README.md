@@ -41,19 +41,60 @@ Default credentials:
 
 ## Environment Variables
 
+### Core Settings
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `ADMIN_EMAIL` | `admin@autoversio.local` | Admin user email |
 | `ADMIN_PASSWORD` | `changeme` | Admin user password |
 | `SECRET_KEY` | (random) | JWT secret key |
+| `DEBUG` | `false` | Enable debug mode |
+
+### LLM Configuration
+| Variable | Default | Description |
+|----------|---------|-------------|
 | `LLM_BASE_URL` | `http://172.17.0.1:8000/v1` | OpenAI-compatible LLM API |
 | `LLM_API_KEY` | (empty) | API key for LLM (if required) |
 | `LLM_MODEL` | `default` | Model name to use |
+
+### Embedding Configuration
+| Variable | Default | Description |
+|----------|---------|-------------|
 | `EMBEDDER_BASE_URL` | `http://172.17.0.1:8001/v1` | OpenAI-compatible embedder API |
 | `EMBEDDER_API_KEY` | (empty) | API key for embedder (if required) |
 | `EMBEDDER_MODEL` | `default` | Embedder model name |
+
+### Vector Database & Search
+| Variable | Default | Description |
+|----------|---------|-------------|
 | `QDRANT_URL` | `http://172.17.0.1:6333` | Qdrant vector database |
+| `SEARCH_AGENT_URL` | (empty) | n8n webhook URL for web search |
+
+### Default RAG Settings (for new workspaces)
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DEFAULT_TOP_N` | `5` | Number of document chunks to retrieve (1-20) |
+| `DEFAULT_SIMILARITY_THRESHOLD` | `0.25` | Minimum similarity score (0.0-1.0) |
+| `DEFAULT_USE_HYBRID_SEARCH` | `true` | Use hybrid (dense + sparse) search |
+| `DEFAULT_USE_WEB_SEARCH` | `false` | Use external search agent |
+| `DEFAULT_CHAT_MODE` | `chat` | Default chat mode: "chat" or "query" |
+| `DEFAULT_SYSTEM_PROMPT` | (see config) | Default AI instructions |
+
+### Context Window Management
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MAX_CONTEXT_TOKENS` | `128000` | Maximum context window size |
+| `CONTEXT_HISTORY_RATIO` | `0.7` | Ratio for chat history (70%) |
+| `CONTEXT_SYSTEM_RATIO` | `0.15` | Ratio for system prompt + RAG (15%) |
+| `CONTEXT_USER_RATIO` | `0.15` | Ratio for user input + files (15%) |
+
+### Storage & Database
+| Variable | Default | Description |
+|----------|---------|-------------|
 | `DATABASE_URL` | `sqlite+aiosqlite:////data/autoversio.db` | Database connection |
+| `DATA_DIR` | `/data` | Data directory |
+| `DOCUMENTS_DIR` | `/data/documents` | Documents directory |
+| `ORIGINALS_DIR` | `/data/documents/originals` | Original files directory |
+| `MARKDOWN_DIR` | `/data/documents/markdown` | Converted markdown directory |
 
 ## Architecture
 

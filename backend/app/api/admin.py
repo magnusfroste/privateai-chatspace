@@ -375,8 +375,7 @@ async def test_embedder_connection(
                     "status": "connected",
                     "url": settings.EMBEDDER_BASE_URL,
                     "models": models,
-                    "configured_model": settings.EMBEDDER_MODEL,
-                    "embedding_dimension": settings.EMBEDDING_DIMENSION
+                    "configured_model": settings.EMBEDDER_MODEL
                 }
             else:
                 return {"status": "error", "url": settings.EMBEDDER_BASE_URL, "error": f"HTTP {response.status_code}: {response.text}"}
