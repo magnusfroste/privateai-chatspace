@@ -66,6 +66,14 @@ class MCPServer:
                 env=full_env
             )
             
+            # Give the process time to start (especially for npx downloads)
+            await asyncio.sleep(2.0)
+            
+            # Check if process is still alive
+            if self.process.returncode is not None:
+                stderr = await self.process.stderr.read()
+                raise RuntimeError(f"MCP server {self.name} died immediately: {stderr.decode()}")
+            
             # Initialize MCP protocol handshake
             await self._initialize_stdio()
         
@@ -148,9 +156,13 @@ class MCPServer:
         if not self.process or not self.process.stdin:
             raise RuntimeError("MCP server process not running")
         
-        json_str = json.dumps(message) + "\n"
-        self.process.stdin.write(json_str.encode())
-        await self.process.stdin.drain()
+        try:
+            json_str = json.dumps(message) + "\n"
+            self.process.stdin.write(json_str.encode())
+            await self.process.stdin.drain()
+        except Exception as e:
+            print(f"Error sending message to MCP server {self.name}: {e}")
+            raise
     
     async def _read_stdio_message(self) -> Optional[dict]:
         """Read JSON-RPC message from stdio process"""
@@ -160,14 +172,21 @@ class MCPServer:
         try:
             line = await asyncio.wait_for(
                 self.process.stdout.readline(),
-                timeout=10.0
+                timeout=30.0  # Increased timeout for slow package downloads
             )
             if line:
-                return json.loads(line.decode())
+                decoded = line.decode().strip()
+                if decoded:
+                    return json.loads(decoded)
         except asyncio.TimeoutError:
             print(f"Timeout reading from MCP server {self.name}")
+            # Check if process is still alive
+            if self.process.returncode is not None:
+                stderr = await self.process.stderr.read()
+                print(f"MCP server {self.name} stderr: {stderr.decode()}")
         except json.JSONDecodeError as e:
             print(f"Invalid JSON from MCP server {self.name}: {e}")
+            print(f"Received line: {line.decode()}")
         
         return None
     

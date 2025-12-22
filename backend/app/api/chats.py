@@ -17,7 +17,7 @@ from app.models.chat_log import ChatLog
 from app.services.llm_service import llm_service
 from app.services.rag_service import rag_service
 from app.services.search_agent_service import search_agent_service
-from app.services.mcp_service import mcp_service
+from app.services.firecrawl_service import firecrawl_service
 from app.services.file_parser import parse_pdf, parse_docx
 from app.core.config import settings
 
@@ -237,43 +237,30 @@ async def send_message(
                     rag_sources.append({"num": source_num, "filename": filename})
             rag_context = "\n\n---\n\n".join(context_parts)
     
-    # MCP tool calling (intelligent web search)
+    # Prepare web search tool for LLM (if enabled)
     tools = []
     use_web_search = chat.workspace.use_web_search if chat.workspace and chat.workspace.use_web_search else False
-    print(f"[MCP DEBUG] use_web_search={use_web_search}, MCP_ENABLED={settings.MCP_ENABLED}")
     
-    if use_web_search and settings.MCP_ENABLED:
-        try:
-            print(f"[MCP DEBUG] Initializing MCP service...")
-            await mcp_service.initialize()
-            print(f"[MCP DEBUG] MCP initialized successfully")
-            
-            tools = await mcp_service.get_available_tools()
-            print(f"[MCP DEBUG] Got {len(tools)} tools: {[t.get('name', 'unknown') for t in tools]}")
-        except Exception as e:
-            print(f"[MCP DEBUG] MCP initialization failed: {e}")
-            import traceback
-            traceback.print_exc()
-            
-            # Fallback to n8n if MCP fails
-            print(f"[MCP DEBUG] Falling back to n8n webhook")
-            if search_agent_service.is_available():
-                web_result = await search_agent_service.search(
-                    query=data.content,
-                    session_id=str(chat.id),
-                    system_prompt=chat.workspace.system_prompt if chat.workspace else None
-                )
-                if web_result:
-                    rag_context = f"{rag_context}\n\n---\n\nWeb Search Results:\n{web_result}" if rag_context else f"Web Search Results:\n{web_result}"
-    elif use_web_search and search_agent_service.is_available():
-        # Use n8n if MCP is disabled
-        web_result = await search_agent_service.search(
-            query=data.content,
-            session_id=str(chat.id),
-            system_prompt=chat.workspace.system_prompt if chat.workspace else None
-        )
-        if web_result:
-            rag_context = f"{rag_context}\n\n---\n\nWeb Search Results:\n{web_result}" if rag_context else f"Web Search Results:\n{web_result}"
+    if use_web_search and settings.FIRECRAWL_API_KEY:
+        # Define web search tool for LLM to use when needed
+        tools = [{
+            "type": "function",
+            "function": {
+                "name": "web_search",
+                "description": "Search the web for current information, news, facts, or real-time data. Use this when the user asks about recent events, current news, or information you don't have in your training data.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "The search query to find relevant information"
+                        }
+                    },
+                    "required": ["query"]
+                }
+            }
+        }]
+        print(f"[Tool Calling] Web search tool available for LLM")
     
     system_prompt = chat.workspace.system_prompt if chat.workspace else None
     chat_mode = chat.workspace.chat_mode if chat.workspace else "chat"
@@ -307,42 +294,61 @@ async def send_message(
     async def generate():
         start_time = time.time()
         full_response = ""
-        tool_calls_made = []
         
         try:
-            # Use intelligent tool calling if MCP tools available
+            # Use tool calling if web search is available
             if tools:
-                print(f"[MCP DEBUG] Using chat_with_tools_stream with {len(tools)} tools")
-                async for event in llm_service.chat_with_tools_stream(
+                print(f"[Tool Calling] Checking if LLM wants to use tools...")
+                
+                # First, ask LLM if it wants to use tools (non-streaming)
+                llm_response = await llm_service.chat_with_tools(
                     messages=history,
                     tools=tools,
                     system_prompt=system_prompt,
                     rag_context=rag_context
-                ):
-                    if event["type"] == "content":
-                        full_response += event["content"]
-                        yield f"data: {json.dumps({'content': event['content']})}\n\n"
-                    elif event["type"] == "tool_call":
-                        # LLM decided to use a tool (e.g., web search)
-                        print(f"[MCP DEBUG] LLM requested tool call: {event['tool_name']}")
-                        try:
-                            tool_result = await mcp_service.call_tool(
-                                event["tool_name"],
-                                event["arguments"]
-                            )
-                            print(f"[MCP DEBUG] Tool call result: {str(tool_result)[:200]}...")
-                            tool_calls_made.append({
-                                "tool": event["tool_name"],
-                                "args": event["arguments"],
-                                "result": str(tool_result)[:200]  # Log first 200 chars
-                            })
-                            # Tool result will be fed back to LLM automatically
-                        except Exception as tool_error:
-                            print(f"[MCP DEBUG] Tool call failed: {tool_error}")
-                            import traceback
-                            traceback.print_exc()
+                )
+                
+                # Check if LLM made tool calls
+                tool_calls = llm_response.get("choices", [{}])[0].get("message", {}).get("tool_calls", [])
+                
+                if tool_calls:
+                    # LLM wants to use tools - execute them
+                    for tool_call in tool_calls:
+                        function = tool_call.get("function", {})
+                        tool_name = function.get("name")
+                        arguments = json.loads(function.get("arguments", "{}"))
+                        
+                        if tool_name == "web_search":
+                            query = arguments.get("query", "")
+                            print(f"[Tool Calling] LLM requested web search: {query}")
+                            
+                            # Execute web search with more results
+                            search_result = await firecrawl_service.search(query=query, limit=5)
+                            
+                            if search_result:
+                                # Add search result to context and stream final response
+                                enhanced_context = f"{rag_context}\n\n---\n\nWeb Search Results:\n{search_result}" if rag_context else f"Web Search Results:\n{search_result}"
+                                
+                                async for chunk in llm_service.chat_completion_stream(
+                                    messages=history,
+                                    system_prompt=system_prompt,
+                                    rag_context=enhanced_context
+                                ):
+                                    full_response += chunk
+                                    yield f"data: {json.dumps({'content': chunk})}\n\n"
+                            else:
+                                print(f"[Tool Calling] Web search returned no results, using original response")
+                                content = llm_response.get("choices", [{}])[0].get("message", {}).get("content", "")
+                                full_response = content
+                                yield f"data: {json.dumps({'content': content})}\n\n"
+                else:
+                    # No tool calls - stream the response directly
+                    print(f"[Tool Calling] LLM decided not to use tools")
+                    content = llm_response.get("choices", [{}])[0].get("message", {}).get("content", "")
+                    full_response = content
+                    yield f"data: {json.dumps({'content': content})}\n\n"
             else:
-                # Fallback to regular completion without tools
+                # Regular streaming completion without tools
                 async for chunk in llm_service.chat_completion_stream(
                     messages=history,
                     system_prompt=system_prompt,

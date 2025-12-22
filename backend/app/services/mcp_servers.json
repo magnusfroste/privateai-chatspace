@@ -1,0 +1,31 @@
+{
+  "mcpServers": {
+    "firecrawl": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "firecrawl-mcp"
+      ],
+      "env": {
+        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
+      },
+      "description": "Web scraping and search via Firecrawl"
+    },
+    "postgres": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "mcp-alchemy",
+        "--with",
+        "psycopg2-binary",
+        "mcp-alchemy"
+      ],
+      "env": {
+        "DB_URL": "${DATABASE_URL}"
+      },
+      "description": "SQL database access for querying workspace data"
+    }
+  }
+}
