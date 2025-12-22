@@ -49,10 +49,53 @@ AutoVersio is an AI-driven chat application built for teams that need sophistica
 - **File Limit**: Multiple files can be attached to a single message
 
 ### 5. Web Search Integration
-- **External Search Agent**: Integration with n8n webhook for real-time web search
+- **External Search Agent**: Integration with n8n webhook for real-time web search (Jina Search)
 - **Contextual Search**: Searches combine with RAG context for comprehensive answers
-- **Configurable**: Can be enabled/disabled per workspace
+- **Configurable**: Can be enabled/disabled per workspace via settings or header toggle
 - **Fallback Support**: Works alongside or independently of document-based RAG
+
+#### Web Search Activation Logic
+**When Web Search is Triggered:**
+- Web search is activated **on every user message** when the workspace setting `use_web_search` is enabled
+- The system does NOT intelligently decide when to search - it searches for ALL queries when enabled
+- This is a simple boolean flag: ON = search every time, OFF = never search
+
+**Current Behavior (Backend: `app/api/chats.py`):**
+```python
+use_web_search = chat.workspace.use_web_search if chat.workspace and chat.workspace.use_web_search else False
+if use_web_search and search_agent_service.is_available():
+    web_result = await search_agent_service.search(
+        query=data.content,
+        session_id=str(chat.id),
+        system_prompt=chat.workspace.system_prompt if chat.workspace else None
+    )
+```
+
+**Performance Considerations:**
+- Jina Search via n8n webhook takes approximately **45 seconds** per query
+- This makes the feature unusable if enabled for all queries
+- **Recommendation**: Keep web search OFF by default, enable only when needed for:
+  - Current events and news
+  - Information after LLM's knowledge cutoff date
+  - Real-time data (stock prices, weather, etc.)
+  - Fact-checking recent information
+
+**User Controls:**
+1. **Workspace Settings Sidebar**: Toggle "Web Search" checkbox (persistent setting)
+2. **Header Toggle**: Quick on/off toggle in chat header (syncs with workspace setting)
+3. Both controls update the same `workspace.use_web_search` database field
+
+**System Prompt Instructions:**
+- The system prompt is passed to the search agent but does NOT control when search happens
+- The LLM receives web search results as additional context in the prompt
+- No special instructions needed - LLM automatically uses web results when present
+
+**Future Improvements Needed:**
+- Implement intelligent search triggering based on query analysis
+- Add LLM-based decision: "Does this query need web search?"
+- Cache search results to avoid redundant searches
+- Add timeout/fallback for slow search responses
+- Consider streaming search results separately from LLM response
 
 ### 6. Document Management
 - **File Browser**: Upload, view, and manage documents per workspace

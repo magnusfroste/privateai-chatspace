@@ -34,6 +34,7 @@ export default function Chat() {
   const [showSettingsSidebar, setShowSettingsSidebar] = useState(false)
   const [settingsExpanded, setSettingsExpanded] = useState(false)
   const [useRag, setUseRag] = useState(true)
+  const [useWebSearch, setUseWebSearch] = useState(false)
   const [hasEmbeddedDocs, setHasEmbeddedDocs] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const chatInputRef = useRef<ChatInputHandle>(null)
@@ -49,8 +50,10 @@ export default function Chat() {
   useEffect(() => {
     if (currentWorkspace) {
       checkEmbeddedDocs()
+      setUseWebSearch(currentWorkspace.use_web_search || false)
     } else {
       setHasEmbeddedDocs(false)
+      setUseWebSearch(false)
     }
   }, [currentWorkspace?.id])
 
@@ -96,6 +99,22 @@ export default function Chat() {
 
   const handleAttachNoteToChat = (content: string) => {
     chatInputRef.current?.setMessage(content)
+  }
+
+  const handleToggleWebSearch = async () => {
+    if (!currentWorkspace) return
+    
+    const newValue = !useWebSearch
+    setUseWebSearch(newValue)
+    
+    try {
+      await api.workspaces.update(currentWorkspace.id, {
+        use_web_search: newValue
+      })
+    } catch (err) {
+      console.error('Failed to update web search setting:', err)
+      setUseWebSearch(!newValue)
+    }
   }
 
   const handleSend = async (content: string, files?: File[]) => {
@@ -318,6 +337,15 @@ export default function Chat() {
                     RAG
                   </label>
                 )}
+                <label className="flex items-center gap-2 text-sm text-dark-400 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={useWebSearch}
+                    onChange={handleToggleWebSearch}
+                    className="w-4 h-4 rounded bg-dark-700 border-dark-600"
+                  />
+                  Web Search
+                </label>
                 <button
                   onClick={() => setShowNotes(!showNotes)}
                   className={`p-2 hover:bg-dark-700 rounded-lg transition-colors ${
