@@ -10,7 +10,8 @@ import WorkspaceSettingsSidebar from '../components/WorkspaceSettingsSidebar'
 import DocumentManager from '../components/DocumentManager'
 import NotesSidebar from '../components/NotesSidebar'
 import DocumentsSidebar from '../components/DocumentsSidebar'
-import { Settings, Database, X, StickyNote } from 'lucide-react'
+import { HelpModal } from '../components/HelpModal'
+import { Settings, Database, X, StickyNote, HelpCircle } from 'lucide-react'
 
 interface Message {
   id: number
@@ -33,6 +34,7 @@ export default function Chat() {
   const [docsRefreshTrigger] = useState(0)
   const [showSettingsSidebar, setShowSettingsSidebar] = useState(false)
   const [settingsExpanded, setSettingsExpanded] = useState(false)
+  const [showHelpModal, setShowHelpModal] = useState(false)
   const [useRag, setUseRag] = useState(true)
   const [useWebSearch, setUseWebSearch] = useState(false)
   const [hasEmbeddedDocs, setHasEmbeddedDocs] = useState(false)
@@ -377,6 +379,13 @@ export default function Chat() {
                 >
                   <Settings className="w-5 h-5" />
                 </button>
+                <button
+                  onClick={() => setShowHelpModal(true)}
+                  className="p-2 hover:bg-dark-700 rounded-lg transition-colors text-dark-400 hover:text-white"
+                  title="Help & Guide"
+                >
+                  <HelpCircle className="w-5 h-5" />
+                </button>
               </div>
             </header>
 
@@ -511,6 +520,11 @@ export default function Chat() {
           rightOffset={0}
         />
       )}
+
+      <HelpModal
+        isOpen={showHelpModal}
+        onClose={() => setShowHelpModal(false)}
+      />
     </div>
   )
 }

@@ -1,8 +1,8 @@
-# AutoVersio - Product Requirements Document
+# Chatspace - Product Requirements Document
 
 ## Executive Summary
 
-AutoVersio is an AI-driven chat application built for teams that need sophisticated document management and intelligent search. The system combines Retrieval-Augmented Generation (RAG), hybrid vector search, and external search agents to provide users with access to both private documents and real-time web information.
+Chatspace is an AI-driven chat application built for teams that need sophisticated document management and intelligent search. The system combines Retrieval-Augmented Generation (RAG), hybrid vector search, and external search agents to provide users with access to both private documents and real-time web information.
 
 ## Core Features
 
@@ -460,6 +460,6 @@ The application includes health check endpoints to verify service connectivity:
 
 ## Conclusion
 
-AutoVersio provides a complete, production-ready LLM chat application with advanced RAG capabilities, web search integration, and sophisticated document management. The modular architecture supports various LLM and embedding services while maintaining a clean, user-friendly interface focused on productivity and ease of use.
+Chatspace provides a complete, production-ready LLM chat application with advanced RAG capabilities, web search integration, and sophisticated document management. The modular architecture supports various LLM and embedding services while maintaining a clean, user-friendly interface focused on productivity and ease of use.
 
 **Implementation Status**: All core features implemented and tested, successfully deployed with remote LLM, embedding, vector database, and web search services integration.
