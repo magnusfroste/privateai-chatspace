@@ -24,6 +24,7 @@ export default function Chat() {
   const [showSettings, setShowSettings] = useState(false)
   const [showDocuments, setShowDocuments] = useState(false)
   const [showNotes, setShowNotes] = useState(false)
+  const [notesExpanded, setNotesExpanded] = useState(false)
   const [useRag, setUseRag] = useState(true)
   const [hasEmbeddedDocs, setHasEmbeddedDocs] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -265,11 +266,16 @@ export default function Chat() {
     }
   }
 
+  const notesWidth = showNotes ? (notesExpanded ? 800 : 256) : 0
+
   return (
     <div className="flex h-screen bg-dark-900">
       <Sidebar />
 
-      <div className="flex-1 flex flex-col">
+      <div 
+        className="flex-1 flex flex-col transition-all duration-300"
+        style={{ marginRight: `${notesWidth}px` }}
+      >
         {currentWorkspace ? (
           <>
             <header className="h-14 border-b border-dark-700 flex items-center justify-between px-4">
@@ -421,6 +427,8 @@ export default function Chat() {
         <NotesSidebar
           workspaceId={currentWorkspace.id}
           isOpen={showNotes}
+          isExpanded={notesExpanded}
+          onToggleExpand={() => setNotesExpanded(!notesExpanded)}
           onClose={() => setShowNotes(false)}
         />
       )}
