@@ -315,9 +315,13 @@ export default function Chat() {
                   </label>
                 )}
                 <button
-                  onClick={() => setShowDocsSidebar(true)}
+                  onClick={() => setShowDocsSidebar(!showDocsSidebar)}
                   className={`p-2 hover:bg-dark-700 rounded-lg transition-colors ${
-                    hasEmbeddedDocs ? 'text-green-400' : 'text-dark-400 hover:text-white'
+                    showDocsSidebar 
+                      ? 'bg-dark-700 text-white' 
+                      : hasEmbeddedDocs 
+                        ? 'text-green-400' 
+                        : 'text-dark-400 hover:text-white'
                   }`}
                   title={hasEmbeddedDocs ? 'Documents (embedded)' : 'Documents'}
                 >
@@ -331,8 +335,10 @@ export default function Chat() {
                   <Settings className="w-5 h-5" />
                 </button>
                 <button
-                  onClick={() => setShowNotes(true)}
-                  className="p-2 text-dark-400 hover:text-white hover:bg-dark-700 rounded-lg transition-colors"
+                  onClick={() => setShowNotes(!showNotes)}
+                  className={`p-2 hover:bg-dark-700 rounded-lg transition-colors ${
+                    showNotes ? 'bg-dark-700 text-white' : 'text-dark-400 hover:text-white'
+                  }`}
                   title="Notes"
                 >
                   <StickyNote className="w-5 h-5" />
