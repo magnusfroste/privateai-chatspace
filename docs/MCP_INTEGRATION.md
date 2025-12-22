@@ -41,7 +41,7 @@ User: "Explain quantum physics"
     "command": "npx",
     "args": ["-y", "firecrawl-mcp"],
     "env": {
-      "FIRECRAWL_API_KEY": "fc-c196d639f8b2490aa1971ad57299269e"
+      "FIRECRAWL_API_KEY": "api-key"
     }
   }
 }
