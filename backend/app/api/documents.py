@@ -245,6 +245,49 @@ async def embed_all_documents(
     return {"embedded": embedded_count, "total": len(documents), "errors": errors}
 
 
+@router.get("/{document_id}/download")
+async def download_document(
+    document_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    result = await db.execute(
+        select(Document).where(Document.id == document_id)
+    )
+    document = result.scalar_one_or_none()
+    
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    result = await db.execute(
+        select(Workspace).where(Workspace.id == document.workspace_id)
+    )
+    workspace = result.scalar_one_or_none()
+    
+    if current_user.role != "admin" and workspace.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    if not document.original_path or not os.path.exists(document.original_path):
+        raise HTTPException(status_code=404, detail="Original file not found")
+    
+    # Read file content
+    with open(document.original_path, "rb") as f:
+        file_content = f.read()
+    
+    # Determine content type based on file extension
+    content_type = "application/pdf" if document.original_filename.lower().endswith('.pdf') else "application/octet-stream"
+    
+    # Return file with inline disposition for viewing in browser
+    return Response(
+        content=file_content,
+        media_type=content_type,
+        headers={
+            "Content-Disposition": f"inline; filename=\"{document.original_filename}\"",
+            "Cache-Control": "private, max-age=3600"
+        }
+    )
+
+
 @router.get("/{document_id}/content")
 async def get_document_content(
     document_id: int,
