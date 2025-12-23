@@ -94,6 +94,27 @@ export default function DocumentsSidebar({ workspaceId, isOpen, isExpanded, onTo
     setDocContent('')
   }
 
+  const handleRetryEmbed = async (doc: Document) => {
+    setEmbeddingStatus(prev => ({ ...prev, [doc.id]: 'embedding' }))
+    try {
+      const embedPromise = api.documents.embed(doc.id)
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Embedding timeout')), 30000) // 30 second timeout
+      )
+      
+      const updated = await Promise.race([embedPromise, timeoutPromise])
+      setDocuments(prev => prev.map(d => d.id === updated.id ? updated : d))
+      setEmbeddingStatus(prev => ({ ...prev, [updated.id]: 'success' }))
+    } catch (err) {
+      console.error('Failed to embed document:', err)
+      setEmbeddingStatus(prev => ({ ...prev, [doc.id]: 'error' }))
+      const errorMsg = err.message?.includes('timeout') 
+        ? `Embedding timed out for ${doc.original_filename}. The document might be too large.`
+        : `Failed to embed ${doc.original_filename}. Please try again.`
+      alert(errorMsg)
+    }
+  }
+
   const handleUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return
     
@@ -108,16 +129,24 @@ export default function DocumentsSidebar({ workspaceId, isOpen, isExpanded, onTo
           // Add to documents list immediately
           setDocuments(prev => [uploadedDoc, ...prev])
           
-          // Automatically embed to RAG in background
+          // Automatically embed to RAG in background with timeout
           setEmbeddingStatus(prev => ({ ...prev, [uploadedDoc.id]: 'embedding' }))
-          api.documents.embed(uploadedDoc.id).then(updated => {
+          const embedPromise = api.documents.embed(uploadedDoc.id)
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Embedding timeout')), 30000) // 30 second timeout
+          )
+          
+          Promise.race([embedPromise, timeoutPromise]).then(updated => {
             setDocuments(prev => prev.map(d => d.id === updated.id ? updated : d))
             setEmbeddingStatus(prev => ({ ...prev, [updated.id]: 'success' }))
           }).catch(err => {
             console.error('Failed to embed document:', err)
             setEmbeddingStatus(prev => ({ ...prev, [uploadedDoc.id]: 'error' }))
             // Show error notification to user
-            alert(`Failed to embed ${uploadedDoc.original_filename}. You can try again by clicking the retry button.`)
+            const errorMsg = err.message?.includes('timeout') 
+              ? `Embedding timed out for ${uploadedDoc.original_filename}. The document might be too large.`
+              : `Failed to embed ${uploadedDoc.original_filename}. You can try again by clicking the retry button.`
+            alert(errorMsg)
           })
         } catch (err) {
           console.error(`Failed to upload ${file.name}:`, err)
