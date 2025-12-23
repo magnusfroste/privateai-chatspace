@@ -135,12 +135,28 @@ async def embed_document(
         
         print(f"Embedding document {document_id}: {len(chunks)} chunks")
         
-        await rag_service.add_document(
-            workspace_id=document.workspace_id,
-            document_id=document.id,
-            chunks=chunks,
-            metadata={"filename": document.original_filename}
-        )
+        # Handle large documents in batches to avoid timeouts
+        batch_size = 50  # Process 50 chunks at a time
+        if len(chunks) > batch_size:
+            print(f"Large document detected ({len(chunks)} chunks), processing in batches of {batch_size}")
+            for i in range(0, len(chunks), batch_size):
+                batch_chunks = chunks[i:i + batch_size]
+                batch_metadata = {"filename": document.original_filename, "batch": f"{i//batch_size + 1}/{(len(chunks) + batch_size - 1)//batch_size}"}
+                await rag_service.add_document(
+                    workspace_id=document.workspace_id,
+                    document_id=document.id,
+                    chunks=batch_chunks,
+                    metadata=batch_metadata
+                )
+                print(f"Embedded batch {i//batch_size + 1} for document {document_id}")
+        else:
+            # Small document, process all at once
+            await rag_service.add_document(
+                workspace_id=document.workspace_id,
+                document_id=document.id,
+                chunks=chunks,
+                metadata={"filename": document.original_filename}
+            )
         
         document.is_embedded = True
         document.embedded_at = datetime.utcnow()
@@ -192,12 +208,28 @@ async def embed_all_documents(
             
             print(f"Embedding document {document.id}: {len(chunks)} chunks")
             
-            await rag_service.add_document(
-                workspace_id=workspace_id,
-                document_id=document.id,
-                chunks=chunks,
-                metadata={"filename": document.original_filename}
-            )
+            # Handle large documents in batches to avoid timeouts
+            batch_size = 50  # Process 50 chunks at a time
+            if len(chunks) > batch_size:
+                print(f"Large document detected ({len(chunks)} chunks), processing in batches of {batch_size}")
+                for i in range(0, len(chunks), batch_size):
+                    batch_chunks = chunks[i:i + batch_size]
+                    batch_metadata = {"filename": document.original_filename, "batch": f"{i//batch_size + 1}/{(len(chunks) + batch_size - 1)//batch_size}"}
+                    await rag_service.add_document(
+                        workspace_id=workspace_id,
+                        document_id=document.id,
+                        chunks=batch_chunks,
+                        metadata=batch_metadata
+                    )
+                    print(f"Embedded batch {i//batch_size + 1} for document {document.id}")
+            else:
+                # Small document, process all at once
+                await rag_service.add_document(
+                    workspace_id=workspace_id,
+                    document_id=document.id,
+                    chunks=chunks,
+                    metadata={"filename": document.original_filename}
+                )
             
             document.is_embedded = True
             document.embedded_at = datetime.utcnow()

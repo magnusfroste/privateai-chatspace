@@ -164,7 +164,28 @@ export default function DocumentsSidebar({ workspaceId, isOpen, isExpanded, onTo
   }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleUpload(e.target.files)
+    const files = e.target.files
+    if (!files || files.length === 0) return
+    
+    // Check file sizes before upload
+    const maxSizeBytes = 50 * 1024 * 1024 // 50MB limit
+    const largeFiles = Array.from(files).filter(file => file.size > maxSizeBytes)
+    
+    if (largeFiles.length > 0) {
+      const largeFileNames = largeFiles.map(f => f.name).join(', ')
+      const shouldProceed = confirm(
+        `Warning: The following files are larger than 50MB and may fail to embed:\n${largeFileNames}\n\nLarge documents can take a long time to process and may timeout. Do you want to upload them anyway?`
+      )
+      if (!shouldProceed) {
+        // Clear file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ''
+        }
+        return
+      }
+    }
+    
+    handleUpload(files)
   }
 
   if (!isOpen) return null
