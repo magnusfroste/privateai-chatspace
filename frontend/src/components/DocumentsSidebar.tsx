@@ -89,17 +89,9 @@ export default function DocumentsSidebar({ workspaceId, isOpen, isExpanded, onTo
     document.body.removeChild(link)
   }
 
-  const handleRetryEmbed = async (doc: Document) => {
-    setEmbeddingStatus(prev => ({ ...prev, [doc.id]: 'embedding' }))
-    try {
-      const updated = await api.documents.embed(doc.id)
-      setDocuments(prev => prev.map(d => d.id === updated.id ? updated : d))
-      setEmbeddingStatus(prev => ({ ...prev, [updated.id]: 'success' }))
-    } catch (err) {
-      console.error('Failed to embed document:', err)
-      setEmbeddingStatus(prev => ({ ...prev, [doc.id]: 'error' }))
-      alert(`Failed to embed ${doc.original_filename}. Please try again.`)
-    }
+  const closeViewer = () => {
+    setViewingDoc(null)
+    setDocContent('')
   }
 
   const handleUpload = async (files: FileList | null) => {
