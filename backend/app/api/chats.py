@@ -229,11 +229,27 @@ async def send_message(
             context_parts = []
             seen_files = {}
             for i, r in enumerate(rag_results, 1):
-                filename = r.get("filename", "Unknown")
+                filename = r.get("filename", "")
+                # If filename is empty, get it from database using document_id
+                if not filename:
+                    doc_id = r.get("document_id")
+                    if doc_id:
+                        doc_result = await db.execute(
+                            select(Document).where(Document.id == doc_id)
+                        )
+                        doc = doc_result.scalar_one_or_none()
+                        if doc:
+                            filename = doc.original_filename
+                        else:
+                            filename = f"Document {doc_id}"
+                    else:
+                        filename = "Unknown"
+                
                 if filename not in seen_files:
                     seen_files[filename] = len(seen_files) + 1
                 source_num = seen_files[filename]
-                context_parts.append(f"[{source_num}] {r['content']}")
+                # Include filename in context so LLM knows what to cite
+                context_parts.append(f"[{source_num}] (Source: {filename})\n{r['content']}")
                 if filename not in [s["filename"] for s in rag_sources]:
                     rag_sources.append({"num": source_num, "filename": filename, "type": "rag"})
             rag_context = "\n\n---\n\n".join(context_parts)
@@ -478,11 +494,27 @@ async def send_message_with_files(
             context_parts = []
             seen_files = {}
             for i, r in enumerate(rag_results, 1):
-                filename = r.get("filename", "Unknown")
+                filename = r.get("filename", "")
+                # If filename is empty, get it from database using document_id
+                if not filename:
+                    doc_id = r.get("document_id")
+                    if doc_id:
+                        doc_result = await db.execute(
+                            select(Document).where(Document.id == doc_id)
+                        )
+                        doc = doc_result.scalar_one_or_none()
+                        if doc:
+                            filename = doc.original_filename
+                        else:
+                            filename = f"Document {doc_id}"
+                    else:
+                        filename = "Unknown"
+                
                 if filename not in seen_files:
                     seen_files[filename] = len(seen_files) + 1
                 source_num = seen_files[filename]
-                context_parts.append(f"[{source_num}] {r['content']}")
+                # Include filename in context so LLM knows what to cite
+                context_parts.append(f"[{source_num}] (Source: {filename})\n{r['content']}")
                 if filename not in [s["filename"] for s in rag_sources]:
                     rag_sources.append({"num": source_num, "filename": filename, "type": "rag"})
             rag_context = "\n\n---\n\n".join(context_parts)

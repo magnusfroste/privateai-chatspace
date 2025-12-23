@@ -17,7 +17,7 @@ interface Message {
   id: number
   role: 'user' | 'assistant'
   content: string
-  sources?: Array<{ num: number; filename: string }>
+  sources?: Array<{ num: number; filename?: string; title?: string; url?: string; type: 'rag' | 'web' }>
 }
 
 export default function Chat() {
@@ -225,6 +225,7 @@ export default function Chat() {
           }
         }
       }
+      
     } catch (err) {
       console.error('Failed to send message:', err)
     } finally {
@@ -298,6 +299,15 @@ export default function Chat() {
                   prev.map((msg) =>
                     msg.id === assistantMessage.id
                       ? { ...msg, content: msg.content + data.content }
+                      : msg
+                  )
+                )
+              }
+              if (data.sources) {
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === assistantMessage.id
+                      ? { ...msg, sources: data.sources }
                       : msg
                   )
                 )

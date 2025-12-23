@@ -86,11 +86,8 @@ class LLMService:
                     "IMPORTANT: The following contains CURRENT web search results that are MORE UP-TO-DATE than your training data. "
                     "You MUST base your answer on this information. Do NOT use your own knowledge about current events - use ONLY the provided search results. "
                     "Summarize and present the information from the search results in a clear, helpful way.\n\n"
-                    "FORMAT INSTRUCTIONS:\n"
-                    "- At the END of your response, add a '---' separator followed by a 'Källor:' (Sources) section\n"
-                    "- List the sources mentioned in the search results\n"
-                    "- Use format: 🔍 **[Source Name]** - brief description\n"
-                    "- This helps users know the information came from web search\n\n"
+                    "Use inline citations like [1], [2] when referencing specific information from the sources.\n"
+                    "DO NOT add a sources section at the end - the system will display sources automatically.\n\n"
                     + rag_context
                 )
             else:
@@ -100,9 +97,7 @@ class LLMService:
                     "INSTRUCTIONS:\n"
                     "- Base your answer primarily on the provided context\n"
                     "- Use inline citations like [1], [2] when referencing specific information\n"
-                    "- At the END of your response, add a '---' separator followed by a 'Källor:' (Sources) section\n"
-                    "- List each source with format: 📄 **[1]** filename.pdf\n"
-                    "- Only cite sources you actually used in your answer\n"
+                    "- DO NOT add a sources/källor section at the end - the system will display sources automatically\n"
                     "- If the context doesn't contain relevant information, you may use your general knowledge but mention this\n\n"
                     "CONTEXT:\n" + rag_context
                 )
