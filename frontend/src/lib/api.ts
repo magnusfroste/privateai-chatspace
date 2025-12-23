@@ -54,7 +54,7 @@ export interface Note {
 
 async function fetchApi<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit & { signal?: AbortSignal } = {}
 ): Promise<T> {
   const token = useAuthStore.getState().token
   
