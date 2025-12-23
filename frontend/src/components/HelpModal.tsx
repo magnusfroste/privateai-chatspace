@@ -77,9 +77,9 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
 const OverviewSection = () => (
   <div className="space-y-6 text-gray-300">
     <div>
-      <h3 className="text-xl font-bold text-white mb-4">Välkommen till Chatspace! 👋</h3>
+      <h3 className="text-xl font-bold text-white mb-4">Välkommen till Autoversio! 👋</h3>
       <p className="mb-4">
-        Chatspace är din privata AI-assistent som hjälper dig att chatta med dina dokument
+        Autoversio är din privata AI-assistent som hjälper dig att chatta med dina dokument
         och få svar baserat på din egen kunskap. Allt stannar på era egna servrar.
       </p>
     </div>
@@ -239,7 +239,7 @@ const SearchSection = () => (
           <h4 className="text-lg font-semibold text-white">Hybrid-sökning (Standard)</h4>
         </div>
         <p className="text-sm">
-          <strong>Bäst av båda världar!</strong> Chatspace kombinerar båda metoderna automatiskt
+          <strong>Bäst av båda världar!</strong> Autoversio kombinerar båda metoderna automatiskt
           för att ge dig de bästa resultaten. ✨
         </p>
       </div>
@@ -417,7 +417,8 @@ const FAQSection = () => (
       <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
         <h4 className="text-base font-semibold text-white mb-2">Kan jag dela workspaces med kollegor?</h4>
         <p className="text-sm text-gray-400">
-          Ja, alla i er organisation kan se och använda workspaces.
+          Nej, dina workspaces är privata. Bara du och administratörer kan se dina workspaces. 
+          Detta säkerställer att din data förblir konfidentiell.
         </p>
       </div>
     </div>

@@ -1,11 +1,11 @@
-# Privateai-chatspace
+# Autoversio
 
 A modern, self-hosted LLM chat application with RAG (Retrieval-Augmented Generation) support. Successfully deployed on Easypanel with remote LLM and embedding services integration. Inspired by AnythingLLM and OpenWebUI, but simpler and focused on quality functionality.
 
 ## Features
 
 - **Grok-like Chat UI** - Clean, dark-themed interface with streaming responses
-- **Workspaces** - Organize chats by topic/department with custom system prompts
+- **Private Workspaces** - Organize chats by topic/department with custom system prompts (private to owner + admins)
 - **RAG Support** - Upload documents, convert to markdown, embed to Qdrant
 - **File Upload** - PDF, DOCX, TXT, MD support with automatic conversion
 - **Admin Panel** - User management, chat logs for debugging/development

@@ -1,8 +1,8 @@
-# Chatspace - Product Requirements Document
+# Autoversio - Product Requirements Document
 
 ## Executive Summary
 
-Chatspace is an AI-driven chat application built for teams that need sophisticated document management and intelligent search. The system combines Retrieval-Augmented Generation (RAG), hybrid vector search, and external search agents to provide users with access to both private documents and real-time web information.
+Autoversio is an AI-driven chat application built for teams that need sophisticated document management and intelligent search. The system combines Retrieval-Augmented Generation (RAG), hybrid vector search, and external search agents to provide users with access to both private documents and real-time web information.
 
 ## Core Features
 
@@ -286,7 +286,10 @@ All settings can be configured via environment variables in Easypanel or `.env` 
 ### Planned Features
 - Multiple LLM provider support (Anthropic, Google, etc.)
 - Chat export/import functionality
-- Shared workspaces between users
+- **Workspace Sharing** (under consideration):
+  - Current: Workspaces are private (owner + admins only)
+  - Potential: Share with specific users or teams
+  - Considerations: Permissions, access control, audit logs
 - Advanced document processing (Docling integration)
 - Paperless integration for document import
 - Voice input/output
@@ -460,6 +463,6 @@ The application includes health check endpoints to verify service connectivity:
 
 ## Conclusion
 
-Chatspace provides a complete, production-ready LLM chat application with advanced RAG capabilities, web search integration, and sophisticated document management. The modular architecture supports various LLM and embedding services while maintaining a clean, user-friendly interface focused on productivity and ease of use.
+Application provides a complete, production-ready LLM chat application with advanced RAG capabilities, web search integration, and sophisticated document management. The modular architecture supports various LLM and embedding services while maintaining a clean, user-friendly interface focused on productivity and ease of use.
 
 **Implementation Status**: All core features implemented and tested, successfully deployed with remote LLM, embedding, vector database, and web search services integration.

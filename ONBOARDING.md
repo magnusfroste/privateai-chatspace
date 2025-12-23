@@ -1,12 +1,12 @@
-# Chatspace - Onboarding för nya användare
+# Autoversio - Onboarding för nya användare
 
 ## Välkomstmeddelande (Första inloggningen)
 
 ### Steg 1: Välkommen! 👋
 ```
-Välkommen till Chatspace - din privata AI-assistent!
+Välkommen till Autoversio - din privata AI-assistent!
 
-Chatspace hjälper dig att:
+Autoversio hjälper dig att:
 ✅ Chatta med dina dokument
 ✅ Få svar baserat på er egen kunskap
 ✅ Hålla allt säkert på era egna servrar
@@ -215,7 +215,7 @@ Behöver du hjälp? Klicka på "?" i menyn!
 
 ## Checklista för IT-admin
 
-När ni rullar ut Chatspace till användare:
+När ni rullar ut Autoversio till användare:
 
 - [ ] Skicka länk till USER_GUIDE.md
 - [ ] Skicka länk till QUICK_REFERENCE.md
@@ -223,7 +223,7 @@ När ni rullar ut Chatspace till användare:
 - [ ] Förbered exempel-workspace med testdokument
 - [ ] Skapa FAQ baserad på era specifika användningsfall
 - [ ] Boka intro-session för teamet (30 min)
-- [ ] Utse "Chatspace-champion" i varje team
+- [ ] Utse "Autoversio-champion" i varje team
 - [ ] Samla feedback första veckan
 
 ---

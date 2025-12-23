@@ -1,8 +1,8 @@
-# Chatspace - Användarguide
+# Autoversio - Användarguide
 
-## Välkommen till Chatspace! 👋
+## Välkommen till Autoversio! 👋
 
-Chatspace är din privata AI-assistent som hjälper dig att chatta med dina dokument och få svar baserat på din egen kunskap. Allt stannar på era egna servrar - ingen data lämnar er miljö.
+Autoversio är din privata AI-assistent som hjälper dig att chatta med dina dokument och få svar baserat på din egen kunskap. Allt stannar på era egna servrar - ingen data lämnar er miljö.
 
 ---
 
@@ -105,7 +105,7 @@ När AI:n söker i dina dokument använder den **två olika metoder samtidigt** 
 
 ### 🎯 Hybrid-sökning (Standard)
 **Bäst av båda världar!**
-Chatspace kombinerar båda metoderna automatiskt för att ge dig de bästa resultaten.
+Autoversio kombinerar båda metoderna automatiskt för att ge dig de bästa resultaten.
 
 ---
 
@@ -199,7 +199,7 @@ Bara dokument i det workspace du chattar i. Varje workspace är isolerat.
 Ja! Allt körs på era egna servrar. Ingen data skickas till externa tjänster.
 
 ### Kan jag dela workspaces med kollegor?
-Ja, alla i er organisation kan se och använda workspaces.
+Nej, dina workspaces är privata. Bara du och administratörer kan se dina workspaces. Detta säkerställer att din data förblir konfidentiell.
 
 ---
 
@@ -212,6 +212,6 @@ Kontakta er IT-avdelning eller systemadministratör för:
 
 ---
 
-**Lycka till med Chatspace!** 🚀
+**Lycka till med Autoversio!** 🚀
 
 *Privat AI för ditt team - säkert, smart och enkelt.*
