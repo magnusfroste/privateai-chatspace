@@ -357,6 +357,10 @@ async def send_message(
                     full_response += chunk
                     yield f"data: {json.dumps({'content': chunk})}\n\n"
             
+            # Send sources/citations if available
+            if rag_sources:
+                yield f"data: {json.dumps({'sources': rag_sources})}\n\n"
+            
             yield f"data: {json.dumps({'done': True})}\n\n"
             
             async with db.begin():

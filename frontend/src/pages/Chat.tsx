@@ -17,6 +17,7 @@ interface Message {
   id: number
   role: 'user' | 'assistant'
   content: string
+  sources?: Array<{ num: number; filename: string }>
 }
 
 export default function Chat() {
@@ -197,6 +198,19 @@ export default function Chat() {
                     updated[lastIndex] = {
                       ...updated[lastIndex],
                       content: updated[lastIndex].content + data.content
+                    }
+                  }
+                  return updated
+                })
+              }
+              if (data.sources) {
+                setMessages((prev) => {
+                  const updated = [...prev]
+                  const lastIndex = updated.length - 1
+                  if (updated[lastIndex]?.role === 'assistant') {
+                    updated[lastIndex] = {
+                      ...updated[lastIndex],
+                      sources: data.sources
                     }
                   }
                   return updated
@@ -407,6 +421,7 @@ export default function Chat() {
                         key={msg.id}
                         role={msg.role}
                         content={msg.content}
+                        sources={msg.sources}
                         onSendToNotes={msg.role === 'assistant' ? handleSendToNotes : undefined}
                       />
                     ))

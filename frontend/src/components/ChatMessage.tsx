@@ -2,11 +2,12 @@ import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
-import { Copy, Check, ChevronDown, ChevronUp, Globe, ExternalLink, StickyNote } from 'lucide-react'
+import { Copy, Check, ChevronDown, ChevronUp, Globe, StickyNote } from 'lucide-react'
 
 interface ChatMessageProps {
   role: 'user' | 'assistant'
   content: string
+  sources?: Array<{ num: number; filename: string }>
   onSendToNotes?: (content: string) => void
 }
 
@@ -92,39 +93,10 @@ function UserMessage({ content }: { content: string }) {
   )
 }
 
-function SourcesSection({ sources }: { sources: string }) {
-  const lines = sources.split('\n').filter(line => line.trim())
-  
-  return (
-    <div className="mt-4 pt-3 border-t border-dark-700">
-      <div className="flex items-center gap-2 text-xs text-dark-400 mb-2">
-        <Globe className="w-3.5 h-3.5" />
-        <span className="font-medium uppercase tracking-wide">Källor</span>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {lines.map((line, idx) => {
-          const cleanLine = line.replace(/^[🔍\-\*•]\s*/, '').trim()
-          if (!cleanLine) return null
-          
-          return (
-            <div
-              key={idx}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-dark-800 hover:bg-dark-700 rounded-full text-xs text-dark-300 transition-colors cursor-default"
-            >
-              <ExternalLink className="w-3 h-3 text-dark-500" />
-              <span>{cleanLine}</span>
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
-
-export default function ChatMessage({ role, content, onSendToNotes }: ChatMessageProps) {
+export default function ChatMessage({ role, content, sources, onSendToNotes }: ChatMessageProps) {
+  const isUser = role === 'user'
   const [copied, setCopied] = useState(false)
   const [sentToNotes, setSentToNotes] = useState(false)
-  const isUser = role === 'user'
 
   const handleCopyMessage = async () => {
     await navigator.clipboard.writeText(content)
@@ -137,24 +109,6 @@ export default function ChatMessage({ role, content, onSendToNotes }: ChatMessag
       onSendToNotes(content)
       setSentToNotes(true)
       setTimeout(() => setSentToNotes(false), 2000)
-    }
-  }
-
-  // Split content into main content and sources section
-  const hasSourcesSection = content.includes('---') && content.toLowerCase().includes('källor')
-  let mainContent = content
-  let sourcesContent = ''
-  
-  if (hasSourcesSection) {
-    const parts = content.split(/\n---\n/)
-    if (parts.length >= 2) {
-      mainContent = parts[0]
-      // Find the Källor section in remaining parts
-      const sourcePart = parts.slice(1).join('\n---\n')
-      const källorMatch = sourcePart.match(/källor[:\s]*([\s\S]*)/i)
-      if (källorMatch) {
-        sourcesContent = källorMatch[1].trim()
-      }
     }
   }
 
@@ -199,14 +153,31 @@ export default function ChatMessage({ role, content, onSendToNotes }: ChatMessag
                     ),
                   }}
                 >
-                  {mainContent}
+                  {content}
                 </ReactMarkdown>
               ) : (
                 <span className="inline-block w-2 h-4 bg-dark-400 animate-pulse" />
               )}
             </div>
             
-            {sourcesContent && <SourcesSection sources={sourcesContent} />}
+            {sources && sources.length > 0 && (
+              <div className="mt-4 pt-3 border-t border-dark-700">
+                <div className="flex items-center gap-2 text-xs text-dark-400 mb-2">
+                  <Globe className="w-3.5 h-3.5" />
+                  <span className="font-medium uppercase tracking-wide">Källor (RAG)</span>
+                </div>
+                <div className="space-y-1">
+                  {sources.map((source) => (
+                    <div key={source.num} className="flex items-start gap-2 text-xs text-dark-400">
+                      <span className="flex-shrink-0 w-5 h-5 bg-dark-700 rounded flex items-center justify-center text-dark-300 font-medium">
+                        {source.num}
+                      </span>
+                      <span className="flex-1">{source.filename}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             
             {content && (
               <div className="mt-2 opacity-0 group-hover:opacity-100 flex items-center gap-3">
