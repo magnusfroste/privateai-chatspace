@@ -84,14 +84,6 @@ class DocumentService:
             except Exception as e:
                 print(f"Docling API failed, falling back to PyPDF2: {e}")
         
-        elif self.pdf_provider == "docling":
-            try:
-                result = await self._convert_pdf_with_docling(path)
-                if result and not result.startswith("Error"):
-                    return result
-            except Exception as e:
-                print(f"Docling failed, falling back to PyPDF2: {e}")
-        
         elif self.pdf_provider == "marker-api" and self.ocr_service_url:
             try:
                 result = await self._convert_pdf_with_marker(path)
@@ -132,27 +124,6 @@ class DocumentService:
                     return f"Error converting PDF with Docling API: {errors}"
         except Exception as e:
             return f"Error converting PDF with Docling API: {e}"
-    
-    async def _convert_pdf_with_docling(self, path: Path) -> str:
-        """Convert PDF to markdown using Docling (local processing with advanced PDF understanding)"""
-        try:
-            from docling.document_converter import DocumentConverter
-            
-            if self._docling_converter is None:
-                self._docling_converter = DocumentConverter()
-            
-            loop = asyncio.get_event_loop()
-            result = await loop.run_in_executor(
-                None,
-                lambda: self._docling_converter.convert(str(path))
-            )
-            
-            markdown = result.document.export_to_markdown()
-            return markdown
-        except ImportError:
-            return "Error: Docling not installed. Install with: pip install docling"
-        except Exception as e:
-            return f"Error converting PDF with Docling: {e}"
     
     async def _convert_pdf_with_marker(self, path: Path) -> str:
         """Convert PDF to markdown using Marker API (supports OCR)"""

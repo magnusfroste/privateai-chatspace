@@ -423,21 +423,6 @@ async def test_pdf_provider(
                 "error": str(e)
             }
     
-    elif provider == "docling":
-        try:
-            from docling.document_converter import DocumentConverter
-            return {
-                "status": "available",
-                "provider": "docling",
-                "message": "Docling is installed and ready for advanced PDF processing"
-            }
-        except ImportError:
-            return {
-                "status": "error",
-                "provider": "docling",
-                "error": "Docling not installed. Run: pip install docling"
-            }
-    
     elif provider == "marker-api":
         if not settings.OCR_SERVICE_URL:
             return {

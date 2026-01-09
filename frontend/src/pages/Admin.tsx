@@ -351,7 +351,6 @@ export default function Admin() {
                           <span className="font-medium text-white">
                             {testResults.pdfProvider?.provider === 'docling-api' ? 'Docling API' :
                              testResults.pdfProvider?.provider === 'marker-api' ? 'Marker API' :
-                             testResults.pdfProvider?.provider === 'docling' ? 'Docling (Local)' :
                              testResults.pdfProvider?.provider === 'pypdf2' ? 'PyPDF2' : 'PDF Provider'}
                           </span>
                         </div>
