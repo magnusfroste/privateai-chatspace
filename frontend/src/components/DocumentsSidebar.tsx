@@ -22,6 +22,7 @@ interface DocumentsSidebarProps {
   onClose: () => void
   refreshTrigger?: number
   rightOffset?: number
+  onDocumentChange?: () => void
 }
 
 interface DocStats {
@@ -33,7 +34,7 @@ interface DocStats {
   lists?: number
 }
 
-export default function DocumentsSidebar({ workspaceId, isOpen, isExpanded, onToggleExpand, onClose, refreshTrigger, rightOffset = 0 }: DocumentsSidebarProps) {
+export default function DocumentsSidebar({ workspaceId, isOpen, isExpanded, onToggleExpand, onClose, refreshTrigger, rightOffset = 0, onDocumentChange }: DocumentsSidebarProps) {
   const [documents, setDocuments] = useState<Document[]>([])
   const [loading, setLoading] = useState(true)
   const [viewingDoc, setViewingDoc] = useState<Document | null>(null)
@@ -71,9 +72,10 @@ export default function DocumentsSidebar({ workspaceId, isOpen, isExpanded, onTo
         setViewingDoc(null)
         setDocContent('')
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to delete document:', err)
-      showToast('Failed to delete document', 'error')
+      const errorMsg = err?.message || 'Failed to delete document'
+      showToast(errorMsg, 'error')
     }
   }
 
@@ -147,6 +149,8 @@ export default function DocumentsSidebar({ workspaceId, isOpen, isExpanded, onTo
       const updated = await api.documents.embed(doc.id)
       setDocuments(prev => prev.map(d => d.id === updated.id ? updated : d))
       setEmbeddingStatus(prev => ({ ...prev, [updated.id]: 'success' }))
+      // Notify parent that document changed (for RAG icon update)
+      onDocumentChange?.()
     } catch (err: any) {
       console.error('Failed to embed document:', err)
       setEmbeddingStatus(prev => ({ ...prev, [doc.id]: 'error' }))
@@ -179,6 +183,8 @@ export default function DocumentsSidebar({ workspaceId, isOpen, isExpanded, onTo
             setDocuments(prev => prev.map(d => d.id === (updated as Document).id ? (updated as Document) : d))
             setEmbeddingStatus(prev => ({ ...prev, [(updated as Document).id]: 'success' }))
             showToast(`${(updated as Document).original_filename} ready for RAG`, 'success')
+            // Notify parent that document changed (for RAG icon update)
+            onDocumentChange?.()
           }).catch(err => {
             console.error('Failed to embed document:', err)
             setEmbeddingStatus(prev => ({ ...prev, [uploadedDoc.id]: 'error' }))

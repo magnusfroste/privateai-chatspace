@@ -407,6 +407,8 @@ async def delete_document(
     if current_user.role != "admin" and workspace.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Access denied")
     
+    print(f"Deleting document {document_id}, is_embedded={document.is_embedded}")
+    
     if document.is_embedded:
         await rag_service.delete_document(document.workspace_id, document.id)
     
@@ -418,7 +420,67 @@ async def delete_document(
     return {"status": "deleted"}
 
 
-@router.get("/{document_id}/stats")
+@router.post("/{document_id}/qdrant-cleanup")
+async def cleanup_qdrant_points(
+    document_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Manually clean up Qdrant points for a document (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin only")
+    
+    result = await db.execute(
+        select(Document).where(Document.id == document_id)
+    )
+    document = result.scalar_one_or_none()
+    
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    # Check points before cleanup
+    before_points = await rag_service.get_document_points(document.workspace_id, document.id)
+    
+    # Force cleanup
+    await rag_service.delete_document(document.workspace_id, document.id)
+    
+    # Check points after cleanup
+    after_points = await rag_service.get_document_points(document.workspace_id, document.id)
+    
+    return {
+        "document_id": document_id,
+        "workspace_id": document.workspace_id,
+        "points_before": len(before_points),
+        "points_after": len(after_points),
+        "cleaned": len(before_points) - len(after_points)
+    }
+async def debug_qdrant_points(
+    document_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Debug endpoint to check Qdrant points for a document (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin only")
+    
+    result = await db.execute(
+        select(Document).where(Document.id == document_id)
+    )
+    document = result.scalar_one_or_none()
+    
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    # Check Qdrant points
+    points = await rag_service.get_document_points(document.workspace_id, document.id)
+    
+    return {
+        "document_id": document_id,
+        "workspace_id": document.workspace_id,
+        "is_embedded": document.is_embedded,
+        "qdrant_points_count": len(points),
+        "points": points[:5] if points else []  # Show first 5 points
+    }
 async def get_document_stats(
     document_id: int,
     db: AsyncSession = Depends(get_db),

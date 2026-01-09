@@ -1,5 +1,5 @@
 from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams, PointStruct, SparseVectorParams, SparseVector, Modifier, NamedVector, NamedSparseVector, Fusion, FusionQuery, Query
+from qdrant_client.models import Distance, VectorParams, PointStruct, SparseVectorParams, SparseVector, Modifier, NamedVector, NamedSparseVector, Fusion, FusionQuery, Query, Filter, FieldCondition, MatchValue
 from typing import List, Optional
 import uuid
 from app.core.config import settings
@@ -274,6 +274,35 @@ class RAGService:
             print(f"RAG search error: {e}")
             return []
     
+    async def get_document_points(self, workspace_id: int, document_id: int) -> list:
+        """Get all points for a document (for debugging)"""
+        collection_name = self._collection_name(workspace_id)
+        
+        try:
+            collections = self.client.get_collections().collections
+            if not any(c.name == collection_name for c in collections):
+                return []
+            
+            results, _ = self.client.scroll(
+                collection_name=collection_name,
+                scroll_filter=Filter(
+                    must=[
+                        FieldCondition(
+                            key="document_id",
+                            match=MatchValue(value=document_id)
+                        )
+                    ]
+                ),
+                limit=1000,
+                with_payload=True,
+                with_vectors=False
+            )
+            
+            return [point.payload for point in results]
+        except Exception as e:
+            print(f"Error getting document points: {e}")
+            return []
+    
     async def delete_document(self, workspace_id: int, document_id: int):
         """Delete all chunks for a document"""
         collection_name = self._collection_name(workspace_id)
@@ -288,13 +317,14 @@ class RAGService:
             # Delete points with matching document_id
             result = self.client.delete(
                 collection_name=collection_name,
-                points_selector={
-                    "filter": {
-                        "must": [
-                            {"key": "document_id", "match": {"value": document_id}}
-                        ]
-                    }
-                }
+                points_selector=Filter(
+                    must=[
+                        FieldCondition(
+                            key="document_id",
+                            match=MatchValue(value=document_id)
+                        )
+                    ]
+                )
             )
             print(f"Deleted document {document_id} from {collection_name}: {result}")
         except Exception as e:

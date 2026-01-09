@@ -34,7 +34,7 @@ export default function Chat() {
   const [notesRefreshTrigger, setNotesRefreshTrigger] = useState(0)
   const [showDocsSidebar, setShowDocsSidebar] = useState(false)
   const [docsExpanded, setDocsExpanded] = useState(false)
-  const [docsRefreshTrigger] = useState(0)
+  const [docsRefreshTrigger, setDocsRefreshTrigger] = useState(0)
   const [showSettingsSidebar, setShowSettingsSidebar] = useState(false)
   const [settingsExpanded, setSettingsExpanded] = useState(false)
   const [showHelpModal, setShowHelpModal] = useState(false)
@@ -71,6 +71,12 @@ export default function Chat() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  useEffect(() => {
+    if (currentWorkspace) {
+      checkEmbeddedDocs()
+    }
+  }, [docsRefreshTrigger, currentWorkspace?.id])
 
   const checkEmbeddedDocs = async () => {
     if (!currentWorkspace) return
@@ -576,6 +582,7 @@ export default function Chat() {
           onClose={() => setShowDocsSidebar(false)}
           refreshTrigger={docsRefreshTrigger}
           rightOffset={settingsWidth}
+          onDocumentChange={() => setDocsRefreshTrigger((prev: number) => prev + 1)}
         />
       )}
 
