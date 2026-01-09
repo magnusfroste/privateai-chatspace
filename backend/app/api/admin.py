@@ -2,9 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from pydantic import BaseModel, EmailStr
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from datetime import datetime
 import httpx
+import time
+import os
 from app.core.database import get_db
 from app.core.config import settings
 from app.core.security import get_current_admin, get_password_hash
@@ -14,6 +16,9 @@ from app.models.document import Document
 from app.models.chat import Chat, Message
 from app.models.chat_log import ChatLog
 from app.services.rag_service import rag_service
+from app.services.llm_service import llm_service
+from app.services.document_service import document_service
+from app.models.evaluation import RagEvaluation
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -526,3 +531,416 @@ async def toggle_workspace_pin(
     await db.refresh(workspace)
     
     return {"id": workspace.id, "admin_pinned": workspace.admin_pinned}
+
+
+# ============================================================================
+# RAG EVALUATOR
+# ============================================================================
+
+class EvaluationRequest(BaseModel):
+    workspace_id: int
+    document_id: int
+    question: str
+    top_n: int = 5
+
+
+class EvaluationResult(BaseModel):
+    mode: str
+    response: str
+    response_length: int
+    context_length: int
+    time_seconds: float
+    chunks_retrieved: Optional[int] = None
+    document_words: Optional[int] = None
+
+
+class ComparisonResult(BaseModel):
+    rag: EvaluationResult
+    cag: EvaluationResult
+    evaluation: Optional[Dict[str, Any]] = None
+
+
+@router.post("/evaluate/rag")
+async def evaluate_rag_mode(
+    request: EvaluationRequest,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """Evaluate RAG response for a question against a workspace"""
+    start_time = time.time()
+    
+    # Search Qdrant
+    rag_results = await rag_service.search(
+        workspace_id=request.workspace_id,
+        query=request.question,
+        limit=request.top_n,
+        hybrid=True
+    )
+    
+    if not rag_results:
+        raise HTTPException(status_code=404, detail="No RAG results found")
+    
+    # Build context
+    context_parts = []
+    for i, r in enumerate(rag_results, 1):
+        context_parts.append(f"[{i}] {r['content']}")
+    rag_context = "\n\n---\n\n".join(context_parts)
+    
+    # Generate response
+    response = ""
+    async for chunk in llm_service.chat_completion_stream(
+        messages=[{"role": "user", "content": request.question}],
+        rag_context=rag_context
+    ):
+        response += chunk
+    
+    total_time = time.time() - start_time
+    
+    # Estimate tokens (4 chars ≈ 1 token)
+    context_tokens = len(rag_context) // 4
+    response_tokens = len(response) // 4
+    
+    return {
+        "mode": "RAG",
+        "response": response,
+        "response_tokens": response_tokens,
+        "context_tokens": context_tokens,
+        "time_seconds": round(total_time, 2),
+        "chunks_retrieved": len(rag_results),
+        "chunks": [
+            {
+                "content_type": r.get("content_type", "text"),
+                "section_title": r.get("section_title", ""),
+                "word_count": r.get("word_count", 0),
+                "score": round(r.get("score", 0), 4),
+                "preview": r.get("content", "")[:200]
+            }
+            for r in rag_results
+        ]
+    }
+
+
+@router.post("/evaluate/cag")
+async def evaluate_cag_mode(
+    request: EvaluationRequest,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """Evaluate CAG response (full document as context)"""
+    start_time = time.time()
+    
+    # Get document
+    result = await db.execute(select(Document).where(Document.id == request.document_id))
+    document = result.scalar_one_or_none()
+    
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    # Read markdown content
+    if not document.markdown_path or not os.path.exists(document.markdown_path):
+        raise HTTPException(status_code=404, detail="Markdown file not found")
+    
+    with open(document.markdown_path, "r", encoding="utf-8") as f:
+        content = f.read()
+    
+    # Generate response with full document
+    response = ""
+    async for chunk in llm_service.chat_completion_stream(
+        messages=[{"role": "user", "content": request.question}],
+        file_content=f"[DOCUMENT: {document.original_filename}]:\n{content}\n[END DOCUMENT]"
+    ):
+        response += chunk
+    
+    total_time = time.time() - start_time
+    
+    # Estimate tokens (4 chars ≈ 1 token)
+    context_tokens = len(content) // 4
+    response_tokens = len(response) // 4
+    
+    return {
+        "mode": "CAG",
+        "response": response,
+        "response_tokens": response_tokens,
+        "context_tokens": context_tokens,
+        "time_seconds": round(total_time, 2),
+        "document_words": len(content.split()),
+        "document_name": document.original_filename
+    }
+
+
+@router.post("/evaluate/compare")
+async def evaluate_compare(
+    request: EvaluationRequest,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """Compare RAG vs CAG and get LLM evaluation"""
+    
+    # Run RAG evaluation
+    rag_start = time.time()
+    rag_results = await rag_service.search(
+        workspace_id=request.workspace_id,
+        query=request.question,
+        limit=request.top_n,
+        hybrid=True
+    )
+    
+    if not rag_results:
+        raise HTTPException(status_code=404, detail="No RAG results found")
+    
+    context_parts = [f"[{i}] {r['content']}" for i, r in enumerate(rag_results, 1)]
+    rag_context = "\n\n---\n\n".join(context_parts)
+    
+    rag_response = ""
+    async for chunk in llm_service.chat_completion_stream(
+        messages=[{"role": "user", "content": request.question}],
+        rag_context=rag_context
+    ):
+        rag_response += chunk
+    rag_time = time.time() - rag_start
+    
+    # Run CAG evaluation
+    cag_start = time.time()
+    result = await db.execute(select(Document).where(Document.id == request.document_id))
+    document = result.scalar_one_or_none()
+    
+    if not document or not document.markdown_path:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    with open(document.markdown_path, "r", encoding="utf-8") as f:
+        doc_content = f.read()
+    
+    cag_response = ""
+    async for chunk in llm_service.chat_completion_stream(
+        messages=[{"role": "user", "content": request.question}],
+        file_content=f"[DOCUMENT]:\n{doc_content}\n[END DOCUMENT]"
+    ):
+        cag_response += chunk
+    cag_time = time.time() - cag_start
+    
+    # LLM evaluation
+    eval_prompt = f"""Jämför dessa två AI-svar på frågan och utvärdera kvaliteten.
+
+FRÅGA: {request.question}
+
+--- RAG-SVAR (hämtade {len(rag_results)} relevanta delar) ---
+{rag_response}
+
+--- CAG-SVAR (hela dokumentet som kontext) ---
+{cag_response}
+
+Utvärdera på skala 1-10:
+1. Relevans - Hur väl besvaras frågan?
+2. Fullständighet - Täcks alla viktiga aspekter?
+3. Precision - Är informationen korrekt och specifik?
+4. Läsbarhet - Är svaret välstrukturerat?
+
+Svara ENDAST med JSON (inget annat):
+{{"rag_scores": {{"relevans": X, "fullständighet": X, "precision": X, "läsbarhet": X, "total": X}}, "cag_scores": {{"relevans": X, "fullständighet": X, "precision": X, "läsbarhet": X, "total": X}}, "winner": "RAG" eller "CAG" eller "TIE", "reasoning": "Kort förklaring"}}"""
+
+    eval_response = await llm_service.generate(eval_prompt, temperature=0.2, max_tokens=800)
+    
+    # Parse evaluation JSON
+    evaluation = None
+    try:
+        import json
+        json_start = eval_response.find('{')
+        json_end = eval_response.rfind('}') + 1
+        if json_start >= 0 and json_end > json_start:
+            evaluation = json.loads(eval_response[json_start:json_end])
+    except:
+        evaluation = {"raw": eval_response}
+    
+    return {
+        "question": request.question,
+        "rag": {
+            "response": rag_response,
+            "response_tokens": len(rag_response) // 4,
+            "context_tokens": len(rag_context) // 4,
+            "time_seconds": round(rag_time, 2),
+            "chunks_retrieved": len(rag_results)
+        },
+        "cag": {
+            "response": cag_response,
+            "response_tokens": len(cag_response) // 4,
+            "context_tokens": len(doc_content) // 4,
+            "time_seconds": round(cag_time, 2),
+            "document_words": len(doc_content.split())
+        },
+        "evaluation": evaluation
+    }
+
+
+@router.get("/evaluate/documents/{workspace_id}")
+async def get_evaluable_documents(
+    workspace_id: int,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """Get documents available for evaluation in a workspace.
+    
+    Returns all documents that have markdown (for CAG).
+    RAG evaluation requires is_embedded=True, but CAG only needs markdown.
+    """
+    result = await db.execute(
+        select(Document)
+        .where(Document.workspace_id == workspace_id)
+    )
+    documents = result.scalars().all()
+    
+    # Filter to documents that have markdown file
+    evaluable = []
+    for doc in documents:
+        if doc.markdown_path:
+            # Handle both relative and absolute paths
+            md_path = doc.markdown_path
+            if not os.path.isabs(md_path):
+                # Try relative to DATA_DIR first, then current dir
+                base_dir = settings.DATA_DIR.rstrip('/')
+                if md_path.startswith('data/'):
+                    md_path = md_path.replace('data/', f'{base_dir}/', 1)
+                else:
+                    md_path = os.path.join(base_dir, md_path.lstrip('/'))
+            
+            if os.path.exists(md_path):
+                evaluable.append({
+                    "id": doc.id,
+                    "filename": doc.original_filename,
+                    "is_embedded": doc.is_embedded,
+                    "embedded_at": doc.embedded_at
+                })
+    
+    return evaluable
+
+
+@router.post("/evaluate/save")
+async def save_evaluation(
+    data: dict,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """Save an evaluation result to the database"""
+    evaluation = RagEvaluation(
+        workspace_id=data.get("workspace_id"),
+        document_id=data.get("document_id"),
+        document_name=data.get("document_name"),
+        question=data.get("question"),
+        rag_response=data.get("rag", {}).get("response"),
+        rag_context_tokens=data.get("rag", {}).get("context_tokens"),
+        rag_response_tokens=data.get("rag", {}).get("response_tokens"),
+        rag_time_seconds=data.get("rag", {}).get("time_seconds"),
+        rag_chunks_retrieved=data.get("rag", {}).get("chunks_retrieved"),
+        cag_response=data.get("cag", {}).get("response"),
+        cag_context_tokens=data.get("cag", {}).get("context_tokens"),
+        cag_response_tokens=data.get("cag", {}).get("response_tokens"),
+        cag_time_seconds=data.get("cag", {}).get("time_seconds"),
+        rag_scores=data.get("evaluation", {}).get("rag_scores"),
+        cag_scores=data.get("evaluation", {}).get("cag_scores"),
+        winner=data.get("evaluation", {}).get("winner"),
+        reasoning=data.get("evaluation", {}).get("reasoning"),
+        created_by=admin.id
+    )
+    
+    db.add(evaluation)
+    await db.commit()
+    await db.refresh(evaluation)
+    
+    return {"id": evaluation.id, "saved": True}
+
+
+@router.get("/evaluate/history")
+async def get_evaluation_history(
+    limit: int = 20,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """Get saved evaluation history"""
+    from sqlalchemy import desc
+    
+    result = await db.execute(
+        select(RagEvaluation)
+        .order_by(desc(RagEvaluation.created_at))
+        .limit(limit)
+    )
+    evaluations = result.scalars().all()
+    
+    return [
+        {
+            "id": e.id,
+            "workspace_id": e.workspace_id,
+            "document_name": e.document_name,
+            "question": e.question,
+            "winner": e.winner,
+            "rag_score": e.rag_scores.get("total") if e.rag_scores else None,
+            "cag_score": e.cag_scores.get("total") if e.cag_scores else None,
+            "rag_context_tokens": e.rag_context_tokens,
+            "cag_context_tokens": e.cag_context_tokens,
+            "created_at": e.created_at
+        }
+        for e in evaluations
+    ]
+
+
+@router.get("/evaluate/history/{evaluation_id}")
+async def get_evaluation_detail(
+    evaluation_id: int,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """Get full details of a saved evaluation"""
+    result = await db.execute(
+        select(RagEvaluation).where(RagEvaluation.id == evaluation_id)
+    )
+    e = result.scalar_one_or_none()
+    
+    if not e:
+        raise HTTPException(status_code=404, detail="Evaluation not found")
+    
+    return {
+        "id": e.id,
+        "workspace_id": e.workspace_id,
+        "document_id": e.document_id,
+        "document_name": e.document_name,
+        "question": e.question,
+        "rag": {
+            "response": e.rag_response,
+            "context_tokens": e.rag_context_tokens,
+            "response_tokens": e.rag_response_tokens,
+            "time_seconds": e.rag_time_seconds,
+            "chunks_retrieved": e.rag_chunks_retrieved
+        },
+        "cag": {
+            "response": e.cag_response,
+            "context_tokens": e.cag_context_tokens,
+            "response_tokens": e.cag_response_tokens,
+            "time_seconds": e.cag_time_seconds
+        },
+        "evaluation": {
+            "rag_scores": e.rag_scores,
+            "cag_scores": e.cag_scores,
+            "winner": e.winner,
+            "reasoning": e.reasoning
+        },
+        "created_at": e.created_at
+    }
+
+
+@router.delete("/evaluate/history/{evaluation_id}")
+async def delete_evaluation(
+    evaluation_id: int,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """Delete a saved evaluation"""
+    result = await db.execute(
+        select(RagEvaluation).where(RagEvaluation.id == evaluation_id)
+    )
+    evaluation = result.scalar_one_or_none()
+    
+    if not evaluation:
+        raise HTTPException(status_code=404, detail="Evaluation not found")
+    
+    await db.delete(evaluation)
+    await db.commit()
+    
+    return {"deleted": True}

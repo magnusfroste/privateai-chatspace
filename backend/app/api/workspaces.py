@@ -33,6 +33,7 @@ class WorkspaceUpdate(BaseModel):
     description: Optional[str] = None
     system_prompt: Optional[str] = None
     chat_mode: Optional[str] = None  # "chat" or "query"
+    rag_mode: Optional[str] = None  # "global", "precise", "comprehensive"
     top_n: Optional[int] = None
     similarity_threshold: Optional[float] = None
     use_hybrid_search: Optional[bool] = None
@@ -45,6 +46,7 @@ class WorkspaceResponse(BaseModel):
     description: Optional[str]
     system_prompt: Optional[str]
     chat_mode: Optional[str]
+    rag_mode: Optional[str]
     top_n: Optional[int]
     similarity_threshold: Optional[float]
     use_hybrid_search: Optional[bool]
@@ -169,6 +171,8 @@ async def update_workspace(
         workspace.system_prompt = data.system_prompt
     if data.chat_mode is not None:
         workspace.chat_mode = data.chat_mode
+    if data.rag_mode is not None:
+        workspace.rag_mode = data.rag_mode
     if data.top_n is not None:
         workspace.top_n = data.top_n
     if data.similarity_threshold is not None:

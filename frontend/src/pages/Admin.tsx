@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api, User } from '../lib/api'
+import RagEvaluator from '../components/RagEvaluator'
 import {
   ArrowLeft,
   Users as UsersIcon,
@@ -17,6 +18,7 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  FlaskConical,
 } from 'lucide-react'
 
 interface Stats {
@@ -82,7 +84,7 @@ interface TestResult {
 
 export default function Admin() {
   const navigate = useNavigate()
-  const [tab, setTab] = useState<'system' | 'stats' | 'users' | 'logs'>('system')
+  const [tab, setTab] = useState<'system' | 'stats' | 'users' | 'logs' | 'evaluator'>('system')
   const [stats, setStats] = useState<Stats | null>(null)
   const [users, setUsers] = useState<User[]>([])
   const [logs, setLogs] = useState<ChatLog[]>([])
@@ -255,6 +257,17 @@ export default function Admin() {
           >
             <MessageSquare className="w-4 h-4" />
             Chat Logs
+          </button>
+          <button
+            onClick={() => setTab('evaluator')}
+            className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${
+              tab === 'evaluator'
+                ? 'bg-dark-700 text-white'
+                : 'text-dark-400 hover:text-white hover:bg-dark-800'
+            }`}
+          >
+            <FlaskConical className="w-4 h-4" />
+            RAG Evaluator
           </button>
         </nav>
 
@@ -600,6 +613,8 @@ export default function Admin() {
                   </div>
                 </div>
               )}
+
+              {tab === 'evaluator' && <RagEvaluator />}
             </>
           )}
         </main>

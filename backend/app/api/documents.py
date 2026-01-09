@@ -12,6 +12,7 @@ from app.models.workspace import Workspace
 from app.models.document import Document
 from app.services.document_service import document_service
 from app.services.rag_service import rag_service
+from app.core.config import settings
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
@@ -297,6 +298,63 @@ async def download_document(
     )
 
 
+@router.get("/{document_id}/markdown")
+async def download_markdown(
+    document_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_user)
+):
+    """Download parsed markdown file."""
+    result = await db.execute(
+        select(Document).where(Document.id == document_id)
+    )
+    document = result.scalar_one_or_none()
+    
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    if current_user:
+        result = await db.execute(
+            select(Workspace).where(Workspace.id == document.workspace_id)
+        )
+        workspace = result.scalar_one_or_none()
+        
+        if current_user.role != "admin" and workspace.owner_id != current_user.id:
+            raise HTTPException(status_code=403, detail="Access denied")
+    
+    if not document.markdown_path:
+        raise HTTPException(status_code=404, detail="Markdown file not found")
+    
+    # Handle relative paths - markdown_path may be "data/documents/..." or absolute
+    md_path = document.markdown_path
+    if not os.path.isabs(md_path):
+        # Try the path as-is first (relative to cwd)
+        if not os.path.exists(md_path):
+            # Try joining with DATA_DIR parent if path starts with "data/"
+            if md_path.startswith("data/"):
+                md_path = os.path.join(os.path.dirname(settings.DATA_DIR), md_path)
+            else:
+                md_path = os.path.join(settings.DATA_DIR, md_path)
+    
+    if not os.path.exists(md_path):
+        raise HTTPException(status_code=404, detail=f"Markdown file not found: {md_path}")
+    
+    with open(md_path, "r", encoding="utf-8") as f:
+        content = f.read()
+    
+    # Generate filename from original
+    md_filename = os.path.splitext(document.original_filename)[0] + ".md"
+    
+    return Response(
+        content=content,
+        media_type="text/markdown",
+        headers={
+            "Content-Disposition": f"attachment; filename=\"{md_filename}\"",
+            "Cache-Control": "private, max-age=3600"
+        }
+    )
+
+
 @router.get("/{document_id}/content")
 async def get_document_content(
     document_id: int,
@@ -358,3 +416,43 @@ async def delete_document(
     await db.commit()
     
     return {"status": "deleted"}
+
+
+@router.get("/{document_id}/stats")
+async def get_document_stats(
+    document_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get document statistics from Qdrant (chunks, words, content types)."""
+    result = await db.execute(
+        select(Document).where(Document.id == document_id)
+    )
+    document = result.scalar_one_or_none()
+    
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    result = await db.execute(
+        select(Workspace).where(Workspace.id == document.workspace_id)
+    )
+    workspace = result.scalar_one_or_none()
+    
+    if current_user.role != "admin" and workspace.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    if not document.is_embedded:
+        return {"embedded": False}
+    
+    # Get stats from Qdrant
+    stats = await rag_service.get_document_stats(document.workspace_id, document_id)
+    
+    return {
+        "embedded": True,
+        "chunks": stats.get("total_chunks", 0),
+        "words": stats.get("total_words", 0),
+        "tokens": stats.get("total_tokens", 0),
+        "tables": stats.get("tables", 0),
+        "code_blocks": stats.get("code_blocks", 0),
+        "lists": stats.get("lists", 0),
+    }

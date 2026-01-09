@@ -3,6 +3,7 @@ import { useAuthStore } from './store/auth'
 import Login from './pages/Login'
 import Chat from './pages/Chat'
 import Admin from './pages/Admin'
+import { ToastContainer } from './components/Toast'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((state) => state.token)
@@ -19,8 +20,9 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
+    <>
+      <Routes>
+        <Route path="/login" element={<Login />} />
       <Route
         path="/"
         element={
@@ -37,7 +39,9 @@ export default function App() {
           </AdminRoute>
         }
       />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      <ToastContainer />
+    </>
   )
 }

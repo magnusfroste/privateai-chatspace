@@ -220,9 +220,20 @@ async def send_message(
     rag_sources = []
     web_sources = []
     if data.use_rag:
-        top_n = chat.workspace.top_n if chat.workspace and chat.workspace.top_n else 4
-        threshold = chat.workspace.similarity_threshold if chat.workspace and chat.workspace.similarity_threshold else 0.0
-        use_hybrid = chat.workspace.use_hybrid_search if chat.workspace and chat.workspace.use_hybrid_search is not None else True
+        # Determine RAG settings based on rag_mode
+        rag_mode = chat.workspace.rag_mode if chat.workspace and chat.workspace.rag_mode else "global"
+        
+        if rag_mode == "precise":
+            top_n = settings.RAG_PRECISE_TOP_N
+            threshold = settings.RAG_PRECISE_THRESHOLD
+        elif rag_mode == "comprehensive":
+            top_n = settings.RAG_COMPREHENSIVE_TOP_N
+            threshold = settings.RAG_COMPREHENSIVE_THRESHOLD
+        else:  # "global" - use global defaults
+            top_n = settings.DEFAULT_TOP_N
+            threshold = settings.DEFAULT_SIMILARITY_THRESHOLD
+        
+        use_hybrid = chat.workspace.use_hybrid_search if chat.workspace and chat.workspace.use_hybrid_search is not None else settings.DEFAULT_USE_HYBRID_SEARCH
         rag_results = await rag_service.search(chat.workspace_id, data.content, limit=top_n, score_threshold=threshold, hybrid=use_hybrid)
         if rag_results:
             # Format context with source markers like [1], [2], etc.

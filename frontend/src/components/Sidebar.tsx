@@ -476,7 +476,7 @@ export default function Sidebar() {
               </button>
             </div>
             <div className="px-3 py-1">
-              <span className="text-[10px] text-dark-600">v2024-12-21 19:58</span>
+              <span className="text-[10px] text-dark-600">v{__APP_VERSION__} ({__BUILD_DATE__})</span>
             </div>
           </>
         )}

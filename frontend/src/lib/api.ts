@@ -8,6 +8,7 @@ export interface Workspace {
   description: string | null
   system_prompt: string | null
   chat_mode: string | null
+  rag_mode: string | null  // "global", "precise", "comprehensive"
   top_n: number | null
   similarity_threshold: number | null
   use_hybrid_search: boolean | null
@@ -106,7 +107,7 @@ export const api = {
     get: (id: number) => fetchApi<Workspace>(`/workspaces/${id}`),
     create: (data: { name: string; description?: string; system_prompt?: string; chat_mode?: string; top_n?: number; similarity_threshold?: number; use_hybrid_search?: boolean; use_web_search?: boolean }) =>
       fetchApi<Workspace>('/workspaces', { method: 'POST', body: JSON.stringify(data) }),
-    update: (id: number, data: { name?: string; description?: string; system_prompt?: string; chat_mode?: string; top_n?: number; similarity_threshold?: number; use_hybrid_search?: boolean; use_web_search?: boolean }) =>
+    update: (id: number, data: { name?: string; description?: string; system_prompt?: string; chat_mode?: string; rag_mode?: string; top_n?: number; similarity_threshold?: number; use_hybrid_search?: boolean; use_web_search?: boolean }) =>
       fetchApi<Workspace>(`/workspaces/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: (id: number) => fetchApi(`/workspaces/${id}`, { method: 'DELETE' }),
   },
@@ -144,6 +145,7 @@ export const api = {
       fetchApi<{ embedded: number; total: number; errors?: Array<{ document_id: number; error: string }> }>(`/documents/workspace/${workspaceId}/embed-all`, { method: 'POST' }),
     delete: (id: number) => fetchApi(`/documents/${id}`, { method: 'DELETE' }),
     getContent: (id: number) => fetchApi<{ content: string }>(`/documents/${id}/content`),
+    getStats: (id: number) => fetchApi<{ embedded: boolean; chunks?: number; words?: number; tokens?: number; tables?: number; code_blocks?: number; lists?: number }>(`/documents/${id}/stats`),
   },
   
   admin: {

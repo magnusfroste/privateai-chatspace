@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useWorkspaceStore } from '../store/workspace'
 import { api, Workspace } from '../lib/api'
 import { 
@@ -6,7 +6,6 @@ import {
   X, 
   ChevronLeft,
   ChevronRight,
-  ChevronDown,
   Save,
   Loader2
 } from 'lucide-react'
@@ -31,13 +30,17 @@ export default function WorkspaceSettingsSidebar({
   const [name, setName] = useState(workspace.name)
   const [description, setDescription] = useState(workspace.description || '')
   const [systemPrompt, setSystemPrompt] = useState(workspace.system_prompt || '')
-  const [chatMode, setChatMode] = useState<'chat' | 'query'>((workspace.chat_mode as 'chat' | 'query') || 'chat')
-  const [topN, setTopN] = useState(workspace.top_n || 5)
-  const [similarityThreshold, setSimilarityThreshold] = useState(workspace.similarity_threshold || 0.25)
-  const [useHybridSearch, setUseHybridSearch] = useState(workspace.use_hybrid_search !== false)
+  const [ragMode, setRagMode] = useState<'global' | 'precise' | 'comprehensive'>((workspace.rag_mode as 'global' | 'precise' | 'comprehensive') || 'global')
   const [saving, setSaving] = useState(false)
-  const [showAdvanced, setShowAdvanced] = useState(false)
   const { setCurrentWorkspace, setWorkspaces, workspaces } = useWorkspaceStore()
+
+  // Sync state when workspace changes
+  useEffect(() => {
+    setName(workspace.name)
+    setDescription(workspace.description || '')
+    setSystemPrompt(workspace.system_prompt || '')
+    setRagMode((workspace.rag_mode as 'global' | 'precise' | 'comprehensive') || 'global')
+  }, [workspace.id, workspace.name, workspace.description, workspace.system_prompt, workspace.rag_mode])
 
   const handleSave = async () => {
     setSaving(true)
@@ -46,10 +49,7 @@ export default function WorkspaceSettingsSidebar({
         name,
         description,
         system_prompt: systemPrompt,
-        chat_mode: chatMode,
-        top_n: topN,
-        similarity_threshold: similarityThreshold,
-        use_hybrid_search: useHybridSearch,
+        rag_mode: ragMode,
       })
       setCurrentWorkspace(updated)
       setWorkspaces(workspaces.map((w) => (w.id === updated.id ? updated : w)))
@@ -126,92 +126,48 @@ export default function WorkspaceSettingsSidebar({
             />
           </div>
 
-          {/* Advanced Settings - Collapsible */}
-          <div className="border border-dark-600 rounded">
-            <button
-              type="button"
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-dark-300 hover:text-white transition-colors"
-            >
-              <span>Advanced Settings</span>
-              {showAdvanced ? (
-                <ChevronDown className="w-4 h-4" />
-              ) : (
-                <ChevronRight className="w-4 h-4" />
-              )}
-            </button>
-            
-            {showAdvanced && (
-              <div className="px-3 pb-3 space-y-3 border-t border-dark-600">
-                <div className="pt-3">
-                  <label className="block text-sm font-medium text-dark-300 mb-2">Chat Mode</label>
-                  <div className="flex gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        checked={chatMode === 'chat'}
-                        onChange={() => setChatMode('chat')}
-                        className="w-4 h-4 text-blue-600"
-                      />
-                      <span className="text-sm text-white">Chat</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        checked={chatMode === 'query'}
-                        onChange={() => setChatMode('query')}
-                        className="w-4 h-4 text-blue-600"
-                      />
-                      <span className="text-sm text-white">Query</span>
-                    </label>
-                  </div>
-                  <p className="mt-1 text-xs text-dark-500">
-                    Chat: AI uses docs + knowledge. Query: Only docs.
-                  </p>
+          {/* RAG Quality - directly visible */}
+          <div>
+            <label className="block text-sm font-medium text-dark-300 mb-2">RAG Quality</label>
+            <p className="text-xs text-dark-500 mb-2">How documents are searched when RAG is enabled</p>
+            <div className="space-y-1">
+              <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-dark-700 border border-transparent hover:border-dark-600">
+                <input
+                  type="radio"
+                  checked={ragMode === 'global'}
+                  onChange={() => setRagMode('global')}
+                  className="w-4 h-4 text-blue-600"
+                />
+                <div>
+                  <span className="text-sm text-white">⚖️ Balanced</span>
+                  <span className="text-xs text-dark-500 ml-2">(recommended)</span>
                 </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-dark-300 mb-1">Context Chunks</label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="20"
-                      value={topN}
-                      onChange={(e) => setTopN(parseInt(e.target.value) || 5)}
-                      className="w-full px-3 py-2 bg-dark-900 border border-dark-600 rounded text-white text-sm focus:outline-none focus:border-blue-500"
-                    />
-                    <p className="mt-1 text-xs text-dark-500">Number of document chunks</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-dark-300 mb-1">Similarity</label>
-                    <input
-                      type="number"
-                      min="0"
-                      max="1"
-                      step="0.05"
-                      value={similarityThreshold}
-                      onChange={(e) => setSimilarityThreshold(parseFloat(e.target.value) || 0.25)}
-                      className="w-full px-3 py-2 bg-dark-900 border border-dark-600 rounded text-white text-sm focus:outline-none focus:border-blue-500"
-                    />
-                    <p className="mt-1 text-xs text-dark-500">Minimum relevance score</p>
-                  </div>
+              </label>
+              <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-dark-700 border border-transparent hover:border-dark-600">
+                <input
+                  type="radio"
+                  checked={ragMode === 'precise'}
+                  onChange={() => setRagMode('precise')}
+                  className="w-4 h-4 text-blue-600"
+                />
+                <div>
+                  <span className="text-sm text-white">🎯 Precise</span>
+                  <span className="text-xs text-dark-500 ml-2">Fast, focused answers</span>
                 </div>
-
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={useHybridSearch}
-                    onChange={(e) => setUseHybridSearch(e.target.checked)}
-                    className="w-4 h-4 rounded bg-dark-700 border-dark-600 text-blue-600"
-                  />
-                  <div>
-                    <span className="text-sm text-white">Hybrid Search</span>
-                    <p className="text-xs text-dark-500">Combine semantic + keyword search</p>
-                  </div>
-                </label>
-              </div>
-            )}
+              </label>
+              <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-dark-700 border border-transparent hover:border-dark-600">
+                <input
+                  type="radio"
+                  checked={ragMode === 'comprehensive'}
+                  onChange={() => setRagMode('comprehensive')}
+                  className="w-4 h-4 text-blue-600"
+                />
+                <div>
+                  <span className="text-sm text-white">📚 Comprehensive</span>
+                  <span className="text-xs text-dark-500 ml-2">Thorough, detailed answers</span>
+                </div>
+              </label>
+            </div>
           </div>
 
           <div className="flex gap-2 pt-2">
@@ -241,11 +197,24 @@ export default function WorkspaceSettingsSidebar({
           </div>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto p-3 space-y-2">
-          <div className="text-center py-12 text-dark-500">
-            <Settings className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p className="text-xs">Expand to edit</p>
+        <div className="flex-1 overflow-y-auto p-3 space-y-3">
+          <div className="text-xs text-dark-400 truncate" title={workspace.name}>
+            <span className="text-dark-500">Name:</span> {workspace.name}
           </div>
+          <div className="text-xs text-dark-400">
+            <span className="text-dark-500">RAG:</span> {ragMode === 'global' ? '⚖️' : ragMode === 'precise' ? '🎯' : '📚'}
+          </div>
+          {workspace.system_prompt && (
+            <div className="text-xs text-dark-500 line-clamp-3">
+              {workspace.system_prompt.slice(0, 100)}...
+            </div>
+          )}
+          <button
+            onClick={onToggleExpand}
+            className="w-full mt-4 py-2 text-xs text-dark-400 hover:text-white bg-dark-700 hover:bg-dark-600 rounded transition-colors"
+          >
+            Expand to edit
+          </button>
         </div>
       )}
     </div>

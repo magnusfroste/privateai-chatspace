@@ -84,6 +84,14 @@ When given context or documents, use them to inform your answers."""
     DEFAULT_USE_WEB_SEARCH: bool = False  # Use external search agent
     DEFAULT_CHAT_MODE: str = "chat"  # "chat" or "query"
     
+    # RAG Mode Presets (global admin settings)
+    # "precise" - Fast, focused answers (fewer chunks, higher threshold)
+    RAG_PRECISE_TOP_N: int = 3
+    RAG_PRECISE_THRESHOLD: float = 0.35
+    # "comprehensive" - Thorough answers (more chunks, lower threshold)
+    RAG_COMPREHENSIVE_TOP_N: int = 10
+    RAG_COMPREHENSIVE_THRESHOLD: float = 0.15
+    
     # Storage paths
     DATA_DIR: str = "/data"
     DOCUMENTS_DIR: str = "/data/documents"

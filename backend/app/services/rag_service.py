@@ -299,6 +299,61 @@ class RAGService:
             self.client.delete_collection(collection_name)
         except Exception:
             pass
+    
+    async def get_document_stats(self, workspace_id: int, document_id: int) -> dict:
+        """Get aggregated statistics for a document from Qdrant."""
+        collection_name = self._collection_name(workspace_id)
+        
+        try:
+            # Scroll through all points for this document
+            results, _ = self.client.scroll(
+                collection_name=collection_name,
+                scroll_filter={
+                    "must": [
+                        {"key": "document_id", "match": {"value": document_id}}
+                    ]
+                },
+                limit=1000,
+                with_payload=True
+            )
+            
+            if not results:
+                return {}
+            
+            total_chunks = len(results)
+            total_words = 0
+            total_chars = 0
+            tables = 0
+            code_blocks = 0
+            lists = 0
+            
+            for point in results:
+                payload = point.payload or {}
+                total_words += payload.get("word_count", 0)
+                total_chars += payload.get("char_count", 0)
+                
+                content_type = payload.get("content_type", "text")
+                if content_type == "table" or payload.get("has_table"):
+                    tables += 1
+                if content_type == "code" or payload.get("has_code"):
+                    code_blocks += 1
+                if content_type == "list" or payload.get("has_list"):
+                    lists += 1
+            
+            # Estimate tokens (roughly 4 chars per token)
+            estimated_tokens = total_chars // 4 if total_chars else total_words
+            
+            return {
+                "total_chunks": total_chunks,
+                "total_words": total_words,
+                "total_tokens": estimated_tokens,
+                "tables": tables,
+                "code_blocks": code_blocks,
+                "lists": lists,
+            }
+        except Exception as e:
+            print(f"Error getting document stats: {e}")
+            return {}
 
 
 rag_service = RAGService()

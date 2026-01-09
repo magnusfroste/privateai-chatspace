@@ -12,8 +12,9 @@ class Workspace(Base):
     description = Column(Text, nullable=True)
     system_prompt = Column(Text, nullable=True)
     chat_mode = Column(String(20), default="chat")  # "chat" or "query"
-    top_n = Column(Integer, default=4)  # Number of document chunks to retrieve
-    similarity_threshold = Column(Float, default=0.25)  # Minimum similarity score
+    rag_mode = Column(String(20), default="global")  # "global", "precise", "comprehensive"
+    top_n = Column(Integer, default=5)  # Number of document chunks to retrieve (used when rag_mode != global)
+    similarity_threshold = Column(Float, default=0.25)  # Minimum similarity score (used when rag_mode != global)
     use_hybrid_search = Column(Boolean, default=True)  # Use hybrid (dense + sparse) search
     use_web_search = Column(Boolean, default=False)  # Use external search agent for web search
     sound_enabled = Column(Boolean, default=True)  # Enable sound for TTS

@@ -70,3 +70,37 @@ async def run_migrations():
             print("Adding sound_enabled column to workspaces table...")
             await conn.execute(text("ALTER TABLE workspaces ADD COLUMN sound_enabled BOOLEAN DEFAULT 1"))
             print("Migration complete: sound_enabled column added")
+        
+        # Add rag_mode column to workspaces if it doesn't exist
+        try:
+            await conn.execute(text("SELECT rag_mode FROM workspaces LIMIT 1"))
+        except Exception:
+            print("Adding rag_mode column to workspaces table...")
+            await conn.execute(text("ALTER TABLE workspaces ADD COLUMN rag_mode TEXT DEFAULT 'global'"))
+            print("Migration complete: rag_mode column added")
+        
+        # Create rag_evaluations table if it doesn't exist
+        await conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS rag_evaluations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                workspace_id INTEGER NOT NULL,
+                document_id INTEGER NOT NULL,
+                document_name TEXT,
+                question TEXT NOT NULL,
+                rag_response TEXT,
+                rag_context_tokens INTEGER,
+                rag_response_tokens INTEGER,
+                rag_time_seconds REAL,
+                rag_chunks_retrieved INTEGER,
+                cag_response TEXT,
+                cag_context_tokens INTEGER,
+                cag_response_tokens INTEGER,
+                cag_time_seconds REAL,
+                rag_scores JSON,
+                cag_scores JSON,
+                winner TEXT,
+                reasoning TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                created_by INTEGER
+            )
+        """))

@@ -16,9 +16,7 @@ export default function WorkspaceSettings({
   const [description, setDescription] = useState(workspace.description || '')
   const [systemPrompt, setSystemPrompt] = useState(workspace.system_prompt || '')
   const [chatMode, setChatMode] = useState<'chat' | 'query'>((workspace.chat_mode as 'chat' | 'query') || 'chat')
-  const [topN, setTopN] = useState(workspace.top_n || 5)
-  const [similarityThreshold, setSimilarityThreshold] = useState(workspace.similarity_threshold || 0.25)
-  const [useHybridSearch, setUseHybridSearch] = useState(workspace.use_hybrid_search !== false)
+  const [ragMode, setRagMode] = useState<'global' | 'precise' | 'comprehensive'>((workspace.rag_mode as 'global' | 'precise' | 'comprehensive') || 'global')
   const [saving, setSaving] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const { setCurrentWorkspace, setWorkspaces, workspaces } = useWorkspaceStore()
@@ -31,9 +29,7 @@ export default function WorkspaceSettings({
         description,
         system_prompt: systemPrompt,
         chat_mode: chatMode,
-        top_n: topN,
-        similarity_threshold: similarityThreshold,
-        use_hybrid_search: useHybridSearch,
+        rag_mode: ragMode,
       })
       setCurrentWorkspace(updated)
       setWorkspaces(workspaces.map((w) => (w.id === updated.id ? updated : w)))
@@ -123,46 +119,47 @@ export default function WorkspaceSettings({
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-dark-300 mb-1">Context Chunks</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="20"
-                  value={topN}
-                  onChange={(e) => setTopN(parseInt(e.target.value) || 5)}
-                  className="w-full px-3 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
-                />
-                <p className="mt-1 text-xs text-dark-500">Number of document chunks</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-dark-300 mb-1">Similarity</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="1"
-                  step="0.05"
-                  value={similarityThreshold}
-                  onChange={(e) => setSimilarityThreshold(parseFloat(e.target.value) || 0.25)}
-                  className="w-full px-3 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
-                />
-                <p className="mt-1 text-xs text-dark-500">Minimum relevance score</p>
+            <div className="pt-2">
+              <label className="block text-sm font-medium text-dark-300 mb-2">RAG Quality</label>
+              <div className="space-y-2">
+                <label className="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-dark-700">
+                  <input
+                    type="radio"
+                    checked={ragMode === 'global'}
+                    onChange={() => setRagMode('global')}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <div>
+                    <span className="text-sm text-white">⚖️ Balanced</span>
+                    <span className="text-xs text-dark-500 ml-2">(recommended)</span>
+                  </div>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-dark-700">
+                  <input
+                    type="radio"
+                    checked={ragMode === 'precise'}
+                    onChange={() => setRagMode('precise')}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <div>
+                    <span className="text-sm text-white">🎯 Precise</span>
+                    <span className="text-xs text-dark-500 ml-2">Fast, focused answers</span>
+                  </div>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-dark-700">
+                  <input
+                    type="radio"
+                    checked={ragMode === 'comprehensive'}
+                    onChange={() => setRagMode('comprehensive')}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <div>
+                    <span className="text-sm text-white">📚 Comprehensive</span>
+                    <span className="text-xs text-dark-500 ml-2">Thorough, detailed answers</span>
+                  </div>
+                </label>
               </div>
             </div>
-
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={useHybridSearch}
-                onChange={(e) => setUseHybridSearch(e.target.checked)}
-                className="w-4 h-4 rounded bg-dark-700 border-dark-600 text-blue-600"
-              />
-              <div>
-                <span className="text-sm text-white">Hybrid Search</span>
-                <p className="text-xs text-dark-500">Combine semantic + keyword search</p>
-              </div>
-            </label>
           </div>
         )}
       </div>

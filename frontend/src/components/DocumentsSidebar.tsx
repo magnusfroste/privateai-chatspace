@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { api, Document } from '../lib/api'
+import { showToast } from './Toast'
 import { 
   Database, 
   Trash2, 
@@ -23,6 +24,15 @@ interface DocumentsSidebarProps {
   rightOffset?: number
 }
 
+interface DocStats {
+  chunks?: number
+  words?: number
+  tokens?: number
+  tables?: number
+  code_blocks?: number
+  lists?: number
+}
+
 export default function DocumentsSidebar({ workspaceId, isOpen, isExpanded, onToggleExpand, onClose, refreshTrigger, rightOffset = 0 }: DocumentsSidebarProps) {
   const [documents, setDocuments] = useState<Document[]>([])
   const [loading, setLoading] = useState(true)
@@ -31,6 +41,8 @@ export default function DocumentsSidebar({ workspaceId, isOpen, isExpanded, onTo
   const [loadingContent, setLoadingContent] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [embeddingStatus, setEmbeddingStatus] = useState<{[key: number]: 'idle' | 'embedding' | 'success' | 'error'}>({})
+  const [docStats, setDocStats] = useState<{[key: number]: DocStats | null}>({})
+  const [loadingStats, setLoadingStats] = useState<{[key: number]: boolean}>({})
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -61,7 +73,7 @@ export default function DocumentsSidebar({ workspaceId, isOpen, isExpanded, onTo
       }
     } catch (err) {
       console.error('Failed to delete document:', err)
-      alert('Failed to delete document')
+      showToast('Failed to delete document', 'error')
     }
   }
 
@@ -89,9 +101,49 @@ export default function DocumentsSidebar({ workspaceId, isOpen, isExpanded, onTo
     document.body.removeChild(link)
   }
 
+  const handleDownloadMarkdown = (doc: Document) => {
+    // Create download link for parsed markdown file
+    const link = document.createElement('a')
+    link.href = `${window.location.origin}/api/documents/${doc.id}/markdown`
+    link.download = doc.original_filename.replace(/\.[^/.]+$/, '.md')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   const closeViewer = () => {
     setViewingDoc(null)
     setDocContent('')
+  }
+
+  const loadStats = async (docId: number) => {
+    if (docStats[docId] !== undefined || loadingStats[docId]) return
+    
+    setLoadingStats(prev => ({ ...prev, [docId]: true }))
+    try {
+      const stats = await api.documents.getStats(docId)
+      if (stats.embedded) {
+        setDocStats(prev => ({ ...prev, [docId]: stats }))
+      } else {
+        setDocStats(prev => ({ ...prev, [docId]: null }))
+      }
+    } catch (err) {
+      console.error('Failed to load stats:', err)
+      setDocStats(prev => ({ ...prev, [docId]: null }))
+    } finally {
+      setLoadingStats(prev => ({ ...prev, [docId]: false }))
+    }
+  }
+
+  const formatStats = (stats: DocStats): string => {
+    const parts: string[] = []
+    if (stats.chunks) parts.push(`${stats.chunks} chunks`)
+    if (stats.tokens) parts.push(`~${Math.round(stats.tokens / 1000)}k tokens`)
+    if (stats.words) parts.push(`~${Math.round(stats.words / 1000)}k words`)
+    if (stats.tables) parts.push(`${stats.tables} tables`)
+    if (stats.code_blocks) parts.push(`${stats.code_blocks} code`)
+    if (stats.lists) parts.push(`${stats.lists} lists`)
+    return parts.join(' • ') || 'No stats available'
   }
 
   const handleRetryEmbed = async (doc: Document) => {
@@ -103,7 +155,7 @@ export default function DocumentsSidebar({ workspaceId, isOpen, isExpanded, onTo
     } catch (err: any) {
       console.error('Failed to embed document:', err)
       setEmbeddingStatus(prev => ({ ...prev, [doc.id]: 'error' }))
-      alert(`Failed to embed ${doc.original_filename}. Please try again.`)
+      showToast(`Failed to embed ${doc.original_filename}`, 'error')
     }
   }
 
@@ -131,6 +183,7 @@ export default function DocumentsSidebar({ workspaceId, isOpen, isExpanded, onTo
           Promise.race([embedPromise, timeoutPromise]).then((updated: any) => {
             setDocuments(prev => prev.map(d => d.id === (updated as Document).id ? (updated as Document) : d))
             setEmbeddingStatus(prev => ({ ...prev, [(updated as Document).id]: 'success' }))
+            showToast(`${(updated as Document).original_filename} ready for RAG`, 'success')
           }).catch(err => {
             console.error('Failed to embed document:', err)
             setEmbeddingStatus(prev => ({ ...prev, [uploadedDoc.id]: 'error' }))
@@ -138,11 +191,11 @@ export default function DocumentsSidebar({ workspaceId, isOpen, isExpanded, onTo
             const errorMsg = err.message?.includes('timeout') 
               ? `Embedding timed out for ${uploadedDoc.original_filename}. The document might be too large.`
               : `Failed to embed ${uploadedDoc.original_filename}. You can try again by clicking the retry button.`
-            alert(errorMsg)
+            showToast(errorMsg, 'error')
           })
         } catch (err) {
           console.error(`Failed to upload ${file.name}:`, err)
-          alert(`Failed to upload ${file.name}`)
+          showToast(`Failed to upload ${file.name}`, 'error')
         }
       }
       
@@ -242,6 +295,13 @@ export default function DocumentsSidebar({ workspaceId, isOpen, isExpanded, onTo
                 📄 PDF
               </button>
               <button
+                onClick={() => handleDownloadMarkdown(viewingDoc)}
+                className="flex items-center gap-1 px-2 py-1 text-xs bg-purple-600 hover:bg-purple-700 text-white rounded"
+                title="Download markdown"
+              >
+                📝 MD
+              </button>
+              <button
                 onClick={closeViewer}
                 className="flex items-center gap-1 px-3 py-1.5 bg-dark-700 hover:bg-dark-600 text-white text-sm rounded"
               >
@@ -303,9 +363,16 @@ export default function DocumentsSidebar({ workspaceId, isOpen, isExpanded, onTo
                         <button
                           onClick={() => handleDownload(doc)}
                           className="p-1 text-dark-400 hover:text-green-400 hover:bg-dark-800 rounded"
-                          title="Download"
+                          title="Download original"
                         >
                           <Download className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDownloadMarkdown(doc)}
+                          className="p-1 text-dark-400 hover:text-purple-400 hover:bg-dark-800 rounded"
+                          title="Download markdown"
+                        >
+                          <FileText className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(doc.id)}
@@ -318,7 +385,22 @@ export default function DocumentsSidebar({ workspaceId, isOpen, isExpanded, onTo
                     </div>
                     <div className="flex items-center gap-2 text-xs">
                       {doc.is_embedded ? (
-                        <span className="text-green-400">✓ Embedded</span>
+                        <span 
+                          className="text-green-400 cursor-help relative group"
+                          onMouseEnter={() => loadStats(doc.id)}
+                        >
+                          ✓ Embedded
+                          {docStats[doc.id] && (
+                            <span className="absolute bottom-full left-0 mb-1 px-2 py-1 bg-dark-700 border border-dark-600 rounded text-[10px] text-dark-300 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                              {formatStats(docStats[doc.id]!)}
+                            </span>
+                          )}
+                          {loadingStats[doc.id] && (
+                            <span className="absolute bottom-full left-0 mb-1 px-2 py-1 bg-dark-700 border border-dark-600 rounded text-[10px] text-dark-300 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                              Loading...
+                            </span>
+                          )}
+                        </span>
                       ) : embeddingStatus[doc.id] === 'embedding' ? (
                         <span className="text-yellow-400 flex items-center gap-1">
                           <Loader2 className="w-3 h-3 animate-spin" />

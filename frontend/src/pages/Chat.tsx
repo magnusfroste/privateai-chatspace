@@ -11,6 +11,8 @@ import DocumentManager from '../components/DocumentManager'
 import NotesSidebar from '../components/NotesSidebar'
 import DocumentsSidebar from '../components/DocumentsSidebar'
 import { HelpModal } from '../components/HelpModal'
+import ToggleSwitch from '../components/ToggleSwitch'
+import { showToast } from '../components/Toast'
 import { Settings, Database, X, StickyNote, HelpCircle } from 'lucide-react'
 
 interface Message {
@@ -234,8 +236,16 @@ export default function Chat() {
         }
       }
       
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to send message:', err)
+      const errorMsg = err.message?.includes('timeout') 
+        ? 'Request timed out. Please try again.'
+        : err.message?.includes('network') 
+          ? 'Network error. Check your connection.'
+          : 'Failed to send message. Please try again.'
+      showToast(errorMsg, 'error')
+      // Remove the empty assistant message on error
+      setMessages(prev => prev.filter(m => m.content !== ''))
     } finally {
       setIsStreaming(false)
     }
@@ -353,8 +363,15 @@ export default function Chat() {
           }
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to send message:', err)
+      const errorMsg = err.message?.includes('timeout') 
+        ? 'Request timed out. Please try again.'
+        : err.message?.includes('network') 
+          ? 'Network error. Check your connection.'
+          : 'Failed to send message. Please try again.'
+      showToast(errorMsg, 'error')
+      setMessages(prev => prev.filter(m => m.content !== ''))
     } finally {
       setIsStreaming(false)
     }
@@ -386,27 +403,19 @@ export default function Chat() {
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 {hasEmbeddedDocs && (
-                  <label className="flex items-center gap-2 text-sm text-dark-400 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={useRag}
-                      onChange={(e) => setUseRag(e.target.checked)}
-                      className="w-4 h-4 rounded bg-dark-700 border-dark-600"
-                    />
-                    RAG
-                  </label>
-                )}
-                <label className="flex items-center gap-2 text-sm text-dark-400 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={useWebSearch}
-                    onChange={handleToggleWebSearch}
-                    className="w-4 h-4 rounded bg-dark-700 border-dark-600"
+                  <ToggleSwitch
+                    enabled={useRag}
+                    onChange={setUseRag}
+                    label="RAG"
                   />
-                  Web Search
-                </label>
+                )}
+                <ToggleSwitch
+                  enabled={useWebSearch}
+                  onChange={() => handleToggleWebSearch()}
+                  label="Web"
+                />
                 <button
                   onClick={() => setShowNotes(!showNotes)}
                   className={`p-2 hover:bg-dark-700 rounded-lg transition-colors ${
