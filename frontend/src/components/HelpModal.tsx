@@ -1,5 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, BookOpen, FileText, Search, Settings, MessageSquare, HelpCircle } from 'lucide-react';
+import { api } from '../lib/api';
+
+interface HelpModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
 interface HelpModalProps {
   isOpen: boolean;
@@ -10,6 +16,22 @@ type HelpSection = 'overview' | 'documents' | 'search' | 'settings' | 'chat' | '
 
 export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
   const [activeSection, setActiveSection] = useState<HelpSection>('overview');
+  const [appName, setAppName] = useState('AI Chat');
+
+  useEffect(() => {
+    if (isOpen) {
+      loadAppConfig();
+    }
+  }, [isOpen]);
+
+  const loadAppConfig = async () => {
+    try {
+      const config = await api.auth.config();
+      setAppName(config.app_name);
+    } catch (err) {
+      console.error('Failed to load app config:', err);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -17,7 +39,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
     { id: 'overview' as HelpSection, icon: BookOpen, label: 'Kom igång' },
     { id: 'documents' as HelpSection, icon: FileText, label: 'Dokument' },
     { id: 'search' as HelpSection, icon: Search, label: 'Sökning' },
-    { id: 'chat' as HelpSection, icon: MessageSquare, label: 'Chat-lägen' },
+    { id: 'chat' as HelpSection, icon: MessageSquare, label: 'RAG-kvalitet' },
     { id: 'settings' as HelpSection, icon: Settings, label: 'Inställningar' },
     { id: 'faq' as HelpSection, icon: HelpCircle, label: 'FAQ' },
   ];
@@ -61,7 +83,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
 
           {/* Main content */}
           <div className="flex-1 p-6 overflow-y-auto">
-            {activeSection === 'overview' && <OverviewSection />}
+            {activeSection === 'overview' && <OverviewSection appName={appName} />}
             {activeSection === 'documents' && <DocumentsSection />}
             {activeSection === 'search' && <SearchSection />}
             {activeSection === 'chat' && <ChatSection />}
@@ -74,12 +96,12 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
   );
 };
 
-const OverviewSection = () => (
+const OverviewSection = ({ appName }: { appName: string }) => (
   <div className="space-y-6 text-gray-300">
     <div>
-      <h3 className="text-xl font-bold text-white mb-4">Välkommen till Autoversio! 👋</h3>
+      <h3 className="text-xl font-bold text-white mb-4">Välkommen till {appName}! 👋</h3>
       <p className="mb-4">
-        Autoversio är din privata AI-assistent som hjälper dig att chatta med dina dokument
+        {appName} är din privata AI-assistent som hjälper dig att chatta med dina dokument
         och få svar baserat på din egen kunskap. Allt stannar på era egna servrar.
       </p>
     </div>
@@ -122,64 +144,56 @@ const OverviewSection = () => (
 
 const DocumentsSection = () => (
   <div className="space-y-6 text-gray-300">
-    <h3 className="text-xl font-bold text-white mb-4">📚 Två sätt att använda dokument</h3>
+    <h3 className="text-xl font-bold text-white mb-4">📚 Dokument</h3>
 
-    <div className="grid md:grid-cols-2 gap-4">
-      {/* RAG */}
-      <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-2xl">📚</span>
-          <h4 className="text-lg font-semibold text-white">RAG - Workspace-dokument</h4>
-        </div>
+    <div className="bg-gray-900 rounded-lg p-4">
+      <h4 className="text-lg font-semibold text-white mb-3">📄 Visa dokument</h4>
+      <div className="space-y-3">
         <p className="text-sm mb-3">
-          <strong className="text-white">Vad är det?</strong><br />
-          Kunskapsbas där AI:n söker automatiskt när den behöver information.
+          <strong className="text-white">Hur fungerar det?</strong><br />
+          Klicka på ett dokumentnamn i sidopanelen för att öppna markdown-vyn.
         </p>
-        <p className="text-sm mb-3">
-          <strong className="text-white">När ska jag använda det?</strong>
-        </p>
-        <ul className="text-sm space-y-1 list-disc list-inside text-gray-400">
-          <li>Dokument för många chattar</li>
-          <li>Kunskapsbas för hela teamet</li>
-          <li>Manualer, policys, rutiner</li>
-        </ul>
-        <div className="mt-3 p-2 bg-gray-800 rounded text-xs">
-          <strong className="text-white">Exempel:</strong><br />
-          "Vad är vår policy för distansarbete?"<br />
-          <span className="text-gray-500">→ AI söker i HR-dokument</span>
+        <div className="bg-gray-800 rounded p-3 text-sm">
+          <strong className="text-white">Steg för steg:</strong>
+          <ol className="mt-2 space-y-1 list-decimal list-inside text-gray-400">
+            <li>Klicka på dokumentnamnet i sidopanelen</li>
+            <li>Dokumentet öppnas i parsed markdown-format</li>
+            <li>Använd knapparna för att ladda ned eller stänga</li>
+          </ol>
         </div>
       </div>
+    </div>
 
-      {/* CAG */}
-      <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-2xl">📎</span>
-          <h4 className="text-lg font-semibold text-white">CAG - Bifogade filer</h4>
-        </div>
-        <p className="text-sm mb-3">
-          <strong className="text-white">Vad är det?</strong><br />
-          Ladda upp en fil direkt i chatten för att ställa frågor om just den filen.
-        </p>
-        <p className="text-sm mb-3">
-          <strong className="text-white">När ska jag använda det?</strong>
-        </p>
-        <ul className="text-sm space-y-1 list-disc list-inside text-gray-400">
-          <li>Engångsfrågor om specifika dokument</li>
-          <li>Jämföra dokument</li>
-          <li>Analysera nya dokument</li>
-        </ul>
-        <div className="mt-3 p-2 bg-gray-800 rounded text-xs">
-          <strong className="text-white">Exempel:</strong><br />
-          [Bifogar kontrakt.pdf] "Sammanfatta detta avtal"<br />
-          <span className="text-gray-500">→ AI läser filen direkt</span>
+    <div className="bg-gray-900 rounded-lg p-4">
+      <h4 className="text-lg font-semibold text-white mb-3">📝 Markdown vs PDF</h4>
+      <div className="space-y-3">
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="border border-gray-700 rounded p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-blue-400">📄</span>
+              <span className="text-white font-medium">Markdown</span>
+            </div>
+            <p className="text-sm text-gray-400">
+              Parsed text från dokumentet. Perfekt för att läsa och förstå innehållet.
+            </p>
+          </div>
+          <div className="border border-gray-700 rounded p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-purple-400">👁️</span>
+              <span className="text-white font-medium">Original PDF</span>
+            </div>
+            <p className="text-sm text-gray-400">
+              Öppnas i ny flik. Använd när du behöver se exakt layout eller bilder.
+            </p>
+          </div>
         </div>
       </div>
     </div>
 
     <div className="bg-green-900 bg-opacity-30 border border-green-700 rounded-lg p-4">
       <p className="text-sm">
-        💡 <strong>Pro-tips:</strong> Kombinera RAG + CAG! Bifoga en ny fil OCH få kontext
-        från workspace-dokument. Perfekt för att jämföra nya dokument mot befintliga policys.
+        💡 <strong>Tips:</strong> Markdown-vyn visar dokumentet som AI:n "läser" det.
+        Härifrån kan du också ladda ned dokumentet som .md-fil.
       </p>
     </div>
   </div>
@@ -187,61 +201,42 @@ const DocumentsSection = () => (
 
 const SearchSection = () => (
   <div className="space-y-6 text-gray-300">
-    <h3 className="text-xl font-bold text-white mb-4">🔍 Hur fungerar sökningen?</h3>
+    <h3 className="text-xl font-bold text-white mb-4">🔍 AI-sökning i dokument</h3>
 
     <p>
-      När AI:n söker i dina dokument använder den <strong className="text-white">två olika metoder samtidigt</strong> för bästa resultat:
+      När du ställer frågor söker AI:n automatiskt igenom dina dokument för att hitta relevant information.
+      <strong className="text-white"> Du behöver inte göra något särskilt</strong> - sökningen sker bakom kulisserna.
     </p>
 
-    <div className="space-y-4">
-      {/* Keyword */}
-      <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-2xl">🔤</span>
-          <h4 className="text-lg font-semibold text-white">Keyword-sökning</h4>
-        </div>
-        <p className="text-sm mb-2">
-          <strong className="text-white">Enkelt förklarat:</strong> Söker efter exakta ord och fraser.
-        </p>
-        <div className="bg-gray-800 rounded p-3 text-sm">
-          <strong className="text-white">Exempel:</strong><br />
-          Du frågar: "Vad är vår GDPR-policy?"<br />
-          <span className="text-gray-400">→ Söker efter: "GDPR", "policy", "dataskydd"</span>
-        </div>
-        <p className="text-sm mt-2 text-gray-400">
-          <strong>Bra för:</strong> Specifika termer, produktnamn, juridiska begrepp, akronymer
-        </p>
+    <div className="bg-blue-900 bg-opacity-30 border border-blue-700 rounded-lg p-4">
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-2xl">🎯</span>
+        <h4 className="text-lg font-semibold text-white">Smart sökning</h4>
       </div>
+      <p className="text-sm mb-2">
+        AI:n kombinerar flera sökmetoder för att ge dig de bästa resultaten:
+      </p>
+      <ul className="text-sm space-y-1 list-disc list-inside text-gray-400">
+        <li>Ordsökning - hittar exakta termer</li>
+        <li>Meningsförståelse - förstår vad du menar</li>
+        <li>Relevansrankning - visar viktigaste träffarna först</li>
+      </ul>
+    </div>
 
-      {/* Semantic */}
-      <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-2xl">🧠</span>
-          <h4 className="text-lg font-semibold text-white">Semantisk sökning</h4>
-        </div>
-        <p className="text-sm mb-2">
-          <strong className="text-white">Enkelt förklarat:</strong> Förstår vad du menar, inte bara orden du använder.
-        </p>
-        <div className="bg-gray-800 rounded p-3 text-sm">
-          <strong className="text-white">Exempel:</strong><br />
-          Du frågar: "Hur hanterar vi kunddata?"<br />
-          <span className="text-gray-400">→ Förstår: dataskydd, integritet, GDPR</span>
-        </div>
-        <p className="text-sm mt-2 text-gray-400">
-          <strong>Bra för:</strong> Konceptuella frågor, olika sätt att uttrycka samma sak
-        </p>
-      </div>
-
-      {/* Hybrid */}
-      <div className="bg-blue-900 bg-opacity-30 border border-blue-700 rounded-lg p-4">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-2xl">🎯</span>
-          <h4 className="text-lg font-semibold text-white">Hybrid-sökning (Standard)</h4>
-        </div>
-        <p className="text-sm">
-          <strong>Bäst av båda världar!</strong> Autoversio kombinerar båda metoderna automatiskt
-          för att ge dig de bästa resultaten. ✨
-        </p>
+    <div className="bg-gray-900 rounded-lg p-4">
+      <h4 className="text-lg font-semibold text-white mb-3">📊 Sökresultat</h4>
+      <p className="text-sm mb-3">
+        AI:n använder vanligtvis <strong className="text-white">5 dokument</strong> för att besvara frågor,
+        men kan använda fler om frågan kräver det.
+      </p>
+      <div className="bg-gray-800 rounded p-3 text-sm">
+        <strong className="text-white">Vad händer när du frågar:</strong>
+        <ol className="mt-2 space-y-1 list-decimal list-inside text-gray-400">
+          <li>AI:n söker igenom alla dokument i workspace</li>
+          <li>Hittar de mest relevanta delarna</li>
+          <li>Bygger ett svar baserat på din fråga + funna dokument</li>
+          <li>Visar källor och förklarar sitt svar</li>
+        </ol>
       </div>
     </div>
   </div>
@@ -249,46 +244,76 @@ const SearchSection = () => (
 
 const ChatSection = () => (
   <div className="space-y-6 text-gray-300">
-    <h3 className="text-xl font-bold text-white mb-4">💬 Chat-lägen</h3>
+    <h3 className="text-xl font-bold text-white mb-4">🎯 RAG-kvalitetsnivåer</h3>
+
+    <p className="mb-4">
+      Varje workspace har en RAG-kvalitetsnivå som styr hur många dokument AI:n söker igenom
+      och hur noggrant den analyserar dem. Du kan ändra detta i workspace-inställningarna.
+    </p>
 
     <div className="space-y-4">
-      {/* Chat mode */}
+      {/* Balanced */}
       <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
-        <h4 className="text-lg font-semibold text-white mb-2">Chat-läge (Standard)</h4>
-        <p className="text-sm mb-3">
-          AI:n svarar alltid, även om den inte hittar relevant information i dokumenten.
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-2xl">⚖️</span>
+          <h4 className="text-lg font-semibold text-white">Balanced (Rekommenderad)</h4>
+        </div>
+        <p className="text-sm mb-2 text-gray-400">
+          Standard kvalitet som fungerar bra för de flesta användningsfall.
         </p>
-        <p className="text-sm mb-2">
-          <strong className="text-white">Använd när:</strong>
-        </p>
-        <ul className="text-sm space-y-1 list-disc list-inside text-gray-400">
-          <li>Du vill ha konversation</li>
-          <li>Allmänna frågor</li>
-          <li>Brainstorming</li>
-        </ul>
+        <div className="bg-gray-800 rounded p-3 text-sm mt-2">
+          <strong className="text-white">Bra för:</strong>
+          <ul className="mt-1 space-y-1 list-disc list-inside text-gray-400">
+            <li>Daglig användning</li>
+            <li>Allmänna frågor</li>
+            <li>Bra balans mellan hastighet och noggrannhet</li>
+          </ul>
+        </div>
       </div>
 
-      {/* Query mode */}
+      {/* Precise */}
       <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
-        <h4 className="text-lg font-semibold text-white mb-2">Query-läge</h4>
-        <p className="text-sm mb-3">
-          AI:n svarar <strong className="text-white">bara</strong> om den hittar relevant information i dina dokument.
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-2xl">🎯</span>
+          <h4 className="text-lg font-semibold text-white">Precise</h4>
+        </div>
+        <p className="text-sm mb-2 text-gray-400">
+          Snabbare svar med färre dokument. Fokuserar på de mest relevanta träffarna.
         </p>
-        <p className="text-sm mb-2">
-          <strong className="text-white">Använd när:</strong>
+        <div className="bg-gray-800 rounded p-3 text-sm mt-2">
+          <strong className="text-white">Bra för:</strong>
+          <ul className="mt-1 space-y-1 list-disc list-inside text-gray-400">
+            <li>Snabba, fokuserade svar</li>
+            <li>Specifika frågor</li>
+            <li>När du vet exakt vad du letar efter</li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Comprehensive */}
+      <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-2xl">📚</span>
+          <h4 className="text-lg font-semibold text-white">Comprehensive</h4>
+        </div>
+        <p className="text-sm mb-2 text-gray-400">
+          Grundliga, detaljerade svar med fler dokument. Tar lite längre tid men ger mer omfattande svar.
         </p>
-        <ul className="text-sm space-y-1 list-disc list-inside text-gray-400">
-          <li>Du bara vill ha svar från era dokument</li>
-          <li>Säkerställa att svaren är baserade på er kunskap</li>
-          <li>Undvika gissningar</li>
-        </ul>
+        <div className="bg-gray-800 rounded p-3 text-sm mt-2">
+          <strong className="text-white">Bra för:</strong>
+          <ul className="mt-1 space-y-1 list-disc list-inside text-gray-400">
+            <li>Komplexa frågor</li>
+            <li>Djupgående analys</li>
+            <li>När du behöver se hela bilden</li>
+          </ul>
+        </div>
       </div>
     </div>
 
     <div className="bg-blue-900 bg-opacity-30 border border-blue-700 rounded-lg p-4">
       <p className="text-sm">
-        💡 <strong>Tips:</strong> Använd Query-läge när du vill vara säker på att AI:n bara
-        svarar baserat på era dokument, inte på sin allmänna kunskap.
+        💡 <strong>Tips:</strong> Börja med Balanced och byt till Precise för snabba svar
+        eller Comprehensive när du behöver djupare analys.
       </p>
     </div>
   </div>
@@ -296,78 +321,61 @@ const ChatSection = () => (
 
 const SettingsSection = () => (
   <div className="space-y-6 text-gray-300">
-    <h3 className="text-xl font-bold text-white mb-4">⚙️ Avancerade inställningar</h3>
+    <h3 className="text-xl font-bold text-white mb-4">⚙️ Workspace-inställningar</h3>
 
-    <div className="bg-yellow-900 bg-opacity-30 border border-yellow-700 rounded-lg p-4 mb-4">
+    <div className="bg-blue-900 bg-opacity-30 border border-blue-700 rounded-lg p-4 mb-4">
       <p className="text-sm">
-        <strong className="text-white">Behöver jag ändra dessa?</strong><br />
-        <strong className="text-yellow-400">NEJ!</strong> Standardinställningarna fungerar utmärkt för 95% av användningsfall.
+        <strong className="text-white">Enkelt och kraftfullt!</strong><br />
+        Vi har förenklat inställningarna. Du behöver bara välja RAG-kvalitetsnivå - resten sköts automatiskt.
       </p>
     </div>
 
     <div className="space-y-4">
-      {/* Top N */}
+      {/* Name & Description */}
       <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
-        <h4 className="text-base font-semibold text-white mb-2">Antal resultat (top_n)</h4>
-        <p className="text-sm mb-2">
-          <strong className="text-white">Standard:</strong> 5 dokument
-        </p>
+        <h4 className="text-base font-semibold text-white mb-2">Namn & Beskrivning</h4>
         <p className="text-sm text-gray-400">
-          Hur många dokument AI:n söker i vid varje fråga.
-        </p>
-        <ul className="text-sm mt-2 space-y-1 text-gray-400">
-          <li><strong className="text-white">Färre (3):</strong> Snabbare svar, mer fokuserade</li>
-          <li><strong className="text-white">Fler (10):</strong> Mer omfattande, kan bli långsammare</li>
-        </ul>
-      </div>
-
-      {/* Similarity threshold */}
-      <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
-        <h4 className="text-base font-semibold text-white mb-2">Likhetströskel (similarity threshold)</h4>
-        <p className="text-sm mb-2">
-          <strong className="text-white">Standard:</strong> 0.25
-        </p>
-        <p className="text-sm text-gray-400">
-          Hur relevant ett dokument måste vara för att inkluderas.
-        </p>
-        <ul className="text-sm mt-2 space-y-1 text-gray-400">
-          <li><strong className="text-white">Högre (0.5):</strong> Bara mycket relevanta resultat</li>
-          <li><strong className="text-white">Lägre (0.1):</strong> Fler resultat, även mindre relevanta</li>
-        </ul>
-      </div>
-
-      {/* Hybrid search */}
-      <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
-        <h4 className="text-base font-semibold text-white mb-2">Hybrid-sökning</h4>
-        <p className="text-sm mb-2">
-          <strong className="text-white">Standard:</strong> PÅ
-        </p>
-        <p className="text-sm text-gray-400">
-          Kombinerar keyword + semantisk sökning för bästa resultat.
-        </p>
-        <p className="text-sm mt-2 text-green-400">
-          <strong>Rekommendation:</strong> Låt den vara på!
+          Ge ditt workspace ett beskrivande namn och en valfri beskrivning.
+          Detta hjälper dig att hålla ordning på olika projekt.
         </p>
       </div>
 
-      {/* Web search */}
+      {/* System Prompt */}
       <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
-        <h4 className="text-base font-semibold text-white mb-2">Web-sökning</h4>
-        <p className="text-sm mb-2">
-          <strong className="text-white">Standard:</strong> AV
-        </p>
+        <h4 className="text-base font-semibold text-white mb-2">System Prompt</h4>
         <p className="text-sm text-gray-400 mb-2">
-          Låter AI:n söka på internet när den behöver aktuell information.
+          Instruktioner till AI:n om hur den ska bete sig i detta workspace.
         </p>
-        <p className="text-sm mb-2">
-          <strong className="text-white">När ska jag slå på den?</strong>
-        </p>
-        <ul className="text-sm space-y-1 list-disc list-inside text-gray-400">
-          <li>Aktuella nyheter</li>
-          <li>Realtidsinformation</li>
-          <li>Fakta utanför era dokument</li>
-        </ul>
+        <div className="bg-gray-800 rounded p-3 text-sm mt-2">
+          <strong className="text-white">Exempel:</strong><br />
+          <span className="text-gray-400">
+            "Du är en teknisk support-assistent. Svara alltid med konkreta steg-för-steg instruktioner."
+          </span>
+        </div>
       </div>
+
+      {/* RAG Quality */}
+      <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
+        <h4 className="text-base font-semibold text-white mb-2">RAG-kvalitet</h4>
+        <p className="text-sm text-gray-400 mb-2">
+          Välj mellan tre nivåer som automatiskt justerar hur AI:n söker i dokument:
+        </p>
+        <ul className="text-sm space-y-1 text-gray-400">
+          <li><strong className="text-white">⚖️ Balanced:</strong> Rekommenderad för daglig användning</li>
+          <li><strong className="text-white">🎯 Precise:</strong> Snabbare, mer fokuserade svar</li>
+          <li><strong className="text-white">📚 Comprehensive:</strong> Djupare, mer omfattande analys</li>
+        </ul>
+        <p className="text-sm mt-2 text-green-400">
+          <strong>Tips:</strong> Du kan ändra detta när som helst beroende på vad du behöver!
+        </p>
+      </div>
+    </div>
+
+    <div className="bg-yellow-900 bg-opacity-30 border border-yellow-700 rounded-lg p-4">
+      <p className="text-sm">
+        💡 <strong>Administratörer:</strong> Globala systeminställningar (LLM-parametrar, RAG-presets, etc.)
+        finns i Admin-panelen under "Settings".
+      </p>
     </div>
   </div>
 );
@@ -419,6 +427,14 @@ const FAQSection = () => (
         <p className="text-sm text-gray-400">
           Nej, dina workspaces är privata. Bara du och administratörer kan se dina workspaces. 
           Detta säkerställer att din data förblir konfidentiell.
+        </p>
+      </div>
+
+      <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
+        <h4 className="text-base font-semibold text-white mb-2">Hur ändrar jag systeminställningar?</h4>
+        <p className="text-sm text-gray-400">
+          Administratörer kan ändra systeminställningar via Admin-panelen under "Settings".
+          Här kan du justera AI-parametrar, dokumentbehandling och andra systeminställningar.
         </p>
       </div>
     </div>
