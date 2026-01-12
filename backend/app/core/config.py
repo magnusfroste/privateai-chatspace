@@ -103,6 +103,14 @@ When given context or documents, use them to inform your answers."""
     FIRECRAWL_API_KEY: str = ""  # Firecrawl API key for web search MCP
     MCP_ENABLED: bool = False  # Enable MCP tool calling
     
+    # A/B Test Configuration (for comparing with AnythingLLM)
+    ABTEST_ANYTHINGLLM_URL: str = "https://chat.autoversio.ai"
+    ABTEST_ANYTHINGLLM_API_KEY: str = ""
+    ABTEST_ANYTHINGLLM_WORKSPACE: str = "rag-test"
+    ABTEST_PRIVATEAI_URL: str = "http://localhost:8000"
+    ABTEST_PRIVATEAI_API_KEY: str = ""
+    ABTEST_PRIVATEAI_WORKSPACE_ID: str = "2"
+    
     class Config:
         env_file = os.path.join(BACKEND_DIR, ".env")
         case_sensitive = True

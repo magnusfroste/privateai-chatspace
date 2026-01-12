@@ -1074,6 +1074,21 @@ async def list_ab_test_runs(
     ]
 
 
+@router.get("/abtest/config")
+async def get_ab_test_config(
+    admin: User = Depends(get_current_admin)
+):
+    """Get A/B test configuration from environment variables"""
+    return {
+        "anythingllm_url": settings.ABTEST_ANYTHINGLLM_URL,
+        "anythingllm_api_key": settings.ABTEST_ANYTHINGLLM_API_KEY,
+        "anythingllm_workspace": settings.ABTEST_ANYTHINGLLM_WORKSPACE,
+        "privateai_url": settings.ABTEST_PRIVATEAI_URL,
+        "privateai_api_key": settings.ABTEST_PRIVATEAI_API_KEY,
+        "privateai_workspace_id": settings.ABTEST_PRIVATEAI_WORKSPACE_ID,
+    }
+
+
 @router.get("/abtest/runs/{run_id}")
 async def get_ab_test_run(
     run_id: int,

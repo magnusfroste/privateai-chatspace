@@ -84,19 +84,46 @@ export default function ABTestEvaluator() {
   // New test form
   const [testName, setTestName] = useState('')
   const [testDescription, setTestDescription] = useState('')
-  const [anythingllmUrl, setAnythingllmUrl] = useState('https://chat.autoversio.ai')
+  const [anythingllmUrl, setAnythingllmUrl] = useState('')
   const [anythingllmApiKey, setAnythingllmApiKey] = useState('')
-  const [anythingllmWorkspace, setAnythingllmWorkspace] = useState('rag-test')
-  const [privateaiUrl, setPrivateaiUrl] = useState('http://localhost:8000')
+  const [anythingllmWorkspace, setAnythingllmWorkspace] = useState('')
+  const [privateaiUrl, setPrivateaiUrl] = useState('')
   const [privateaiApiKey, setPrivateaiApiKey] = useState('')
-  const [privateaiWorkspaceId, setPrivateaiWorkspaceId] = useState('2')
+  const [privateaiWorkspaceId, setPrivateaiWorkspaceId] = useState('')
   const [queries, setQueries] = useState<TestQuery[]>([
     { id: 'q1', query: '', category: 'technical', ground_truth_docs: [] }
   ])
 
   useEffect(() => {
     loadRuns()
+    loadConfig()
   }, [])
+
+  const loadConfig = async () => {
+    try {
+      const token = useAuthStore.getState().token
+      const response = await fetch('/api/admin/abtest/config', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      if (response.ok) {
+        const config = await response.json()
+        // Only set if not already set (preserve user edits)
+        if (!anythingllmUrl) setAnythingllmUrl(config.anythingllm_url || 'https://chat.autoversio.ai')
+        if (!anythingllmApiKey) setAnythingllmApiKey(config.anythingllm_api_key || '')
+        if (!anythingllmWorkspace) setAnythingllmWorkspace(config.anythingllm_workspace || 'rag-test')
+        if (!privateaiUrl) setPrivateaiUrl(config.privateai_url || 'http://localhost:8000')
+        if (!privateaiApiKey) setPrivateaiApiKey(config.privateai_api_key || '')
+        if (!privateaiWorkspaceId) setPrivateaiWorkspaceId(config.privateai_workspace_id || '2')
+      }
+    } catch (err) {
+      console.error('Failed to load config:', err)
+      // Set defaults if config fails
+      if (!anythingllmUrl) setAnythingllmUrl('https://chat.autoversio.ai')
+      if (!anythingllmWorkspace) setAnythingllmWorkspace('rag-test')
+      if (!privateaiUrl) setPrivateaiUrl('http://localhost:8000')
+      if (!privateaiWorkspaceId) setPrivateaiWorkspaceId('2')
+    }
+  }
 
   const loadRuns = async () => {
     setLoading(true)
