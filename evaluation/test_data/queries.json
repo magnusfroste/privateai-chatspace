@@ -1,0 +1,82 @@
+[
+    {
+        "id": "mjp_001",
+        "query": "What is the maintenance interval for MJP waterjet impeller inspection?",
+        "ground_truth_answer": "Impeller inspection and maintenance intervals are specified in the preventive maintenance schedule.",
+        "ground_truth_docs": ["MJP-5996-SM-A1.pdf", "MJP-5996-OM-A1.pdf"],
+        "category": "technical",
+        "difficulty": "medium"
+    },
+    {
+        "id": "mjp_002",
+        "query": "How do I replace the mechanical seal on MJP 5996?",
+        "ground_truth_answer": "Mechanical seal replacement procedure is documented in the service manual.",
+        "ground_truth_docs": ["MJP-5996-SM-A1.pdf"],
+        "category": "technical",
+        "difficulty": "hard"
+    },
+    {
+        "id": "mjp_003",
+        "query": "What are the installation requirements for MJP waterjet system?",
+        "ground_truth_answer": "Installation requirements including mounting, alignment, and connections are in the installation manual.",
+        "ground_truth_docs": ["MJP-5996-IM-A2.pdf"],
+        "category": "technical",
+        "difficulty": "medium"
+    },
+    {
+        "id": "mjp_004",
+        "query": "What is the operating pressure for MJP 4200 waterjet?",
+        "ground_truth_answer": "Operating pressure specifications are in the operations manual.",
+        "ground_truth_docs": ["MJP-4200-WM-PA1.pdf", "MJP-5996-OM-A1.pdf"],
+        "category": "technical",
+        "difficulty": "easy"
+    },
+    {
+        "id": "mjp_005",
+        "query": "How do I troubleshoot cavitation in MJP waterjet?",
+        "ground_truth_answer": "Cavitation troubleshooting procedures are in the service manual.",
+        "ground_truth_docs": ["MJP-5996-SM-A1.pdf", "MJP-5996-OM-A1.pdf"],
+        "category": "technical",
+        "difficulty": "hard"
+    },
+    {
+        "id": "mjp_006",
+        "query": "What are the torque specifications for MJP impeller bolts?",
+        "ground_truth_answer": "Torque specifications for impeller and other fasteners are in the service manual.",
+        "ground_truth_docs": ["MJP-5996-SM-A1.pdf"],
+        "category": "technical",
+        "difficulty": "medium"
+    },
+    {
+        "id": "tech_001",
+        "query": "How do I configure SSL certificates for nginx?",
+        "ground_truth_answer": "To configure SSL in nginx, add ssl_certificate and ssl_certificate_key directives in your server block.",
+        "ground_truth_docs": ["server_configuration.md", "test_document.md"],
+        "category": "technical",
+        "difficulty": "medium"
+    },
+    {
+        "id": "legal_001",
+        "query": "What are the data retention requirements under GDPR Article 17?",
+        "ground_truth_answer": "Article 17 establishes the right to erasure. Controllers must respond within 30 days.",
+        "ground_truth_docs": ["gdpr_compliance.md", "test_document.md"],
+        "category": "legal",
+        "difficulty": "hard"
+    },
+    {
+        "id": "product_001",
+        "query": "What are the specifications for model XR-7500-B?",
+        "ground_truth_answer": "Model XR-7500-B has 24 x 10GbE ports, 480 Gbps throughput, less than 1 microsecond latency.",
+        "ground_truth_docs": ["network_switches.md", "test_document.md"],
+        "category": "product",
+        "difficulty": "medium"
+    },
+    {
+        "id": "product_002",
+        "query": "What is the power consumption of the XR-3200-A switch?",
+        "ground_truth_answer": "The XR-3200-A switch has a typical power consumption of 25W.",
+        "ground_truth_docs": ["network_switches.md", "test_document.md"],
+        "category": "product",
+        "difficulty": "easy"
+    }
+]

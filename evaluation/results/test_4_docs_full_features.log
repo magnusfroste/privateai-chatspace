@@ -1,0 +1,61 @@
+RAG A/B Testing Framework
+============================================================
+Loaded 7 test queries
+
+Running evaluation on 7 queries...
+============================================================
+
+[1/7]
+  Query: How do I configure SSL certificates for nginx?...
+    AnythingLLM: faith=5.0, latency=1404ms
+    PrivateAI:   faith=4.0, latency=4935ms
+
+[2/7]
+  Query: What is the maximum file upload size limit?...
+    AnythingLLM: faith=5.0, latency=974ms
+    PrivateAI:   faith=3.0, latency=3743ms
+
+[3/7]
+  Query: What are the data retention requirements under GDPR Article ...
+    AnythingLLM: faith=5.0, latency=2614ms
+    PrivateAI:   faith=5.0, latency=4606ms
+
+[4/7]
+  Query: How long should customer records be retained?...
+    AnythingLLM: faith=5.0, latency=651ms
+    PrivateAI:   faith=4.0, latency=3081ms
+
+[5/7]
+  Query: What are the specifications for model XR-7500-B?...
+    AnythingLLM: faith=5.0, latency=1384ms
+    PrivateAI:   faith=3.0, latency=4165ms
+
+[6/7]
+  Query: What is the power consumption of the XR-3200-A switch?...
+    AnythingLLM: faith=5.0, latency=724ms
+    PrivateAI:   faith=5.0, latency=2135ms
+
+[7/7]
+  Query: How do I reset my password?...
+    AnythingLLM: faith=5.0, latency=1195ms
+    PrivateAI:   faith=3.0, latency=2408ms
+
+Results saved to: results/evaluation_20260111_225102.json
+
+======================================================================
+RAG A/B TEST RESULTS
+======================================================================
+
+Total queries evaluated: 7
+
+----------------------------------------------------------------------
+Metric                    AnythingLLM          PrivateAI            Winner
+----------------------------------------------------------------------
+Latency (ms)              1278.161             3581.872             AnythingLLM
+Faithfulness (1-5)        5.000                3.857                AnythingLLM
+Relevancy (1-5)           5.000                5.000                Tie
+Precision@5               0.600                0.200                AnythingLLM
+Recall@5                  1.000                1.000                Tie
+MRR                       0.786                0.857                PrivateAI
+Context Relevancy         0.278                0.096                AnythingLLM
+----------------------------------------------------------------------

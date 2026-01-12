@@ -16,6 +16,9 @@ class Workspace(Base):
     top_n = Column(Integer, default=5)  # Number of document chunks to retrieve (used when rag_mode != global)
     similarity_threshold = Column(Float, default=0.25)  # Minimum similarity score (used when rag_mode != global)
     use_hybrid_search = Column(Boolean, default=True)  # Use hybrid (dense + sparse) search
+    use_reranking = Column(Boolean, default=False)  # Use cross-encoder reranking for better accuracy (slower)
+    rerank_top_k = Column(Integer, default=20)  # Number of candidates to rerank (when use_reranking=True)
+    use_query_expansion = Column(Boolean, default=False)  # Use LLM to generate query variants for better recall
     use_web_search = Column(Boolean, default=False)  # Use external search agent for web search
     sound_enabled = Column(Boolean, default=True)  # Enable sound for TTS
     admin_pinned = Column(Boolean, default=False)  # Show in admin's sidebar

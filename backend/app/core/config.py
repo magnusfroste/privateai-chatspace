@@ -33,7 +33,7 @@ Format your responses using Markdown for better readability:
 When given context or documents, use them to inform your answers."""
     
     # Context Window Limits (adjusted for Qwen3-80B)
-    MAX_CONTEXT_TOKENS: int = 128000  # Qwen3-80B has 128K context window
+    MAX_CONTEXT_TOKENS: int = 262144  # Qwen3-80B max-model-len in vLLM config
     CONTEXT_HISTORY_RATIO: float = 0.7  # 70% for chat history (more for large models)
     CONTEXT_SYSTEM_RATIO: float = 0.15  # 15% for system prompt + RAG
     CONTEXT_USER_RATIO: float = 0.15    # 15% for user input + files

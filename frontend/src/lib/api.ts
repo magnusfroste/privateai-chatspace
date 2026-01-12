@@ -12,6 +12,9 @@ export interface Workspace {
   top_n: number | null
   similarity_threshold: number | null
   use_hybrid_search: boolean | null
+  use_reranking: boolean | null
+  rerank_top_k: number | null
+  use_query_expansion: boolean | null
   use_web_search: boolean | null
   admin_pinned: boolean | null
   owner_id: number
@@ -108,7 +111,7 @@ export const api = {
     get: (id: number) => fetchApi<Workspace>(`/workspaces/${id}`),
     create: (data: { name: string; description?: string; system_prompt?: string; chat_mode?: string; top_n?: number; similarity_threshold?: number; use_hybrid_search?: boolean; use_web_search?: boolean }) =>
       fetchApi<Workspace>('/workspaces', { method: 'POST', body: JSON.stringify(data) }),
-    update: (id: number, data: { name?: string; description?: string; system_prompt?: string; chat_mode?: string; rag_mode?: string; top_n?: number; similarity_threshold?: number; use_hybrid_search?: boolean; use_web_search?: boolean }) =>
+    update: (id: number, data: { name?: string; description?: string; system_prompt?: string; chat_mode?: string; rag_mode?: string; top_n?: number; similarity_threshold?: number; use_hybrid_search?: boolean; use_reranking?: boolean; rerank_top_k?: number; use_query_expansion?: boolean; use_web_search?: boolean }) =>
       fetchApi<Workspace>(`/workspaces/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: (id: number) => fetchApi(`/workspaces/${id}`, { method: 'DELETE' }),
   },

@@ -1,0 +1,47 @@
+version: '3.8'
+
+# AnythingLLM for A/B Testing
+# Uses same LLM and Embedder as Private AI Chatspace
+
+services:
+  anythingllm:
+    image: mintplexlabs/anythingllm
+    container_name: anythingllm
+    ports:
+      - "3001:3001"
+    volumes:
+      # Persistent storage
+      - ./anythingllm-data:/app/server/storage
+      # Mount test documents for easy access (read-only)
+      - ./evaluation/test_data/documents:/app/documents:ro
+    environment:
+      # ============================================
+      # LLM Configuration (same as Private AI Chatspace)
+      # ============================================
+      LLM_PROVIDER: "generic-openai"
+      GENERIC_OPEN_AI_BASE_PATH: "https://api.autoversio.ai/v1"
+      GENERIC_OPEN_AI_API_KEY: "sk-7eC6fR7qpxQOXCK2kYfPWg"
+      GENERIC_OPEN_AI_MODEL_PREF: "autoversio"
+      GENERIC_OPEN_AI_MODEL_TOKEN_LIMIT: "128000"
+      
+      # ============================================
+      # Embedder Configuration (same as Private AI Chatspace)
+      # ============================================
+      EMBEDDING_ENGINE: "generic-openai"
+      EMBEDDING_BASE_PATH: "https://api.autoversio.ai/v1"
+      EMBEDDING_MODEL_PREF: "embed"
+      EMBEDDING_MODEL_MAX_CHUNK_LENGTH: "8192"
+      
+      # ============================================
+      # Vector Database (LanceDB - best for AnythingLLM)
+      # ============================================
+      VECTOR_DB: "lancedb"
+      
+      # ============================================
+      # Server Settings
+      # ============================================
+      SERVER_PORT: "3001"
+      STORAGE_DIR: "/app/server/storage"
+      
+    restart: unless-stopped
+    # Note: No GPU needed - LLM and Embedder are remote APIs

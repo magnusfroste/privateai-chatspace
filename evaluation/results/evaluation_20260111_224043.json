@@ -1,0 +1,366 @@
+[
+  {
+    "test_id": "tech_001",
+    "category": "technical",
+    "query": "How do I configure SSL certificates for nginx?",
+    "ground_truth_answer": "To configure SSL in nginx, add ssl_certificate and ssl_certificate_key directives in your server block, pointing to your certificate and private key files, then restart nginx.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "To configure SSL certificates for nginx:\n\n1. Generate or obtain your SSL certificate and private key.\n2. Add the following lines to your nginx server block:\n   ```\n   ssl_certificate /etc/nginx/ssl/certificate.crt;\n   ssl_certificate_key /etc/nginx/ssl/private.key;\n   ```\n3. Restart nginx with the command: `sudo systemctl restart nginx`.",
+      "retrieved_docs": [
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 1263.2369995117188,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.4,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses how to configure SSL certificates for nginx using the exact steps and configuration from the retrieved context, with no hallucinations. It includes all necessary steps: obtaining certificates, adding the correct nginx directives, and restarting the service, matching both the context and the query comprehensively."
+      },
+      "context_relevancy": 1.0,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "To configure SSL certificates for nginx, follow these steps:\n\n1. Generate or obtain your SSL certificate and private key.\n2. Add the following lines to your nginx server block:\n   ```\n   ssl_certificate /etc/nginx/ssl/certificate.crt;\n   ssl_certificate_key /etc/nginx/ssl/private.key;\n   ```\n3. Restart nginx using the command: `sudo systemctl restart nginx` [1].",
+      "retrieved_docs": [
+        "test_document.md"
+      ],
+      "latency_ms": 1749.8819828033447,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 4.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses how to configure SSL certificates for nginx with accurate steps. It correctly references the ssl_certificate and ssl_certificate_key directives and the restart command. While the retrieved context is empty [1], the answer contains no hallucinations\u2014it aligns with standard nginx configuration practices. The response is comprehensive, covering certificate acquisition, configuration, and restart, matching the ground truth."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.85
+    }
+  },
+  {
+    "test_id": "tech_002",
+    "category": "technical",
+    "query": "What is the maximum file upload size limit?",
+    "ground_truth_answer": "The maximum file upload size is 50MB by default, configurable in config.yaml under upload.max_size_mb.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "The maximum file upload size is configured to **50MB** by default. This can be adjusted in the `config.yaml` file under the `upload` section:\n\n```yaml\nupload:\n  max_size_mb: 50\n```",
+      "retrieved_docs": [
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 944.0598487854004,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.4,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses the query about the maximum file upload size, correctly states it is 50MB by default, and accurately references the config.yaml configuration as supported by the retrieved context. There are no hallucinations, and all key details from the context are included."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "The maximum file upload size is configured to **50MB** by default [1]. This setting can be adjusted in the application\u2019s `config.yaml` file under the `upload` section:\n\n```yaml\nupload:\n  max_size_mb: 50\n```\n\nTo change the limit, modify the `max_size_mb` value and restart the application for the changes to take effect [1].",
+      "retrieved_docs": [
+        "test_document.md"
+      ],
+      "latency_ms": 1172.7759838104248,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses the query by stating the default file upload size limit is 50MB, correctly references the config.yaml file and the upload.max_size_mb setting as per the retrieved context, and includes actionable details without introducing unsupported claims."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  },
+  {
+    "test_id": "legal_001",
+    "category": "legal",
+    "query": "What are the data retention requirements under GDPR Article 17?",
+    "ground_truth_answer": "Article 17 establishes the right to erasure (right to be forgotten). Data subjects can request deletion, controllers must respond within 30 days.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "GDPR Article 17 (the \"right to erasure\" or \"right to be forgotten\") does not set mandatory retention periods. Instead, it requires organizations to **delete personal data without undue delay** when any of the following conditions apply:\n\n- The data is no longer necessary for the purpose it was collected.\n- The data subject withdraws consent and there is no other legal basis for processing.\n- The data subject objects to processing and there are no overriding legitimate grounds.\n- The data was processed unlawfully.\n- The data must be erased to comply with a legal obligation.\n- The data was collected in relation to the offer of information society services to a child.\n\nControllers must respond to erasure requests **within 30 days**.\n\n**Important note**: Retention periods such as 7 years for customer records or 6 years for employee records are governed by other laws (e.g., tax, employment, or financial regulations), not Article 17. Article 17 focuses on the right to deletion upon request, not on how long data must be kept.",
+      "retrieved_docs": [
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 2471.0891246795654,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.4,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer correctly clarifies that GDPR Article 17 is about the right to erasure, not mandatory retention periods, and accurately summarizes the conditions for deletion and the 30-day response window from the context. It also appropriately distinguishes Article 17 from other legal retention requirements, which is a nuanced and correct interpretation supported by the retrieved text."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "To configure SSL certificates for nginx, follow these steps:\n\n1. Generate or obtain your SSL certificate and private key.\n2. Add the following lines to your nginx server block:\n   ```\n   ssl_certificate /etc/nginx/ssl/certificate.crt;\n   ssl_certificate_key /etc/nginx/ssl/private.key;\n   ```\n3. Restart nginx using the command: `sudo systemctl restart nginx` [1].\n\nThe maximum file upload size is configured to **50MB** by default. This setting can be modified in the application\u2019s `config.yaml` file under the `upload` section:\n```yaml\nupload:\n  max_size_mb: 50\n```\n[1].\n\nUnder GDPR Article 17 (Right to Erasure), data controllers must delete personal data without undue delay when certain conditions apply, such as when the data is no longer necessary for the original purpose or when consent is withdrawn. However, Article 17 itself does not specify retention periods \u2014 those are defined by organizational policies. According to your organization\u2019s data retention policy, customer records are kept for 7 years after the last transaction, employee records for 6 years after employment ends, and marketing data until consent is withdrawn [1].",
+      "retrieved_docs": [
+        "test_document.md"
+      ],
+      "latency_ms": 2739.262819290161,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 3.0,
+        "faithfulness": 4.0,
+        "completeness": 3.0,
+        "reasoning": "The answer correctly mentions GDPR Article 17 (Right to Erasure) and includes relevant details from the context about deletion conditions and organizational policies. However, it unnecessarily includes irrelevant content about nginx SSL and file upload limits, which are off-topic. While it touches on key aspects of Article 17, it omits the ground truth point about the 30-day response requirement, making it incomplete. The factual claims about erasure conditions are supported by the context, with no hallucinations."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.85
+    }
+  },
+  {
+    "test_id": "legal_002",
+    "category": "legal",
+    "query": "How long should customer records be retained?",
+    "ground_truth_answer": "Customer records should be retained for 7 years after the last transaction.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "Customer records should be retained for **7 years after the last transaction**.",
+      "retrieved_docs": [
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 556.8258762359619,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.4,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly and accurately reflects the retention period for customer records as stated in the retrieved context: '7 years after last transaction.' There are no hallucinations, and the response fully addresses the query without omitting key details."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "To configure SSL certificates for nginx, you need to:\n\n1. Generate or obtain your SSL certificate and private key.\n2. Add the following lines to your nginx server block:\n   ```\n   ssl_certificate /etc/nginx/ssl/certificate.crt;\n   ssl_certificate_key /etc/nginx/ssl/private.key;\n   ```\n3. Restart nginx using the command: `sudo systemctl restart nginx` [1].\n\nThe maximum file upload size is configured to **50MB** by default. This setting can be modified in the application\u2019s `config.yaml` file under the `upload` section:\n```yaml\nupload:\n  max_size_mb: 50\n```\n[1].\n\nGDPR Article 17, also known as the \u201cright to erasure\u201d or \u201cright to be forgotten,\u201d allows data subjects to request the deletion of their personal data. Controllers must delete the data \u201cwithout undue delay\u201d in specific cases, such as when the data is no longer necessary for its original purpose or when consent is withdrawn. The response to such a request must be completed within a maximum of 30 days. Note that Article 17 governs deletion requests rather than specifying retention periods [1].\n\nCustomer records should be retained for **7 years after the last transaction**, according to the organization\u2019s data retention policy [1].",
+      "retrieved_docs": [
+        "test_document.md"
+      ],
+      "latency_ms": 2938.6141300201416,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses the query by stating the correct retention period of 7 years after the last transaction, which is explicitly mentioned in the retrieved context. It does not include irrelevant information in the final response, despite the context containing unrelated details about SSL and file uploads\u2014these are not part of the answer. The answer is fully grounded in the context and completely covers the query without omission or hallucination."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  },
+  {
+    "test_id": "product_001",
+    "category": "product",
+    "query": "What are the specifications for model XR-7500-B?",
+    "ground_truth_answer": "Model XR-7500-B has 24 x 10GbE ports, 480 Gbps throughput, less than 1 microsecond latency, 150W power, 1U form factor.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "The specifications for the **Model XR-7500-B** are as follows:\n\n| Feature | Specification |\n|---------|---------------|\n| Ports | 24 x 10GbE |\n| Throughput | 480 Gbps |\n| Latency | < 1 microsecond |\n| Power | 150W typical |\n| Form Factor | 1U rack mount |",
+      "retrieved_docs": [
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 1262.294054031372,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.4,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly and accurately reflects the specifications for the XR-7500-B model as provided in the retrieved context, including all key details (ports, throughput, latency, power, form factor) without adding unsupported information or omitting any listed specifications."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "To configure SSL certificates for nginx, follow these steps:  \n1. Generate or obtain your SSL certificate and private key.  \n2. Add the following lines to your nginx server block:  \n   ```  \n   ssl_certificate /etc/nginx/ssl/certificate.crt;  \n   ssl_certificate_key /etc/nginx/ssl/private.key;  \n   ```  \n3. Restart nginx using the command: `sudo systemctl restart nginx` [1].\n\nThe maximum file upload size is configured to **50MB** by default. This setting can be modified in the application\u2019s `config.yaml` file under the `upload` section:  \n```yaml  \nupload:  \n  max_size_mb: 50  \n```  \n[1].\n\nUnder GDPR Article 17 (Right to Erasure), data subjects have the right to request the deletion of their personal data. Controllers must erase the data \u201cwithout undue delay\u201d in cases such as when the data is no longer necessary for its original purpose or when consent is withdrawn. The response to such a request must be completed within a maximum of 30 days [1].\n\nCustomer records should be retained for **7 years after the last transaction** [1].\n\nThe specifications for the Model XR-7500-B are as follows:  \n- **Ports**: 24 x 10GbE  \n- **Throughput**: 480 Gbps  \n- **Latency**: < 1 microsecond  \n- **Power**: 150W typical  \n- **Form Factor**: 1U rack mount [1].",
+      "retrieved_docs": [
+        "test_document.md"
+      ],
+      "latency_ms": 3541.682243347168,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly provides the exact specifications for the Model XR-7500-B as requested, and all details (ports, throughput, latency, power, form factor) are accurately pulled from the retrieved context without any hallucinations or irrelevant content. The additional unrelated information (SSL, file upload, GDPR, customer retention) does not detract from the correct and complete specification answer."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  },
+  {
+    "test_id": "product_002",
+    "category": "product",
+    "query": "What is the power consumption of the XR-3200-A switch?",
+    "ground_truth_answer": "The XR-3200-A switch has a typical power consumption of 25W.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "The power consumption of the **XR-3200-A** switch is **25W typical**.",
+      "retrieved_docs": [
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 634.1369152069092,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.4,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly and accurately states the power consumption of the XR-3200-A switch as '25W typical', which is explicitly stated in the retrieved context. There are no hallucinations, and the response fully addresses the query without omitting key details."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "To configure SSL certificates for nginx, you need to:  \n1. Generate or obtain your SSL certificate and private key.  \n2. Add the following lines to your nginx server block:  \n   ```  \n   ssl_certificate /etc/nginx/ssl/certificate.crt;  \n   ssl_certificate_key /etc/nginx/ssl/private.key;  \n   ```  \n3. Restart nginx using the command: `sudo systemctl restart nginx` [1].  \n\nThe maximum file upload size is configured to **50MB** by default, and this setting can be adjusted in the application\u2019s `config.yaml` file under the `upload.max_size_mb` parameter [1].  \n\nGDPR Article 17, the \u201cright to erasure,\u201d does not specify data retention periods but rather outlines conditions under which personal data must be deleted, such as when it is no longer necessary for its original purpose or when consent is withdrawn. Controllers must act \u201cwithout undue delay\u201d and respond within 30 days [1].  \n\nCustomer records should be retained for **7 years after the last transaction** [1].  \n\nThe specifications for the XR-7500-B model are:  \n- 24 x 10GbE ports  \n- Throughput of 480 Gbps  \n- Latency of less than 1 microsecond  \n- Typical power consumption of 150W  \n- 1U rack mount form factor [1].  \n\nThe power consumption of the XR-3200-A switch is **25W typical** [1].",
+      "retrieved_docs": [
+        "test_document.md"
+      ],
+      "latency_ms": 3427.9990196228027,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly and correctly states the power consumption of the XR-3200-A switch as 25W typical, which is explicitly mentioned in the retrieved context. It fully addresses the query without introducing any irrelevant or hallucinated information."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  },
+  {
+    "test_id": "general_001",
+    "category": "general",
+    "query": "How do I reset my password?",
+    "ground_truth_answer": "Click the Forgot Password link on the login page, enter your email, check for the reset link, and create a new password with at least 8 characters and one number.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "To reset your password:\n\n1. Click the \"Forgot Password\" link on the login page.  \n2. Enter your registered email address.  \n3. Check your email for the reset link.  \n4. Click the link and enter your new password.  \n5. Your new password must be at least 8 characters long and include at least one number.",
+      "retrieved_docs": [
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 1179.7850131988525,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.4,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly and accurately reflects the password reset steps from the retrieved context, including all key details: clicking 'Forgot Password', entering the email, checking for the reset link, setting a new password, and the requirement of 8+ characters with one number. There are no hallucinations, and it fully addresses the query."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "To configure SSL certificates for nginx, follow these steps:\n\n1. Generate or obtain your SSL certificate and private key.\n2. Add the following lines to your nginx server block:\n   ```\n   ssl_certificate /etc/nginx/ssl/certificate.crt;\n   ssl_certificate_key /etc/nginx/ssl/private.key;\n   ```\n3. Restart nginx using the command: `sudo systemctl restart nginx` [1].\n\nThe maximum file upload size is configured to **50MB** by default. This setting can be modified in the application\u2019s `config.yaml` file under the `upload` section [1].\n\nGDPR Article 17, also known as the \u201cright to erasure\u201d or \u201cright to be forgotten,\u201d allows data subjects to request the deletion of their personal data. Controllers must delete data \u201cwithout undue delay\u201d in cases such as when the data is no longer necessary for its original purpose or when consent is withdrawn. The maximum response time for such requests is 30 days. Note that Article 17 governs the right to erase data, not retention periods; retention rules are covered separately in the Data Retention Policy [1].\n\nCustomer records should be retained for **7 years after the last transaction** [1].\n\nThe specifications for the Model XR-7500-B network switch are as follows:\n- **Ports**: 24 x 10GbE  \n- **Throughput**: 480 Gbps  \n- **Latency**: < 1 microsecond  \n- **Power**: 150W typical  \n- **Form Factor**: 1U rack mount [1].\n\nThe power consumption of the XR-3200-A switch is **25W typical** [1].\n\nTo reset your password:\n1. Click the \"Forgot Password\" link on the login page.\n2. Enter your registered email address.\n3. Check your email for the reset link.\n4. Click the link and enter your new password.\n5. Ensure the new password is at least 8 characters long and contains at least one number [1].",
+      "retrieved_docs": [
+        "test_document.md"
+      ],
+      "latency_ms": 4429.476261138916,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses the query about resetting a password with a step-by-step guide that exactly matches the retrieved context. It includes all key steps: clicking 'Forgot Password', entering email, checking email, creating a new password, and the password requirements (8+ characters, one number). No hallucinations are present, and the response is fully grounded in the provided context."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.85
+    }
+  }
+]

@@ -1,0 +1,61 @@
+RAG A/B Testing Framework
+============================================================
+Loaded 7 test queries
+
+Running evaluation on 7 queries...
+============================================================
+
+[1/7]
+  Query: How do I configure SSL certificates for nginx?...
+    AnythingLLM: faith=5.0, latency=1217ms
+    PrivateAI:   faith=4.0, latency=4723ms
+
+[2/7]
+  Query: What is the maximum file upload size limit?...
+    AnythingLLM: faith=5.0, latency=894ms
+    PrivateAI:   faith=5.0, latency=1632ms
+
+[3/7]
+  Query: What are the data retention requirements under GDPR Article ...
+    AnythingLLM: faith=5.0, latency=2640ms
+    PrivateAI:   faith=5.0, latency=3321ms
+
+[4/7]
+  Query: How long should customer records be retained?...
+    AnythingLLM: faith=5.0, latency=563ms
+    PrivateAI:   faith=5.0, latency=2888ms
+
+[5/7]
+  Query: What are the specifications for model XR-7500-B?...
+    AnythingLLM: faith=5.0, latency=1206ms
+    PrivateAI:   faith=5.0, latency=3761ms
+
+[6/7]
+  Query: What is the power consumption of the XR-3200-A switch?...
+    AnythingLLM: faith=5.0, latency=649ms
+    PrivateAI:   faith=5.0, latency=4189ms
+
+[7/7]
+  Query: How do I reset my password?...
+    AnythingLLM: faith=5.0, latency=1112ms
+    PrivateAI:   faith=5.0, latency=4271ms
+
+Results saved to: results/evaluation_20260111_224409.json
+
+======================================================================
+RAG A/B TEST RESULTS
+======================================================================
+
+Total queries evaluated: 7
+
+----------------------------------------------------------------------
+Metric                    AnythingLLM          PrivateAI            Winner
+----------------------------------------------------------------------
+Latency (ms)              1182.848             3540.735             AnythingLLM
+Faithfulness (1-5)        5.000                4.857                AnythingLLM
+Relevancy (1-5)           5.000                4.714                AnythingLLM
+Precision@5               0.400                0.200                AnythingLLM
+Recall@5                  1.000                1.000                Tie
+MRR                       1.000                1.000                Tie
+Context Relevancy         0.143                0.096                Tie
+----------------------------------------------------------------------

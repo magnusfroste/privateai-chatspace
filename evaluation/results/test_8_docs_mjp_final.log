@@ -1,0 +1,76 @@
+RAG A/B Testing Framework
+============================================================
+Loaded 10 test queries
+
+Running evaluation on 10 queries...
+============================================================
+
+[1/10]
+  Query: What is the maintenance interval for MJP waterjet impeller i...
+    AnythingLLM: faith=5.0, latency=2383ms
+    PrivateAI:   faith=3.0, latency=8574ms
+
+[2/10]
+  Query: How do I replace the mechanical seal on MJP 5996?...
+    AnythingLLM: faith=5.0, latency=6983ms
+    PrivateAI:   faith=5.0, latency=5491ms
+
+[3/10]
+  Query: What are the installation requirements for MJP waterjet syst...
+    AnythingLLM: faith=2.0, latency=10015ms
+    PrivateAI:   faith=5.0, latency=8415ms
+
+[4/10]
+  Query: What is the operating pressure for MJP 4200 waterjet?...
+    AnythingLLM: faith=4.0, latency=2957ms
+    PrivateAI:   faith=5.0, latency=2891ms
+
+[5/10]
+  Query: How do I troubleshoot cavitation in MJP waterjet?...
+    AnythingLLM: faith=5.0, latency=9194ms
+    PrivateAI:   faith=1.0, latency=3444ms
+
+[6/10]
+  Query: What are the torque specifications for MJP impeller bolts?...
+    AnythingLLM: faith=5.0, latency=7763ms
+    PrivateAI:   faith=2.0, latency=6388ms
+
+[7/10]
+  Query: How do I configure SSL certificates for nginx?...
+    AnythingLLM: faith=5.0, latency=1402ms
+    PrivateAI:   faith=3.0, latency=3230ms
+
+[8/10]
+  Query: What are the data retention requirements under GDPR Article ...
+    AnythingLLM: faith=5.0, latency=2875ms
+    PrivateAI:   faith=5.0, latency=3664ms
+
+[9/10]
+  Query: What are the specifications for model XR-7500-B?...
+    AnythingLLM: faith=1.0, latency=1692ms
+    PrivateAI:   faith=2.0, latency=3156ms
+
+[10/10]
+  Query: What is the power consumption of the XR-3200-A switch?...
+    AnythingLLM: faith=5.0, latency=1003ms
+    PrivateAI:   faith=5.0, latency=1893ms
+
+Results saved to: results/evaluation_20260111_230134.json
+
+======================================================================
+RAG A/B TEST RESULTS
+======================================================================
+
+Total queries evaluated: 10
+
+----------------------------------------------------------------------
+Metric                    AnythingLLM          PrivateAI            Winner
+----------------------------------------------------------------------
+Latency (ms)              4626.606             4714.563             AnythingLLM
+Faithfulness (1-5)        4.200                3.600                AnythingLLM
+Relevancy (1-5)           5.000                5.000                Tie
+Precision@5               0.400                0.300                AnythingLLM
+Recall@5                  0.550                0.900                PrivateAI
+MRR                       0.650                0.950                PrivateAI
+Context Relevancy         0.255                0.067                AnythingLLM
+----------------------------------------------------------------------

@@ -31,6 +31,9 @@ export default function WorkspaceSettingsSidebar({
   const [description, setDescription] = useState(workspace.description || '')
   const [systemPrompt, setSystemPrompt] = useState(workspace.system_prompt || '')
   const [ragMode, setRagMode] = useState<'global' | 'precise' | 'comprehensive'>((workspace.rag_mode as 'global' | 'precise' | 'comprehensive') || 'global')
+  const [useReranking, setUseReranking] = useState(workspace.use_reranking || false)
+  const [rerankTopK, setRerankTopK] = useState(workspace.rerank_top_k || 20)
+  const [useQueryExpansion, setUseQueryExpansion] = useState(workspace.use_query_expansion || false)
   const [saving, setSaving] = useState(false)
   const { setCurrentWorkspace, setWorkspaces, workspaces } = useWorkspaceStore()
 
@@ -40,7 +43,10 @@ export default function WorkspaceSettingsSidebar({
     setDescription(workspace.description || '')
     setSystemPrompt(workspace.system_prompt || '')
     setRagMode((workspace.rag_mode as 'global' | 'precise' | 'comprehensive') || 'global')
-  }, [workspace.id, workspace.name, workspace.description, workspace.system_prompt, workspace.rag_mode])
+    setUseReranking(workspace.use_reranking || false)
+    setRerankTopK(workspace.rerank_top_k || 20)
+    setUseQueryExpansion(workspace.use_query_expansion || false)
+  }, [workspace.id, workspace.name, workspace.description, workspace.system_prompt, workspace.rag_mode, workspace.use_reranking, workspace.rerank_top_k, workspace.use_query_expansion])
 
   const handleSave = async () => {
     setSaving(true)
@@ -50,6 +56,9 @@ export default function WorkspaceSettingsSidebar({
         description,
         system_prompt: systemPrompt,
         rag_mode: ragMode,
+        use_reranking: useReranking,
+        rerank_top_k: rerankTopK,
+        use_query_expansion: useQueryExpansion,
       })
       setCurrentWorkspace(updated)
       setWorkspaces(workspaces.map((w) => (w.id === updated.id ? updated : w)))
@@ -168,6 +177,50 @@ export default function WorkspaceSettingsSidebar({
                 </div>
               </label>
             </div>
+          </div>
+
+          {/* Reranking Section */}
+          <div className="border-t border-dark-600 pt-4">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={useReranking}
+                onChange={(e) => setUseReranking(e.target.checked)}
+                className="w-4 h-4 text-blue-600 rounded"
+              />
+              <div className="flex-1">
+                <span className="text-sm text-white font-medium">🎯 Accuracy Optimized (Reranking)</span>
+                <p className="text-xs text-dark-400 mt-1">Use cross-encoder for better relevance (slower, +100-200ms)</p>
+              </div>
+            </label>
+            {useReranking && (
+              <div className="mt-3 ml-7">
+                <label className="block text-xs font-medium text-dark-300 mb-1">Rerank Candidates</label>
+                <input
+                  type="number"
+                  value={rerankTopK}
+                  onChange={(e) => setRerankTopK(Math.max(5, Math.min(50, parseInt(e.target.value) || 20)))}
+                  min="5"
+                  max="50"
+                  className="w-24 px-2 py-1 bg-dark-900 border border-dark-600 rounded text-white text-sm focus:outline-none focus:border-blue-500"
+                />
+                <span className="text-xs text-dark-400 ml-2">documents (5-50)</span>
+              </div>
+            )}
+            
+            {/* Query Expansion */}
+            <label className="flex items-center gap-3 cursor-pointer mt-4">
+              <input
+                type="checkbox"
+                checked={useQueryExpansion}
+                onChange={(e) => setUseQueryExpansion(e.target.checked)}
+                className="w-4 h-4 text-blue-600 rounded"
+              />
+              <div className="flex-1">
+                <span className="text-sm text-white font-medium">🔍 Query Expansion</span>
+                <p className="text-xs text-dark-400 mt-1">LLM generates query variants for better recall (+200ms)</p>
+              </div>
+            </label>
           </div>
 
           <div className="flex gap-2 pt-2">

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from pydantic import BaseModel, EmailStr
@@ -20,6 +20,9 @@ from app.services.llm_service import llm_service
 from app.services.document_service import document_service
 from app.services.settings_service import settings_service, ADMIN_SETTINGS
 from app.models.evaluation import RagEvaluation
+from app.models.ab_evaluation import ABTestRun, ABTestQuery, ABTestDocument
+from app.models.api_key import APIKey
+import secrets
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -996,3 +999,661 @@ async def reset_system_setting(
     default_value = getattr(settings, env_attr, None)
     
     return {"key": key, "value": default_value, "source": "default"}
+
+
+# =============================================================================
+# A/B Test Evaluator (AnythingLLM vs Private AI)
+# =============================================================================
+
+class ABTestConfig(BaseModel):
+    name: str
+    description: Optional[str] = None
+    anythingllm_url: str
+    anythingllm_api_key: str
+    anythingllm_workspace: str
+    privateai_url: str
+    privateai_workspace_id: int
+    queries: List[Dict[str, Any]]
+
+
+class ABTestRunResponse(BaseModel):
+    id: int
+    name: str
+    status: str
+    num_queries: int
+    num_documents: int
+    winner: Optional[str]
+    anythingllm_recall: Optional[float]
+    anythingllm_mrr: Optional[float]
+    privateai_recall: Optional[float]
+    privateai_mrr: Optional[float]
+    created_at: datetime
+    completed_at: Optional[datetime]
+
+    class Config:
+        from_attributes = True
+
+
+@router.get("/abtest/runs")
+async def list_ab_test_runs(
+    limit: int = Query(default=20, le=100),
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """List all A/B test runs"""
+    result = await db.execute(
+        select(ABTestRun)
+        .order_by(ABTestRun.created_at.desc())
+        .limit(limit)
+    )
+    runs = result.scalars().all()
+    
+    return [
+        {
+            "id": r.id,
+            "name": r.name,
+            "description": r.description,
+            "status": r.status,
+            "num_queries": r.num_queries,
+            "num_documents": r.num_documents,
+            "winner": r.winner,
+            "winner_reason": r.winner_reason,
+            "anythingllm_recall": r.anythingllm_recall,
+            "anythingllm_mrr": r.anythingllm_mrr,
+            "anythingllm_avg_latency": r.anythingllm_avg_latency,
+            "anythingllm_avg_faithfulness": r.anythingllm_avg_faithfulness,
+            "privateai_recall": r.privateai_recall,
+            "privateai_mrr": r.privateai_mrr,
+            "privateai_avg_latency": r.privateai_avg_latency,
+            "privateai_avg_faithfulness": r.privateai_avg_faithfulness,
+            "created_at": r.created_at,
+            "completed_at": r.completed_at
+        }
+        for r in runs
+    ]
+
+
+@router.get("/abtest/runs/{run_id}")
+async def get_ab_test_run(
+    run_id: int,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """Get detailed results for a specific A/B test run"""
+    result = await db.execute(
+        select(ABTestRun).where(ABTestRun.id == run_id)
+    )
+    run = result.scalar_one_or_none()
+    
+    if not run:
+        raise HTTPException(status_code=404, detail="Test run not found")
+    
+    # Get all queries for this run
+    queries_result = await db.execute(
+        select(ABTestQuery)
+        .where(ABTestQuery.run_id == run_id)
+        .order_by(ABTestQuery.id)
+    )
+    queries = queries_result.scalars().all()
+    
+    return {
+        "run": {
+            "id": run.id,
+            "name": run.name,
+            "description": run.description,
+            "status": run.status,
+            "num_queries": run.num_queries,
+            "num_documents": run.num_documents,
+            "winner": run.winner,
+            "winner_reason": run.winner_reason,
+            "anythingllm_url": run.anythingllm_url,
+            "anythingllm_workspace": run.anythingllm_workspace,
+            "privateai_url": run.privateai_url,
+            "privateai_workspace_id": run.privateai_workspace_id,
+            "anythingllm_recall": run.anythingllm_recall,
+            "anythingllm_mrr": run.anythingllm_mrr,
+            "anythingllm_avg_latency": run.anythingllm_avg_latency,
+            "anythingllm_avg_faithfulness": run.anythingllm_avg_faithfulness,
+            "anythingllm_avg_relevancy": run.anythingllm_avg_relevancy,
+            "privateai_recall": run.privateai_recall,
+            "privateai_mrr": run.privateai_mrr,
+            "privateai_avg_latency": run.privateai_avg_latency,
+            "privateai_avg_faithfulness": run.privateai_avg_faithfulness,
+            "privateai_avg_relevancy": run.privateai_avg_relevancy,
+            "created_at": run.created_at,
+            "completed_at": run.completed_at,
+            "error_message": run.error_message
+        },
+        "queries": [
+            {
+                "id": q.id,
+                "query_id": q.query_id,
+                "query": q.query,
+                "category": q.category,
+                "difficulty": q.difficulty,
+                "ground_truth_docs": q.ground_truth_docs,
+                "anythingllm": {
+                    "answer": q.anythingllm_answer,
+                    "latency": q.anythingllm_latency,
+                    "faithfulness": q.anythingllm_faithfulness,
+                    "relevancy": q.anythingllm_relevancy,
+                    "retrieved_docs": q.anythingllm_retrieved_docs,
+                    "recall": q.anythingllm_recall,
+                    "mrr": q.anythingllm_mrr
+                },
+                "privateai": {
+                    "answer": q.privateai_answer,
+                    "latency": q.privateai_latency,
+                    "faithfulness": q.privateai_faithfulness,
+                    "relevancy": q.privateai_relevancy,
+                    "retrieved_docs": q.privateai_retrieved_docs,
+                    "recall": q.privateai_recall,
+                    "mrr": q.privateai_mrr
+                },
+                "winner": q.winner
+            }
+            for q in queries
+        ]
+    }
+
+
+@router.post("/abtest/runs")
+async def create_ab_test_run(
+    config: ABTestConfig,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """Create a new A/B test run (starts in pending state)"""
+    run = ABTestRun(
+        name=config.name,
+        description=config.description,
+        anythingllm_url=config.anythingllm_url,
+        anythingllm_workspace=config.anythingllm_workspace,
+        privateai_url=config.privateai_url,
+        privateai_workspace_id=config.privateai_workspace_id,
+        num_queries=len(config.queries),
+        num_documents=0,
+        status="pending",
+        created_by=admin.id
+    )
+    
+    db.add(run)
+    await db.commit()
+    await db.refresh(run)
+    
+    # Create query records
+    for q in config.queries:
+        query = ABTestQuery(
+            run_id=run.id,
+            query_id=q.get("id", f"q_{len(config.queries)}"),
+            query=q["query"],
+            category=q.get("category"),
+            difficulty=q.get("difficulty"),
+            ground_truth_docs=q.get("ground_truth_docs", [])
+        )
+        db.add(query)
+    
+    await db.commit()
+    
+    return {"id": run.id, "status": "pending", "message": "Test run created. Call /abtest/runs/{id}/execute to start."}
+
+
+@router.post("/abtest/runs/{run_id}/execute")
+async def execute_ab_test_run(
+    run_id: int,
+    anythingllm_api_key: str = Query(..., description="AnythingLLM API key"),
+    privateai_token: Optional[str] = Query(None, description="Private AI auth token (optional if same instance)"),
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """Execute an A/B test run - queries both systems and evaluates results"""
+    result = await db.execute(
+        select(ABTestRun).where(ABTestRun.id == run_id)
+    )
+    run = result.scalar_one_or_none()
+    
+    if not run:
+        raise HTTPException(status_code=404, detail="Test run not found")
+    
+    if run.status == "running":
+        raise HTTPException(status_code=400, detail="Test is already running")
+    
+    # Update status
+    run.status = "running"
+    await db.commit()
+    
+    # Get queries
+    queries_result = await db.execute(
+        select(ABTestQuery).where(ABTestQuery.run_id == run_id)
+    )
+    queries = queries_result.scalars().all()
+    
+    try:
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            for query in queries:
+                # Query AnythingLLM
+                try:
+                    start_time = time.time()
+                    allm_response = await client.post(
+                        f"{run.anythingllm_url}/api/v1/workspace/{run.anythingllm_workspace}/chat",
+                        headers={"Authorization": f"Bearer {anythingllm_api_key}"},
+                        json={"message": query.query, "mode": "query"}
+                    )
+                    allm_latency = (time.time() - start_time) * 1000
+                    
+                    if allm_response.status_code == 200:
+                        allm_data = allm_response.json()
+                        query.anythingllm_answer = allm_data.get("textResponse", "")
+                        query.anythingllm_latency = allm_latency
+                        
+                        # Extract sources
+                        sources = allm_data.get("sources", [])
+                        query.anythingllm_retrieved_docs = [s.get("title", s.get("name", "unknown")) for s in sources]
+                except Exception as e:
+                    query.anythingllm_answer = f"Error: {str(e)}"
+                
+                # Query Private AI
+                try:
+                    start_time = time.time()
+                    headers = {}
+                    if privateai_token:
+                        headers["Authorization"] = f"Bearer {privateai_token}"
+                    
+                    pai_response = await client.post(
+                        f"{run.privateai_url}/api/chat/workspace/{run.privateai_workspace_id}/stream",
+                        headers=headers,
+                        json={"message": query.query, "rag_enabled": True}
+                    )
+                    pai_latency = (time.time() - start_time) * 1000
+                    
+                    if pai_response.status_code == 200:
+                        # Handle SSE response
+                        full_response = ""
+                        sources = []
+                        for line in pai_response.text.split("\n"):
+                            if line.startswith("data: "):
+                                try:
+                                    import json
+                                    data = json.loads(line[6:])
+                                    if data.get("type") == "content":
+                                        full_response += data.get("content", "")
+                                    elif data.get("type") == "sources":
+                                        sources = data.get("sources", [])
+                                except:
+                                    pass
+                        
+                        query.privateai_answer = full_response
+                        query.privateai_latency = pai_latency
+                        query.privateai_retrieved_docs = [s.get("filename", "unknown") for s in sources]
+                except Exception as e:
+                    query.privateai_answer = f"Error: {str(e)}"
+                
+                # Calculate retrieval metrics
+                gt_docs = set(query.ground_truth_docs or [])
+                if gt_docs:
+                    # AnythingLLM metrics
+                    allm_docs = query.anythingllm_retrieved_docs or []
+                    allm_hits = sum(1 for d in allm_docs[:5] if any(gt in d for gt in gt_docs))
+                    query.anythingllm_recall = allm_hits / len(gt_docs) if gt_docs else 0
+                    query.anythingllm_mrr = next(
+                        (1.0 / (i + 1) for i, d in enumerate(allm_docs) if any(gt in d for gt in gt_docs)),
+                        0.0
+                    )
+                    
+                    # Private AI metrics
+                    pai_docs = query.privateai_retrieved_docs or []
+                    pai_hits = sum(1 for d in pai_docs[:5] if any(gt in d for gt in gt_docs))
+                    query.privateai_recall = pai_hits / len(gt_docs) if gt_docs else 0
+                    query.privateai_mrr = next(
+                        (1.0 / (i + 1) for i, d in enumerate(pai_docs) if any(gt in d for gt in gt_docs)),
+                        0.0
+                    )
+                
+                # Determine per-query winner based on recall
+                if query.privateai_recall and query.anythingllm_recall:
+                    if query.privateai_recall > query.anythingllm_recall:
+                        query.winner = "PrivateAI"
+                    elif query.anythingllm_recall > query.privateai_recall:
+                        query.winner = "AnythingLLM"
+                    else:
+                        query.winner = "TIE"
+                
+                await db.commit()
+        
+        # Calculate aggregate metrics
+        all_queries = await db.execute(
+            select(ABTestQuery).where(ABTestQuery.run_id == run_id)
+        )
+        all_queries = all_queries.scalars().all()
+        
+        valid_queries = [q for q in all_queries if q.anythingllm_recall is not None]
+        if valid_queries:
+            run.anythingllm_recall = sum(q.anythingllm_recall or 0 for q in valid_queries) / len(valid_queries)
+            run.anythingllm_mrr = sum(q.anythingllm_mrr or 0 for q in valid_queries) / len(valid_queries)
+            run.anythingllm_avg_latency = sum(q.anythingllm_latency or 0 for q in valid_queries) / len(valid_queries)
+            
+            run.privateai_recall = sum(q.privateai_recall or 0 for q in valid_queries) / len(valid_queries)
+            run.privateai_mrr = sum(q.privateai_mrr or 0 for q in valid_queries) / len(valid_queries)
+            run.privateai_avg_latency = sum(q.privateai_latency or 0 for q in valid_queries) / len(valid_queries)
+            
+            # Determine overall winner
+            if run.privateai_recall > run.anythingllm_recall:
+                run.winner = "PrivateAI"
+                improvement = ((run.privateai_recall - run.anythingllm_recall) / run.anythingllm_recall * 100) if run.anythingllm_recall else 0
+                run.winner_reason = f"Private AI wins with {improvement:.0f}% better recall ({run.privateai_recall:.2f} vs {run.anythingllm_recall:.2f})"
+            elif run.anythingllm_recall > run.privateai_recall:
+                run.winner = "AnythingLLM"
+                improvement = ((run.anythingllm_recall - run.privateai_recall) / run.privateai_recall * 100) if run.privateai_recall else 0
+                run.winner_reason = f"AnythingLLM wins with {improvement:.0f}% better recall ({run.anythingllm_recall:.2f} vs {run.privateai_recall:.2f})"
+            else:
+                run.winner = "TIE"
+                run.winner_reason = "Both systems performed equally"
+        
+        run.status = "completed"
+        run.completed_at = datetime.utcnow()
+        await db.commit()
+        
+        return {
+            "status": "completed",
+            "winner": run.winner,
+            "winner_reason": run.winner_reason,
+            "anythingllm_recall": run.anythingllm_recall,
+            "privateai_recall": run.privateai_recall
+        }
+        
+    except Exception as e:
+        run.status = "failed"
+        run.error_message = str(e)
+        await db.commit()
+        raise HTTPException(status_code=500, detail=f"Test execution failed: {str(e)}")
+
+
+@router.post("/abtest/generate-questions")
+async def generate_test_questions(
+    files: List[UploadFile] = File(...),
+    num_questions: int = Query(default=10, ge=1, le=30),
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """
+    Auto-generate test questions from uploaded PDFs using LLM.
+    
+    Upload 1-5 PDFs, and the LLM will:
+    1. Extract content from each PDF
+    2. Generate relevant questions
+    3. Create expected answers (ground truth)
+    4. Return ready-to-use test configuration
+    """
+    import json
+    
+    if len(files) > 5:
+        raise HTTPException(status_code=400, detail="Maximum 5 files allowed")
+    
+    # Extract text from all uploaded files
+    all_content = []
+    filenames = []
+    
+    for file in files:
+        filename = file.filename
+        filenames.append(filename)
+        
+        # Read file content
+        content = await file.read()
+        
+        # Parse based on file type
+        if filename.lower().endswith('.pdf'):
+            # Use document service to convert PDF
+            import tempfile
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp:
+                tmp.write(content)
+                tmp_path = tmp.name
+            
+            try:
+                # Try to extract text using PyPDF2 (simple extraction for question generation)
+                import PyPDF2
+                from io import BytesIO
+                
+                pdf_reader = PyPDF2.PdfReader(BytesIO(content))
+                text = ""
+                for page in pdf_reader.pages[:20]:  # Limit to first 20 pages
+                    text += page.extract_text() or ""
+                
+                if text.strip():
+                    all_content.append(f"=== Document: {filename} ===\n{text[:15000]}")  # Limit per doc
+            except Exception as e:
+                all_content.append(f"=== Document: {filename} ===\n[Could not extract text: {str(e)}]")
+            finally:
+                import os
+                os.unlink(tmp_path)
+        
+        elif filename.lower().endswith(('.txt', '.md')):
+            text = content.decode('utf-8', errors='ignore')
+            all_content.append(f"=== Document: {filename} ===\n{text[:15000]}")
+        
+        else:
+            raise HTTPException(status_code=400, detail=f"Unsupported file type: {filename}")
+    
+    combined_content = "\n\n".join(all_content)
+    
+    # Use LLM to generate questions
+    prompt = f"""You are a test question generator for a RAG (Retrieval-Augmented Generation) system evaluation.
+
+Based on the following document content, generate exactly {num_questions} test questions that:
+1. Can be answered using information from the documents
+2. Cover different aspects and sections of the documents
+3. Vary in difficulty (some factual, some requiring synthesis)
+4. Are specific enough to have clear answers
+
+For each question, provide:
+- The question itself
+- The expected answer (ground truth) based on the document
+- Which document(s) contain the answer
+- A difficulty level (easy/medium/hard)
+- A category (factual/procedural/conceptual)
+
+DOCUMENTS:
+{combined_content[:30000]}
+
+Respond in this exact JSON format:
+{{
+  "questions": [
+    {{
+      "query": "What is the torque specification for the impeller bolts?",
+      "expected_answer": "The torque specification is 45 Nm (33 ft-lb) according to the service manual.",
+      "ground_truth_docs": ["MJP-5996-SM.pdf"],
+      "difficulty": "easy",
+      "category": "factual"
+    }}
+  ]
+}}
+
+Generate exactly {num_questions} questions. Only respond with valid JSON, no other text."""
+
+    try:
+        # Call LLM
+        response_text = ""
+        async for chunk in llm_service.chat_completion_stream(
+            messages=[{"role": "user", "content": prompt}],
+            system_prompt="You are a precise JSON generator. Only output valid JSON.",
+            rag_context=None
+        ):
+            response_text += chunk
+        
+        # Parse JSON response
+        # Try to extract JSON from response (handle markdown code blocks)
+        json_str = response_text
+        if "```json" in json_str:
+            json_str = json_str.split("```json")[1].split("```")[0]
+        elif "```" in json_str:
+            json_str = json_str.split("```")[1].split("```")[0]
+        
+        result = json.loads(json_str.strip())
+        questions = result.get("questions", [])
+        
+        return {
+            "success": True,
+            "num_questions": len(questions),
+            "documents": filenames,
+            "questions": questions,
+            "message": f"Generated {len(questions)} test questions from {len(filenames)} document(s)"
+        }
+        
+    except json.JSONDecodeError as e:
+        return {
+            "success": False,
+            "error": f"Failed to parse LLM response as JSON: {str(e)}",
+            "raw_response": response_text[:2000]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Question generation failed: {str(e)}")
+
+
+@router.delete("/abtest/runs/{run_id}")
+async def delete_ab_test_run(
+    run_id: int,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """Delete an A/B test run and all its queries"""
+    result = await db.execute(
+        select(ABTestRun).where(ABTestRun.id == run_id)
+    )
+    run = result.scalar_one_or_none()
+    
+    if not run:
+        raise HTTPException(status_code=404, detail="Test run not found")
+    
+    # Delete queries first
+    await db.execute(
+        ABTestQuery.__table__.delete().where(ABTestQuery.run_id == run_id)
+    )
+    
+    # Delete run
+    await db.delete(run)
+    await db.commit()
+    
+    return {"deleted": True}
+
+
+# =============================================================================
+# API Key Management
+# =============================================================================
+
+class APIKeyCreate(BaseModel):
+    name: str
+
+
+class APIKeyResponse(BaseModel):
+    id: int
+    name: str
+    key: str  # Only shown on creation
+    is_active: bool
+    created_at: datetime
+    last_used_at: Optional[datetime]
+
+    class Config:
+        from_attributes = True
+
+
+@router.get("/api-keys")
+async def list_api_keys(
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """List all API keys for the current admin user"""
+    result = await db.execute(
+        select(APIKey)
+        .where(APIKey.user_id == admin.id)
+        .order_by(APIKey.created_at.desc())
+    )
+    keys = result.scalars().all()
+    
+    return [
+        {
+            "id": k.id,
+            "name": k.name,
+            "key_prefix": k.key[:12] + "...",  # Only show prefix
+            "is_active": k.is_active,
+            "created_at": k.created_at,
+            "last_used_at": k.last_used_at
+        }
+        for k in keys
+    ]
+
+
+@router.post("/api-keys")
+async def create_api_key(
+    data: APIKeyCreate,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """
+    Create a new API key.
+    
+    The full key is only shown once on creation.
+    Store it securely - it cannot be retrieved later.
+    """
+    # Generate a secure API key
+    key = f"pk_{secrets.token_urlsafe(32)}"
+    
+    api_key = APIKey(
+        user_id=admin.id,
+        name=data.name,
+        key=key,
+        is_active=True
+    )
+    
+    db.add(api_key)
+    await db.commit()
+    await db.refresh(api_key)
+    
+    return {
+        "id": api_key.id,
+        "name": api_key.name,
+        "key": key,  # Full key - only shown once!
+        "is_active": api_key.is_active,
+        "created_at": api_key.created_at,
+        "message": "Store this key securely. It will not be shown again."
+    }
+
+
+@router.delete("/api-keys/{key_id}")
+async def delete_api_key(
+    key_id: int,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """Delete an API key"""
+    result = await db.execute(
+        select(APIKey).where(APIKey.id == key_id, APIKey.user_id == admin.id)
+    )
+    api_key = result.scalar_one_or_none()
+    
+    if not api_key:
+        raise HTTPException(status_code=404, detail="API key not found")
+    
+    await db.delete(api_key)
+    await db.commit()
+    
+    return {"deleted": True}
+
+
+@router.patch("/api-keys/{key_id}/toggle")
+async def toggle_api_key(
+    key_id: int,
+    db: AsyncSession = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """Enable or disable an API key"""
+    result = await db.execute(
+        select(APIKey).where(APIKey.id == key_id, APIKey.user_id == admin.id)
+    )
+    api_key = result.scalar_one_or_none()
+    
+    if not api_key:
+        raise HTTPException(status_code=404, detail="API key not found")
+    
+    api_key.is_active = not api_key.is_active
+    await db.commit()
+    
+    return {"id": api_key.id, "is_active": api_key.is_active}

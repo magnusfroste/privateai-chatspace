@@ -234,7 +234,23 @@ async def send_message(
             threshold = settings.DEFAULT_SIMILARITY_THRESHOLD
         
         use_hybrid = chat.workspace.use_hybrid_search if chat.workspace and chat.workspace.use_hybrid_search is not None else settings.DEFAULT_USE_HYBRID_SEARCH
-        rag_results = await rag_service.search(chat.workspace_id, data.content, limit=top_n, score_threshold=threshold, hybrid=use_hybrid)
+        use_reranking = chat.workspace.use_reranking if chat.workspace else False
+        rerank_top_k = chat.workspace.rerank_top_k if chat.workspace else 20
+        use_query_expansion = chat.workspace.use_query_expansion if chat.workspace else False
+        
+        # If reranking is enabled, fetch more candidates initially, then rerank and limit to top_n
+        initial_limit = rerank_top_k if use_reranking else top_n
+        
+        rag_results = await rag_service.search(
+            chat.workspace_id, 
+            data.content, 
+            limit=initial_limit, 
+            score_threshold=threshold, 
+            hybrid=use_hybrid,
+            use_reranking=use_reranking,
+            rerank_top_k=top_n,  # Pass final desired count to reranker
+            use_query_expansion=use_query_expansion
+        )
         if rag_results:
             # Format context with source markers like [1], [2], etc.
             context_parts = []
@@ -499,7 +515,23 @@ async def send_message_with_files(
         top_n = chat.workspace.top_n if chat.workspace and chat.workspace.top_n else 4
         threshold = chat.workspace.similarity_threshold if chat.workspace and chat.workspace.similarity_threshold else 0.0
         use_hybrid = chat.workspace.use_hybrid_search if chat.workspace and chat.workspace.use_hybrid_search is not None else True
-        rag_results = await rag_service.search(chat.workspace_id, content, limit=top_n, score_threshold=threshold, hybrid=use_hybrid)
+        use_reranking = chat.workspace.use_reranking if chat.workspace else False
+        rerank_top_k = chat.workspace.rerank_top_k if chat.workspace else 20
+        use_query_expansion = chat.workspace.use_query_expansion if chat.workspace else False
+        
+        # If reranking is enabled, fetch more candidates initially, then rerank and limit to top_n
+        initial_limit = rerank_top_k if use_reranking else top_n
+        
+        rag_results = await rag_service.search(
+            chat.workspace_id, 
+            content, 
+            limit=initial_limit, 
+            score_threshold=threshold, 
+            hybrid=use_hybrid,
+            use_reranking=use_reranking,
+            rerank_top_k=top_n,  # Pass final desired count to reranker
+            use_query_expansion=use_query_expansion
+        )
         if rag_results:
             # Format context with source markers like [1], [2], etc.
             context_parts = []

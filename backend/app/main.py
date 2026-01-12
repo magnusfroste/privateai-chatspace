@@ -9,7 +9,7 @@ from app.core.database import init_db, async_session
 from app.core.config import settings
 from app.core.security import get_password_hash
 from app.models.user import User
-from app.api import auth, workspaces, chats, documents, admin, notes
+from app.api import auth, workspaces, chats, documents, admin, notes, v1
 
 
 @asynccontextmanager
@@ -58,6 +58,7 @@ app.include_router(chats.router)
 app.include_router(documents.router)
 app.include_router(admin.router)
 app.include_router(notes.router)
+app.include_router(v1.router)  # Simple API for integrations
 
 
 @app.get("/api/health")

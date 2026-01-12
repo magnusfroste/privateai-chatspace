@@ -1,9 +1,18 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct, SparseVectorParams, SparseVector, Modifier, NamedVector, NamedSparseVector, Fusion, FusionQuery, Query, Filter, FieldCondition, MatchValue
-from typing import List, Optional
+from typing import List, Optional, Set
 import uuid
+import httpx
+import json
 from app.core.config import settings
 from app.services.embedding_service import embedding_service
+
+try:
+    from sentence_transformers import CrossEncoder
+    CROSS_ENCODER_AVAILABLE = True
+except ImportError:
+    CROSS_ENCODER_AVAILABLE = False
+    print("Warning: sentence-transformers not available. Reranking will be disabled.")
 
 
 class RAGService:
@@ -18,6 +27,16 @@ class RAGService:
         else:
             self.client = QdrantClient(url=url, timeout=60)
         self._dimension = None  # Will be detected from embedder
+        
+        # Initialize cross-encoder for reranking
+        self.reranker = None
+        if CROSS_ENCODER_AVAILABLE:
+            try:
+                self.reranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
+                print("Cross-encoder reranker loaded successfully")
+            except Exception as e:
+                print(f"Failed to load cross-encoder: {e}")
+                self.reranker = None
     
     def _collection_name(self, workspace_id: int) -> str:
         return f"workspace_{workspace_id}"
@@ -55,6 +74,78 @@ class RAGService:
         values = [index_map[idx] for idx in indices]
         
         return SparseVector(indices=indices, values=values)
+    
+    async def _expand_query(self, query: str) -> List[str]:
+        """Use LLM to generate query variants for better recall"""
+        try:
+            prompt = f"""Generate 3 alternative search queries for the following question. 
+The alternatives should capture different ways to phrase the same information need.
+Return ONLY the 3 queries, one per line, no numbering or explanation.
+
+Original query: {query}
+
+Alternative queries:"""
+            
+            headers = {"Content-Type": "application/json"}
+            if settings.LLM_API_KEY:
+                headers["Authorization"] = f"Bearer {settings.LLM_API_KEY}"
+            
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(
+                    f"{settings.LLM_BASE_URL.rstrip('/')}/chat/completions",
+                    headers=headers,
+                    json={
+                        "model": settings.LLM_MODEL,
+                        "messages": [{"role": "user", "content": prompt}],
+                        "temperature": 0.3,
+                        "max_tokens": 150,
+                        "stream": False,
+                    }
+                )
+                response.raise_for_status()
+                result = response.json()
+                content = result["choices"][0]["message"]["content"]
+                
+                # Parse the response - each line is a query variant
+                variants = [line.strip() for line in content.strip().split('\n') if line.strip()]
+                # Filter out any lines that look like numbering or explanations
+                variants = [v for v in variants if not v.startswith(('1.', '2.', '3.', '-', '*'))]
+                # Take up to 3 variants
+                variants = variants[:3]
+                
+                print(f"Query expansion: '{query}' -> {variants}")
+                return [query] + variants  # Original query + variants
+                
+        except Exception as e:
+            print(f"Query expansion failed, using original query: {e}")
+            return [query]
+    
+    def _rerank_with_cross_encoder(self, query: str, candidates: List[dict], top_k: int = 5) -> List[dict]:
+        """Rerank candidates using cross-encoder for better relevance"""
+        if not self.reranker or not candidates:
+            return candidates[:top_k]
+        
+        try:
+            # Prepare query-document pairs for cross-encoder
+            pairs = [[query, candidate['content']] for candidate in candidates]
+            
+            # Get relevance scores
+            scores = self.reranker.predict(pairs)
+            
+            # Combine with candidates and sort by rerank score
+            scored_candidates = []
+            for candidate, score in zip(candidates, scores):
+                candidate_copy = candidate.copy()
+                candidate_copy['rerank_score'] = float(score)
+                scored_candidates.append(candidate_copy)
+            
+            # Sort by rerank score (higher is better) and return top_k
+            scored_candidates.sort(key=lambda x: x['rerank_score'], reverse=True)
+            return scored_candidates[:top_k]
+            
+        except Exception as e:
+            print(f"Reranking failed, falling back to original ranking: {e}")
+            return candidates[:top_k]
     
     async def ensure_collection(self, workspace_id: int):
         """Create collection with hybrid search support (dense + sparse vectors)"""
@@ -170,14 +261,64 @@ class RAGService:
         query: str,
         limit: int = 5,
         score_threshold: float = 0.0,
-        hybrid: bool = True
+        hybrid: bool = True,
+        use_reranking: bool = False,
+        rerank_top_k: int = 20,
+        use_query_expansion: bool = False
     ) -> List[dict]:
-        """Hybrid search using both dense vectors and sparse BM25"""
+        """Hybrid search using both dense vectors and sparse BM25, with optional query expansion"""
         collection_name = self._collection_name(workspace_id)
         
         try:
-            query_embedding = await embedding_service.embed_text(query)
+            # Query expansion: generate multiple query variants for better recall
+            if use_query_expansion:
+                queries = await self._expand_query(query)
+            else:
+                queries = [query]
             
+            # Collect all candidates from all query variants
+            all_candidates: dict = {}  # Use dict to deduplicate by content hash
+            
+            for q in queries:
+                query_embedding = await embedding_service.embed_text(q)
+                candidates = await self._search_single_query(
+                    collection_name, q, query_embedding, limit, score_threshold, hybrid
+                )
+                # Deduplicate by content (use content hash as key)
+                for candidate in candidates:
+                    content_key = hash(candidate['content'])
+                    if content_key not in all_candidates:
+                        all_candidates[content_key] = candidate
+                    else:
+                        # Keep the one with higher score
+                        if candidate['score'] > all_candidates[content_key]['score']:
+                            all_candidates[content_key] = candidate
+            
+            # Convert back to list and sort by score
+            initial_candidates = sorted(all_candidates.values(), key=lambda x: x['score'], reverse=True)[:limit]
+            
+            # Apply cross-encoder reranking if enabled (use original query for reranking)
+            if use_reranking and self.reranker and initial_candidates:
+                print(f"Applying cross-encoder reranking to {len(initial_candidates)} candidates")
+                return self._rerank_with_cross_encoder(query, initial_candidates, top_k=rerank_top_k)
+            
+            return initial_candidates
+            
+        except Exception as e:
+            print(f"Search error: {e}")
+            return []
+    
+    async def _search_single_query(
+        self,
+        collection_name: str,
+        query: str,
+        query_embedding: List[float],
+        limit: int,
+        score_threshold: float,
+        hybrid: bool
+    ) -> List[dict]:
+        """Execute a single query search (used by main search with query expansion)"""
+        try:
             # Check if collection has named vectors (hybrid support)
             collection_info = self.client.get_collection(collection_name)
             vectors_config = collection_info.config.params.vectors
@@ -222,6 +363,7 @@ class RAGService:
                 # Sort by RRF score and take top results
                 sorted_results = sorted(rrf_scores.values(), key=lambda x: x["score"], reverse=True)[:limit]
                 
+                # Convert to expected format
                 return [
                     {
                         "content": item["hit"].payload.get("content", ""),

@@ -26,6 +26,9 @@ pypdf2==3.0.1
 markdown==3.5.1
 # Note: docling library NOT needed - we use docling-api (external docling-serve container)
 
+# Reranking
+sentence-transformers>=2.7.0
+
 # Async file operations
 aiofiles==23.2.1
 

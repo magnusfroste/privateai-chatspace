@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # Maximum Configuration - 3x RTX 5090 GPUs
+  vllm-qwen3-80b-max:
+    image: vllm/vllm-openai:v0.11.0
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["0", "1", "2"]
+              capabilities: [gpu]
+    volumes:
+      - /home/ss/.cache/huggingface:/root/.cache/huggingface
+    environment:
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN:-your-token-here}
+      - CUDA_DEVICE_ORDER=PCI_BUS_ID
+      - NCCL_P2P_DISABLE=1
+      - NCCL_IB_DISABLE=1
+      - VLLM_SLEEP_WHEN_IDLE=1
+      - PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+      - OMP_NUM_THREADS=8
+    ports:
+      - "8000:8000"
+    ipc: host
+    shm_size: '64gb'
+    command: >
+      --model cpatonn/Qwen3-Next-80B-A3B-Instruct-AWQ-4bit
+      --gpu-memory-utilization 0.73
+      --served-model-name autoversio
+      --enable-auto-tool-choice
+      --tool-call-parser hermes
+      --pipeline-parallel-size 3
+      --max-model-len 262144
+      --max-num-seqs 16
+      --enable-chunked-prefill
+      --max-num-batched-tokens 8192
+      --tokenizer-mode auto
+      --kv-cache-dtype auto
+      --disable-custom-all-reduce
+      --swap-space 16
+      --enable-prefix-caching
+      --disable-log-requests
+      --enable-expert-parallel
+
+  # Medium Configuration - Single GPU (for development/testing)
+  vllm-qwen3-80b-medium:
+    image: vllm/vllm-openai:v0.11.0
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["0"]
+              capabilities: [gpu]
+    volumes:
+      - /home/ss/.cache/huggingface:/root/.cache/huggingface
+    environment:
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN:-your-token-here}
+      - CUDA_DEVICE_ORDER=PCI_BUS_ID
+      - NCCL_P2P_DISABLE=1
+      - NCCL_IB_DISABLE=1
+      - VLLM_SLEEP_WHEN_IDLE=1
+      - PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+      - OMP_NUM_THREADS=4
+    ports:
+      - "8000:8000"
+    ipc: host
+    shm_size: '32gb'
+    command: >
+      --model cpatonn/Qwen3-Next-80B-A3B-Instruct-AWQ-4bit
+      --gpu-memory-utilization 0.85
+      --served-model-name autoversio
+      --enable-auto-tool-choice
+      --tool-call-parser hermes
+      --max-model-len 131072
+      --max-num-seqs 8
+      --enable-chunked-prefill
+      --max-num-batched-tokens 4096
+      --tokenizer-mode auto
+      --kv-cache-dtype auto
+      --swap-space 8
+      --enable-prefix-caching
+      --disable-log-requests

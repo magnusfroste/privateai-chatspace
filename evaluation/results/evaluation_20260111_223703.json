@@ -1,0 +1,352 @@
+[
+  {
+    "test_id": "tech_001",
+    "category": "technical",
+    "query": "How do I configure SSL certificates for nginx?",
+    "ground_truth_answer": "To configure SSL in nginx, add ssl_certificate and ssl_certificate_key directives in your server block, pointing to your certificate and private key files, then restart nginx.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "To configure SSL certificates for nginx:\n\n1. Generate or obtain your SSL certificate and private key.\n2. Add the following lines to your nginx server block:\n   ```\n   ssl_certificate /etc/nginx/ssl/certificate.crt;\n   ssl_certificate_key /etc/nginx/ssl/private.key;\n   ```\n3. Restart nginx with the command: `sudo systemctl restart nginx`.",
+      "retrieved_docs": [
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 1201.7998695373535,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.4,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly and accurately addresses how to configure SSL certificates for nginx using the exact steps and configuration from the retrieved context, with no hallucinations or omissions. It includes obtaining certificates, adding the correct nginx directives, and restarting the service \u2014 all key aspects of the query."
+      },
+      "context_relevancy": 1.0,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "ERROR: Expecting value: line 1 column 1 (char 0)",
+      "retrieved_docs": [],
+      "latency_ms": 0,
+      "retrieval": {
+        "precision_at_3": 0.0,
+        "precision_at_5": 0.0,
+        "recall_at_5": 0.0,
+        "mrr": 0.0
+      },
+      "answer_quality": {
+        "relevancy": 1.0,
+        "faithfulness": 1.0,
+        "completeness": 1.0,
+        "reasoning": "The answer is an error message, not a valid response to the query. It does not address SSL configuration for nginx, is not supported by any context, and provides no useful information."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  },
+  {
+    "test_id": "tech_002",
+    "category": "technical",
+    "query": "What is the maximum file upload size limit?",
+    "ground_truth_answer": "The maximum file upload size is 50MB by default, configurable in config.yaml under upload.max_size_mb.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "The maximum file upload size is configured to **50MB** by default. This can be adjusted in the `config.yaml` file under the `upload` section:\n\n```yaml\nupload:\n  max_size_mb: 50\n```",
+      "retrieved_docs": [
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 878.2241344451904,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.4,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses the query about the maximum file upload size, correctly states it is 50MB by default, and accurately references the config.yaml file and upload.max_size_mb setting as provided in the retrieved context. There are no hallucinations, and all key details from the context are included."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "ERROR: Expecting value: line 1 column 1 (char 0)",
+      "retrieved_docs": [],
+      "latency_ms": 0,
+      "retrieval": {
+        "precision_at_3": 0.0,
+        "precision_at_5": 0.0,
+        "recall_at_5": 0.0,
+        "mrr": 0.0
+      },
+      "answer_quality": {
+        "relevancy": 1.0,
+        "faithfulness": 1.0,
+        "completeness": 1.0,
+        "reasoning": "The answer is an error message, not a response to the query. It does not address the file upload size limit, is not supported by any context, and provides no useful information."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  },
+  {
+    "test_id": "legal_001",
+    "category": "legal",
+    "query": "What are the data retention requirements under GDPR Article 17?",
+    "ground_truth_answer": "Article 17 establishes the right to erasure (right to be forgotten). Data subjects can request deletion, controllers must respond within 30 days.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "GDPR Article 17 (the \"right to erasure\" or \"right to be forgotten\") does not set specific data retention periods. Instead, it requires controllers to delete personal data **without undue delay** when one or more of the following conditions apply:\n\n- The data is no longer necessary for the purpose it was collected.\n- The data subject withdraws consent and there is no other legal basis for processing.\n- The data subject objects to processing and there are no overriding legitimate grounds.\n- The data has been processed unlawfully.\n- The data must be erased to comply with a legal obligation.\n- The data was collected in relation to the offer of information society services to a child.\n\nControllers must respond to such requests **within 30 days**.\n\nNote: Retention periods like 7 years for customer records or 6 years for employee records are governed by other legal requirements (e.g., tax or employment laws), not Article 17. Article 17 focuses on deletion upon request, not mandatory retention.",
+      "retrieved_docs": [
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 2293.393850326538,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.4,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer correctly clarifies that GDPR Article 17 is about the right to erasure, not mandatory retention periods, and accurately lists the conditions for deletion and the 30-day response window from the retrieved context. It also correctly distinguishes Article 17 from other legal retention requirements, which is an important nuance not explicitly stated but logically inferred from the context. No hallucinations are present."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "ERROR: Expecting value: line 1 column 1 (char 0)",
+      "retrieved_docs": [],
+      "latency_ms": 0,
+      "retrieval": {
+        "precision_at_3": 0.0,
+        "precision_at_5": 0.0,
+        "recall_at_5": 0.0,
+        "mrr": 0.0
+      },
+      "answer_quality": {
+        "relevancy": 1.0,
+        "faithfulness": 1.0,
+        "completeness": 1.0,
+        "reasoning": "The answer is an error message, not a response to the query. It does not address GDPR Article 17, contains no relevant information, and is clearly a system failure rather than a meaningful answer."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  },
+  {
+    "test_id": "legal_002",
+    "category": "legal",
+    "query": "How long should customer records be retained?",
+    "ground_truth_answer": "Customer records should be retained for 7 years after the last transaction.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "Customer records should be retained for **7 years after the last transaction**.",
+      "retrieved_docs": [
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 526.0701179504395,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.4,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly and accurately reflects the retention period for customer records as stated in the retrieved context: '7 years after last transaction.' There are no hallucinations, and the response fully addresses the query without omitting key details."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "ERROR: Expecting value: line 1 column 1 (char 0)",
+      "retrieved_docs": [],
+      "latency_ms": 0,
+      "retrieval": {
+        "precision_at_3": 0.0,
+        "precision_at_5": 0.0,
+        "recall_at_5": 0.0,
+        "mrr": 0.0
+      },
+      "answer_quality": {
+        "relevancy": 1.0,
+        "faithfulness": 1.0,
+        "completeness": 1.0,
+        "reasoning": "The answer is an error message, not a response to the query. It does not address the retention period, is not supported by any context, and provides no useful information."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  },
+  {
+    "test_id": "product_001",
+    "category": "product",
+    "query": "What are the specifications for model XR-7500-B?",
+    "ground_truth_answer": "Model XR-7500-B has 24 x 10GbE ports, 480 Gbps throughput, less than 1 microsecond latency, 150W power, 1U form factor.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "The specifications for the **Model XR-7500-B** are as follows:\n\n| Feature | Specification |\n|---------|---------------|\n| Ports | 24 x 10GbE |\n| Throughput | 480 Gbps |\n| Latency | < 1 microsecond |\n| Power | 150W typical |\n| Form Factor | 1U rack mount |",
+      "retrieved_docs": [
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 1044.0418720245361,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.4,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses the query about the XR-7500-B specifications, accurately extracts all key details from the retrieved context (ports, throughput, latency, power, form factor), and contains no hallucinations or unsupported claims."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "ERROR: Expecting value: line 1 column 1 (char 0)",
+      "retrieved_docs": [],
+      "latency_ms": 0,
+      "retrieval": {
+        "precision_at_3": 0.0,
+        "precision_at_5": 0.0,
+        "recall_at_5": 0.0,
+        "mrr": 0.0
+      },
+      "answer_quality": {
+        "relevancy": 1.0,
+        "faithfulness": 1.0,
+        "completeness": 1.0,
+        "reasoning": "The answer is an error message, not a response to the query. It does not address the specifications of the XR-7500-B model, is not supported by any context, and omits all required information."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  },
+  {
+    "test_id": "product_002",
+    "category": "product",
+    "query": "What is the power consumption of the XR-3200-A switch?",
+    "ground_truth_answer": "The XR-3200-A switch has a typical power consumption of 25W.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "The power consumption of the **XR-3200-A** switch is **25W typical**.",
+      "retrieved_docs": [
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 567.6548480987549,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.4,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly and accurately states the power consumption of the XR-3200-A switch as 25W typical, which is explicitly stated in the retrieved context. There are no hallucinations, and the response fully addresses the query without omitting key information."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "ERROR: Expecting value: line 1 column 1 (char 0)",
+      "retrieved_docs": [],
+      "latency_ms": 0,
+      "retrieval": {
+        "precision_at_3": 0.0,
+        "precision_at_5": 0.0,
+        "recall_at_5": 0.0,
+        "mrr": 0.0
+      },
+      "answer_quality": {
+        "relevancy": 1.0,
+        "faithfulness": 1.0,
+        "completeness": 1.0,
+        "reasoning": "The answer is an error message, not a response to the query. It does not address the power consumption of the XR-3200-A switch, is not supported by any context, and fails to provide any information required by the query."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  },
+  {
+    "test_id": "general_001",
+    "category": "general",
+    "query": "How do I reset my password?",
+    "ground_truth_answer": "Click the Forgot Password link on the login page, enter your email, check for the reset link, and create a new password with at least 8 characters and one number.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "To reset your password:\n\n1. Click the \"Forgot Password\" link on the login page.  \n2. Enter your registered email address.  \n3. Check your email for the reset link.  \n4. Click the link and enter your new password.  \n5. Your new password must be at least 8 characters long and include at least one number.",
+      "retrieved_docs": [
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 936.1190795898438,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.4,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses the query about password reset using exact steps from the retrieved context, with no hallucinations. It includes all key details: clicking 'Forgot Password', entering email, checking email, setting new password, and the password requirements (8+ characters, one number), matching both the context and ground truth."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "ERROR: Expecting value: line 1 column 1 (char 0)",
+      "retrieved_docs": [],
+      "latency_ms": 0,
+      "retrieval": {
+        "precision_at_3": 0.0,
+        "precision_at_5": 0.0,
+        "recall_at_5": 0.0,
+        "mrr": 0.0
+      },
+      "answer_quality": {
+        "relevancy": 1.0,
+        "faithfulness": 1.0,
+        "completeness": 1.0,
+        "reasoning": "The answer is an error message, not a response to the query. It does not address how to reset a password, is not supported by any context, and omits all necessary steps."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  }
+]

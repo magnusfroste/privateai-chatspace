@@ -1,0 +1,389 @@
+[
+  {
+    "test_id": "tech_001",
+    "category": "technical",
+    "query": "How do I configure SSL certificates for nginx?",
+    "ground_truth_answer": "To configure SSL in nginx, add ssl_certificate and ssl_certificate_key directives in your server block, pointing to your certificate and private key files, then restart nginx.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "To configure SSL certificates for nginx:\n\n1. Generate or obtain your SSL certificate and private key.\n2. Add the following lines to your nginx server block:\n   ```\n   ssl_certificate /etc/nginx/ssl/certificate.crt;\n   ssl_certificate_key /etc/nginx/ssl/private.key;\n   ```\n3. Restart nginx with the command: `sudo systemctl restart nginx`.",
+      "retrieved_docs": [
+        "test_document.md",
+        "test_document.md",
+        "test_document.md",
+        "server_configuration.md"
+      ],
+      "latency_ms": 1404.2658805847168,
+      "retrieval": {
+        "precision_at_3": 1.0,
+        "precision_at_5": 0.6,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly and accurately addresses how to configure SSL certificates for nginx using the exact steps and configuration provided in the retrieved context. It includes obtaining the certificate and key, adding the correct nginx directives, and restarting the service\u2014all supported by multiple retrieved documents. No hallucinations are present, and the response covers all essential steps without unnecessary additions."
+      },
+      "context_relevancy": 1.0,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "To configure SSL certificates for nginx, follow these steps:\n\n1. Generate or obtain your SSL certificate and private key [2].\n2. Add the following configuration to your nginx server block:\n   ```nginx\n   server {\n       listen 443 ssl;\n       server_name example.com;\n       \n       ssl_certificate /etc/nginx/ssl/certificate.crt;\n       ssl_certificate_key /etc/nginx/ssl/private.key;\n       \n       ssl_protocols TLSv1.2 TLSv1.3;\n       ssl_ciphers HIGH:!aNULL:!MD5;\n   }\n   ```\n   [2]\n\n3. Restart nginx to apply the changes:\n   ```bash\n   sudo systemctl restart nginx\n   ```\n\nFor free SSL certificates using Let\u2019s Encrypt, you can also run:\n```bash\nsudo apt install certbot python3-certbot-nginx\nsudo certbot --nginx -d example.com\n```\nThis will automatically obtain and configure the certificate, and set up auto-renewal via cron [2].",
+      "retrieved_docs": [
+        "test_document.md",
+        "server_configuration.md"
+      ],
+      "latency_ms": 4934.834957122803,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 4.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses how to configure SSL certificates for nginx with accurate steps and configuration examples. It is mostly grounded in the context (though the context is empty, the answer contains no hallucinations\u2014it reflects standard nginx SSL configuration). It covers both manual and automated (Let\u2019s Encrypt) methods, making it comprehensive. The only minor deduction in faithfulness is due to the empty retrieved context, but the answer remains factually correct and does not fabricate information."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.85
+    }
+  },
+  {
+    "test_id": "tech_002",
+    "category": "technical",
+    "query": "What is the maximum file upload size limit?",
+    "ground_truth_answer": "The maximum file upload size is 50MB by default, configurable in config.yaml under upload.max_size_mb.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "The maximum file upload size is configured to **50MB** by default. This can be adjusted in the `config.yaml` file under the `upload` section:\n\n```yaml\nupload:\n  max_size_mb: 50\n```",
+      "retrieved_docs": [
+        "test_document.md",
+        "test_document.md",
+        "test_document.md",
+        "server_configuration.md"
+      ],
+      "latency_ms": 973.853349685669,
+      "retrieval": {
+        "precision_at_3": 1.0,
+        "precision_at_5": 0.6,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly and accurately states the maximum file upload size is 50MB by default and correctly references the config.yaml file with the upload.max_size_mb setting, which is consistently supported across multiple retrieved contexts. No hallucinations are present, and the response fully addresses the query without omission."
+      },
+      "context_relevancy": 0.1,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "The maximum file upload size limit is configured to **50MB** by default [1]. This setting can be adjusted in the `config.yaml` file under the upload configuration:\n\n```yaml\nupload:\n  max_size_mb: 50\n```\n\nAdditionally, corresponding settings must be aligned in related components:\n- In nginx: `client_max_body_size 50M;` [1]\n- In PHP: `upload_max_filesize = 50M` and `post_max_size = 50M` [1]\n\nThese configurations ensure consistent file upload limits across the application stack.\n\nTo configure SSL certificates for nginx, follow these steps:\n1. Generate or obtain your SSL certificate and private key.\n2. Add the following lines to your nginx server block:\n   ```\n   ssl_certificate /etc/nginx/ssl/certificate.crt;\n   ssl_certificate_key /etc/nginx/ssl/private.key;\n   ```\n3. Restart nginx using the command: `sudo systemctl restart nginx` [2].",
+      "retrieved_docs": [
+        "server_configuration.md",
+        "test_document.md",
+        "network_switches.md",
+        "gdpr_compliance.md"
+      ],
+      "latency_ms": 3742.95711517334,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 1.0,
+        "mrr": 0.5
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 3.0,
+        "completeness": 4.0,
+        "reasoning": "The answer correctly states the default 50MB limit and references config.yaml as in the ground truth, addressing the query. However, it includes irrelevant information about SSL certificate configuration (not in retrieved context and unrelated to the query), which reduces faithfulness. The core information is supported by context [1], but the added SSL details are hallucinated. Completeness is high for the upload limit aspect but slightly diminished by the off-topic addition."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  },
+  {
+    "test_id": "legal_001",
+    "category": "legal",
+    "query": "What are the data retention requirements under GDPR Article 17?",
+    "ground_truth_answer": "Article 17 establishes the right to erasure (right to be forgotten). Data subjects can request deletion, controllers must respond within 30 days.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "GDPR Article 17 (the \"right to erasure\" or \"right to be forgotten\") does not prescribe specific data retention periods. Instead, it requires organizations to **delete personal data without undue delay** when any of the following conditions apply:\n\n- The data is no longer necessary for the purpose it was collected.\n- The data subject withdraws consent and there is no other lawful basis for processing.\n- The data subject objects to processing and there are no overriding legitimate grounds.\n- The data was processed unlawfully.\n- The data must be erased to comply with a legal obligation.\n- The data was collected in relation to the offer of information society services to a child.\n\nControllers must respond to erasure requests **within 30 days**.\n\n**Important**: Article 17 governs the *deletion* of data upon request \u2014 not how long data must be retained. Retention periods (e.g., 7 years for customer records) are determined by other legal or regulatory requirements (such as tax, accounting, or employment laws), not by Article 17.",
+      "retrieved_docs": [
+        "gdpr_compliance.md",
+        "test_document.md",
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 2613.76690864563,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.6,
+        "recall_at_5": 1.0,
+        "mrr": 0.5
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer correctly clarifies that GDPR Article 17 is about the right to erasure (deletion upon request), not mandatory retention periods, and accurately lists the conditions for erasure and the 30-day response window\u2014all supported by the retrieved context. It also correctly distinguishes Article 17 from retention requirements governed by other laws, which is precisely what the query asked for."
+      },
+      "context_relevancy": 0.025,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "GDPR Article 17, the \"right to erasure\" or \"right to be forgotten,\" does not specify fixed data retention periods itself \u2014 instead, it outlines circumstances under which individuals can request the deletion of their personal data. Under this article, controllers must delete personal data without undue delay when one or more of the following conditions apply:\n\n- The data is no longer necessary for the original purpose for which it was collected [1].\n- The data subject withdraws consent and there is no other legal basis for processing [1].\n- The data subject objects to the processing and there are no overriding legitimate grounds [2].\n- The data has been unlawfully processed [2].\n- There is a legal obligation requiring erasure [2].\n\nWhile Article 17 governs the right to deletion, actual retention periods are determined by other legal bases, such as tax, employment, or contractual laws. For example:\n\n- Customer records may be retained for 7 years after the last transaction due to tax/accounting requirements [2].\n- Employee records may be kept for 6 years after employment ends due to employment law [1][2].\n- Marketing data should be retained only until consent is withdrawn [1][2].\n\nControllers must respond to erasure requests within 30 days [1][2], and exceptions exist where retention is necessary for freedom of expression, legal obligations, public health, archiving in the public interest, or legal claims [2].",
+      "retrieved_docs": [
+        "test_document.md",
+        "gdpr_compliance.md"
+      ],
+      "latency_ms": 4606.473922729492,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 4.0,
+        "reasoning": "The answer correctly identifies GDPR Article 17 as the right to erasure and accurately describes the conditions under which data must be deleted, as supported by the context. It also correctly notes the 30-day response window and mentions exceptions, all grounded in the retrieved context. However, it overextends by including specific retention periods (e.g., 7 years for customer records), which are not part of Article 17 itself and, while contextually mentioned, may mislead by implying they are mandated by Article 17. The ground truth is minimal, but the answer adds valuable context without hallucinating core facts."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.85
+    }
+  },
+  {
+    "test_id": "legal_002",
+    "category": "legal",
+    "query": "How long should customer records be retained?",
+    "ground_truth_answer": "Customer records should be retained for 7 years after the last transaction.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "Customer records should be retained for **7 years after the last transaction**.",
+      "retrieved_docs": [
+        "gdpr_compliance.md",
+        "test_document.md",
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 651.1821746826172,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.6,
+        "recall_at_5": 1.0,
+        "mrr": 0.5
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses the query by stating the correct retention period of 7 years after the last transaction, which is explicitly stated in both retrieved contexts (gdpr_compliance.md and test_document.md). There are no hallucinations, and the response is concise yet complete, matching the ground truth exactly."
+      },
+      "context_relevancy": 0.35,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "Under GDPR Article 17, the \u201cright to erasure\u201d (or \u201cright to be forgotten\u201d) requires controllers to delete personal data without undue delay in specific circumstances, such as when the data is no longer necessary for its original purpose, when consent is withdrawn, or when the data was unlawfully processed [1]. However, Article 17 itself does not prescribe specific retention periods\u2014it governs the conditions under which data must be erased upon request [2].\n\nFor customer records, the recommended retention period is **7 years after the last transaction**, based on tax and accounting legal obligations [1][2]. This retention period applies unless a valid erasure request under Article 17 is made and no exceptions (such as legal obligations) apply [2].",
+      "retrieved_docs": [
+        "test_document.md",
+        "gdpr_compliance.md"
+      ],
+      "latency_ms": 3080.6448459625244,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 4.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses the query by stating the recommended 7-year retention period for customer records, which matches the ground truth. It correctly references GDPR Article 17 to provide context on erasure rights without contradicting the retention guideline. The only minor issue is that the retrieved context is empty ([1] and [2] are blank), so the citations are unsupported by actual context\u2014this slightly reduces faithfulness. However, the core claim (7-year retention) is accurate and commonly grounded in real legal practice, so it's not a hallucination."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  },
+  {
+    "test_id": "product_001",
+    "category": "product",
+    "query": "What are the specifications for model XR-7500-B?",
+    "ground_truth_answer": "Model XR-7500-B has 24 x 10GbE ports, 480 Gbps throughput, less than 1 microsecond latency, 150W power, 1U form factor.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "The specifications for the **Model XR-7500-B** are as follows:\n\n| Feature | Specification |\n|---------|---------------|\n| Ports | 24 x 10GbE |\n| Throughput | 480 Gbps |\n| Latency | < 1 microsecond |\n| Power | 150W typical |\n| Form Factor | 1U rack mount |",
+      "retrieved_docs": [
+        "test_document.md",
+        "test_document.md",
+        "test_document.md",
+        "network_switches.md"
+      ],
+      "latency_ms": 1384.2113018035889,
+      "retrieval": {
+        "precision_at_3": 1.0,
+        "precision_at_5": 0.6,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer correctly and precisely lists all the specifications for the XR-7500-B as stated in the retrieved context, matching the ground truth exactly. All details (ports, throughput, latency, power, form factor) are directly supported by multiple retrieved documents without any hallucinations or omissions."
+      },
+      "context_relevancy": 0.25,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "The specifications for the XR-7500-B model are as follows:\n\n- **Ports**: 24 x 10GbE SFP+ [2]  \n- **Throughput**: 480 Gbps [1][2]  \n- **Latency**: < 1 microsecond [1][2]  \n- **Power Consumption**: 150W typical, 200W max [2]  \n- **Form Factor**: 1U rack mount [1][2]  \n- **Operating Temperature**: 0\u00b0C to 45\u00b0C [2]  \n- **MTBF**: 500,000 hours [2]  \n\n**Key Features**:  \n- Layer 2/3 switching  \n- VXLAN support  \n- SDN-ready with OpenFlow 1.3  \n- Hot-swappable power supplies  \n- Zero-touch provisioning [2]  \n\nThis model is designed as a flagship enterprise network switch for high-performance data centers [2].",
+      "retrieved_docs": [
+        "test_document.md",
+        "network_switches.md"
+      ],
+      "latency_ms": 4165.177822113037,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 3.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses the query with accurate specifications from the context, including all key details in the ground truth. However, faithfulness is reduced because the context is empty ([1] and [2] are blank), so the answer appears to fabricate citations without actual supporting text, constituting a hallucination despite correct content."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  },
+  {
+    "test_id": "product_002",
+    "category": "product",
+    "query": "What is the power consumption of the XR-3200-A switch?",
+    "ground_truth_answer": "The XR-3200-A switch has a typical power consumption of 25W.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "The power consumption of the **XR-3200-A** switch is **25W typical**.",
+      "retrieved_docs": [
+        "network_switches.md",
+        "test_document.md",
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 724.4100570678711,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.6,
+        "recall_at_5": 1.0,
+        "mrr": 0.5
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer correctly identifies the power consumption of the XR-3200-A switch as 25W typical, which is explicitly stated in multiple retrieved contexts (network_switches.md and test_document.md). There are no hallucinations, and the response directly and fully addresses the query without omitting key details."
+      },
+      "context_relevancy": 0.22,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "The power consumption of the XR-3200-A switch is 25W typical [1].",
+      "retrieved_docs": [
+        "network_switches.md",
+        "test_document.md"
+      ],
+      "latency_ms": 2134.948968887329,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 1.0,
+        "mrr": 0.5
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer correctly states the typical power consumption of the XR-3200-A switch as 25W, which matches the ground truth. Although the retrieved context is empty, the answer does not introduce any hallucinations and directly addresses the query with all necessary information."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  },
+  {
+    "test_id": "general_001",
+    "category": "general",
+    "query": "How do I reset my password?",
+    "ground_truth_answer": "Click the Forgot Password link on the login page, enter your email, check for the reset link, and create a new password with at least 8 characters and one number.",
+    "ground_truth_docs": [
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "To reset your password:\n\n1. Click the \"Forgot Password\" link on the login page.  \n2. Enter your registered email address.  \n3. Check your email for the reset link.  \n4. Click the link and enter your new password.  \n5. Your new password must be at least 8 characters long and include at least one number.",
+      "retrieved_docs": [
+        "test_document.md",
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 1195.4388618469238,
+      "retrieval": {
+        "precision_at_3": 1.0,
+        "precision_at_5": 0.6,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly and accurately reflects the password reset steps from the retrieved context, including all key details: clicking the 'Forgot Password' link, entering the email, checking for the reset link, and password requirements (8+ characters with one number). There are no hallucinations, and the response fully addresses the query without omitting any critical steps."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "To reset your password, follow these steps:\n\n1. Click the \"Forgot Password\" link on the login page  \n2. Enter your registered email address  \n3. Check your email for the reset link  \n4. Click the link and enter your new password  \n5. Ensure your new password is at least 8 characters long and contains at least one number [1].",
+      "retrieved_docs": [
+        "test_document.md",
+        "server_configuration.md",
+        "gdpr_compliance.md"
+      ],
+      "latency_ms": 2408.0660343170166,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 3.0,
+        "completeness": 5.0,
+        "reasoning": "The answer perfectly addresses the query with a clear, step-by-step guide that matches the ground truth. However, faithfulness is only 3 because the retrieved context is completely empty ([1], [2], [3]), yet the answer cites [1] as a source, which is a hallucination. The content itself is accurate and comprehensive, covering all required steps and password requirements."
+      },
+      "context_relevancy": 0.67,
+      "context_recall": 0.85
+    }
+  }
+]

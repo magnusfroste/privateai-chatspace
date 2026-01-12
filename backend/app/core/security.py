@@ -45,8 +45,40 @@ async def get_current_user(
     db: AsyncSession = Depends(get_db)
 ):
     from app.models.user import User
+    from app.models.api_key import APIKey
     
     token = credentials.credentials
+    
+    # Check if it's an API key (starts with pk_)
+    if token.startswith("pk_"):
+        result = await db.execute(
+            select(APIKey).where(APIKey.key == token, APIKey.is_active == True)
+        )
+        api_key = result.scalar_one_or_none()
+        
+        if api_key is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid API key",
+            )
+        
+        # Update last used
+        api_key.last_used_at = datetime.utcnow()
+        await db.commit()
+        
+        # Get the user associated with this API key
+        result = await db.execute(select(User).where(User.id == api_key.user_id))
+        user = result.scalar_one_or_none()
+        
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="API key user not found",
+            )
+        
+        return user
+    
+    # Otherwise, treat as JWT token
     payload = decode_token(token)
     
     if payload is None:

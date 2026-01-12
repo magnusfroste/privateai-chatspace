@@ -37,6 +37,9 @@ class WorkspaceUpdate(BaseModel):
     top_n: Optional[int] = None
     similarity_threshold: Optional[float] = None
     use_hybrid_search: Optional[bool] = None
+    use_reranking: Optional[bool] = None  # Enable cross-encoder reranking for better accuracy
+    rerank_top_k: Optional[int] = None  # Number of candidates to rerank
+    use_query_expansion: Optional[bool] = None  # Use LLM to generate query variants
     use_web_search: Optional[bool] = None
 
 
@@ -50,6 +53,9 @@ class WorkspaceResponse(BaseModel):
     top_n: Optional[int]
     similarity_threshold: Optional[float]
     use_hybrid_search: Optional[bool]
+    use_reranking: Optional[bool]
+    rerank_top_k: Optional[int]
+    use_query_expansion: Optional[bool]
     use_web_search: Optional[bool]
     admin_pinned: Optional[bool]
     owner_id: int
@@ -179,6 +185,12 @@ async def update_workspace(
         workspace.similarity_threshold = data.similarity_threshold
     if data.use_hybrid_search is not None:
         workspace.use_hybrid_search = data.use_hybrid_search
+    if data.use_reranking is not None:
+        workspace.use_reranking = data.use_reranking
+    if data.rerank_top_k is not None:
+        workspace.rerank_top_k = data.rerank_top_k
+    if data.use_query_expansion is not None:
+        workspace.use_query_expansion = data.use_query_expansion
     if data.use_web_search is not None:
         workspace.use_web_search = data.use_web_search
     

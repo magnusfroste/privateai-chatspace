@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api, User } from '../lib/api'
 import RagEvaluator from '../components/RagEvaluator'
+import ABTestEvaluator from '../components/ABTestEvaluator'
 import SystemSettings from '../components/SystemSettings'
 import {
   ArrowLeft,
@@ -85,7 +86,7 @@ interface TestResult {
 
 export default function Admin() {
   const navigate = useNavigate()
-  const [tab, setTab] = useState<'system' | 'stats' | 'users' | 'logs' | 'evaluator' | 'settings'>('system')
+  const [tab, setTab] = useState<'system' | 'stats' | 'users' | 'logs' | 'evaluator' | 'abtest' | 'settings'>('system')
   const [stats, setStats] = useState<Stats | null>(null)
   const [users, setUsers] = useState<User[]>([])
   const [logs, setLogs] = useState<ChatLog[]>([])
@@ -269,6 +270,17 @@ export default function Admin() {
           >
             <FlaskConical className="w-4 h-4" />
             RAG Evaluator
+          </button>
+          <button
+            onClick={() => setTab('abtest')}
+            className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${
+              tab === 'abtest'
+                ? 'bg-dark-700 text-white'
+                : 'text-dark-400 hover:text-white hover:bg-dark-800'
+            }`}
+          >
+            <BarChart3 className="w-4 h-4" />
+            A/B Test
           </button>
           <button
             onClick={() => setTab('settings')}
@@ -627,6 +639,8 @@ export default function Admin() {
               )}
 
               {tab === 'evaluator' && <RagEvaluator />}
+
+              {tab === 'abtest' && <ABTestEvaluator />}
 
               {tab === 'settings' && <SystemSettings />}
             </>

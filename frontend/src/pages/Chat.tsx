@@ -5,7 +5,6 @@ import { api } from '../lib/api'
 import Sidebar from '../components/Sidebar'
 import ChatMessage from '../components/ChatMessage'
 import ChatInput, { ChatInputHandle } from '../components/ChatInput'
-import WorkspaceSettings from '../components/WorkspaceSettings'
 import WorkspaceSettingsSidebar from '../components/WorkspaceSettingsSidebar'
 import DocumentManager from '../components/DocumentManager'
 import NotesSidebar from '../components/NotesSidebar'
@@ -27,7 +26,6 @@ export default function Chat() {
   const token = useAuthStore((state) => state.token)
   const [messages, setMessages] = useState<Message[]>([])
   const [isStreaming, setIsStreaming] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
   const [showDocuments, setShowDocuments] = useState(false)
   const [showNotes, setShowNotes] = useState(false)
   const [notesExpanded, setNotesExpanded] = useState(false)
@@ -517,28 +515,6 @@ export default function Chat() {
           </div>
         )}
       </div>
-
-      {showSettings && currentWorkspace && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-dark-800 rounded-xl w-full max-w-2xl">
-            <div className="flex items-center justify-between p-4 border-b border-dark-700">
-              <h3 className="text-lg font-medium text-white">
-                Workspace Settings
-              </h3>
-              <button
-                onClick={() => setShowSettings(false)}
-                className="p-1 text-dark-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <WorkspaceSettings
-              workspace={currentWorkspace}
-              onClose={() => setShowSettings(false)}
-            />
-          </div>
-        </div>
-      )}
 
       {showDocuments && currentWorkspace && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
