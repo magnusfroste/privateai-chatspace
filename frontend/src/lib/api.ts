@@ -185,6 +185,7 @@ export const api = {
         admin_pinned: boolean
       }>
       total_rag_collections: number
+      vector_store: string
     }>('/admin/system/overview'),
     testLlm: () => fetchApi<{
       status: string

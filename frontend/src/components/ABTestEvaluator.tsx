@@ -108,7 +108,7 @@ export default function ABTestEvaluator() {
       if (response.ok) {
         const config = await response.json()
         // Only set if not already set (preserve user edits)
-        if (!anythingllmUrl) setAnythingllmUrl(config.anythingllm_url || 'https://chat.autoversio.ai')
+        if (!anythingllmUrl) setAnythingllmUrl(config.anythingllm_url || '')
         if (!anythingllmApiKey) setAnythingllmApiKey(config.anythingllm_api_key || '')
         if (!anythingllmWorkspace) setAnythingllmWorkspace(config.anythingllm_workspace || 'rag-test')
         if (!privateaiUrl) setPrivateaiUrl(config.privateai_url || 'http://localhost:8000')
@@ -118,7 +118,7 @@ export default function ABTestEvaluator() {
     } catch (err) {
       console.error('Failed to load config:', err)
       // Set defaults if config fails
-      if (!anythingllmUrl) setAnythingllmUrl('https://chat.autoversio.ai')
+      if (!anythingllmUrl) setAnythingllmUrl('')
       if (!anythingllmWorkspace) setAnythingllmWorkspace('rag-test')
       if (!privateaiUrl) setPrivateaiUrl('http://localhost:8000')
       if (!privateaiWorkspaceId) setPrivateaiWorkspaceId('2')

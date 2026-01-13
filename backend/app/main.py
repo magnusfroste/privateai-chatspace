@@ -9,6 +9,8 @@ from app.core.database import init_db, async_session
 from app.core.config import settings
 from app.core.security import get_password_hash
 from app.models.user import User
+from app.models.system_settings import SystemSettings
+from app.services.vector_store.factory import set_vector_store_type
 from app.api import auth, workspaces, chats, documents, admin, notes, v1
 
 
@@ -35,6 +37,15 @@ async def lifespan(app: FastAPI):
             db.add(admin_user)
             await db.commit()
             print(f"Created admin user: {settings.ADMIN_EMAIL}")
+        
+        # Load vector_store setting from DB (if set by admin)
+        vs_result = await db.execute(
+            select(SystemSettings).where(SystemSettings.key == "vector_store")
+        )
+        vs_setting = vs_result.scalar_one_or_none()
+        if vs_setting and vs_setting.value in ("qdrant", "lancedb"):
+            set_vector_store_type(vs_setting.value)
+            print(f"Vector store from DB setting: {vs_setting.value}")
     
     yield
 

@@ -72,6 +72,7 @@ interface WorkspaceInfo {
 interface SystemOverview {
   workspaces: WorkspaceInfo[]
   total_rag_collections: number
+  vector_store: string
 }
 
 interface TestResult {
@@ -433,6 +434,13 @@ export default function Admin() {
                       Workspaces & RAG Collections
                       <span className="ml-2 text-sm font-normal text-dark-400">
                         ({overview.total_rag_collections} collections)
+                      </span>
+                      <span className={`ml-3 px-2 py-0.5 text-xs font-medium rounded ${
+                        overview.vector_store === 'lancedb' 
+                          ? 'bg-green-500/20 text-green-400' 
+                          : 'bg-blue-500/20 text-blue-400'
+                      }`}>
+                        {overview.vector_store === 'lancedb' ? 'LanceDB' : 'Qdrant'}
                       </span>
                     </h2>
                     <div className="bg-dark-800 rounded-xl overflow-hidden">

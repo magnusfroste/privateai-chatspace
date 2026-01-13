@@ -6,7 +6,7 @@ import { MessageSquare } from 'lucide-react'
 
 // Auto-login for development - set VITE_DEV_AUTO_LOGIN=true in .env
 const DEV_AUTO_LOGIN = import.meta.env.VITE_DEV_AUTO_LOGIN === 'true'
-const DEV_EMAIL = import.meta.env.VITE_DEV_EMAIL || 'admin@autoversio.local'
+const DEV_EMAIL = import.meta.env.VITE_DEV_EMAIL || 'admin@privateai.local'
 const DEV_PASSWORD = import.meta.env.VITE_DEV_PASSWORD || 'changeme'
 
 export default function Login() {
@@ -62,7 +62,7 @@ export default function Login() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-dark-700 mb-4">
             <MessageSquare className="w-8 h-8 text-blue-500" />
           </div>
-          <h1 className="text-3xl font-bold text-white">AutoVersio</h1>
+          <h1 className="text-3xl font-bold text-white">Private AI</h1>
           <p className="text-dark-400 mt-2">Sign in to continue</p>
         </div>
 
@@ -82,7 +82,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 bg-dark-800 border border-dark-600 rounded-lg text-white placeholder-dark-500 focus:outline-none focus:border-blue-500 transition-colors"
-              placeholder="admin@autoversio.local"
+              placeholder="admin@privateai.local"
               required
             />
           </div>

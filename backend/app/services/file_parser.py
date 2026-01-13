@@ -1,17 +1,19 @@
 import io
 from typing import List
-import PyPDF2
+import pdfplumber
 from docx import Document
 
 
 async def parse_pdf(file_content: bytes) -> str:
-    """Parse PDF file to text"""
+    """Parse PDF file to text using pdfplumber (better table extraction)"""
     try:
-        pdf_reader = PyPDF2.PdfReader(io.BytesIO(file_content))
-        text = ""
-        for page in pdf_reader.pages:
-            text += page.extract_text() + "\n"
-        return text.strip()
+        text_parts = []
+        with pdfplumber.open(io.BytesIO(file_content)) as pdf:
+            for page in pdf.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text_parts.append(page_text)
+        return "\n\n".join(text_parts)
     except Exception as e:
         raise Exception(f"Failed to parse PDF: {e}")
 

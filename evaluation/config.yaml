@@ -21,11 +21,11 @@ anythingllm:
   workspace_slug: "rag-test"
 
 # Private AI Chatspace Configuration  
-# Remote: https://your-deployment.com
+# Remote: https://chatpro.autoversio.ai
 # Local:  http://localhost:8000
 privateai:
-  base_url: "http://localhost:8000"
-  # Login: admin@autoversio.local / changeme
+  base_url: "https://chatpro.autoversio.ai"
+  api_key: "pk_hP92XWDWMJ1WBIPxBwJ6xc034i1t8evjUE9t7qF7slA"
   email: "admin@autoversio.local"
   password: "changeme"
   workspace_id: "2"  # rag-test workspace

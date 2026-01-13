@@ -239,6 +239,7 @@ class WorkspaceInfo(BaseModel):
 class SystemOverviewResponse(BaseModel):
     workspaces: List[WorkspaceInfo]
     total_rag_collections: int
+    vector_store: str = "qdrant"  # "qdrant" or "lancedb"
 
 
 @router.get("/health/services", response_model=SystemHealthResponse)
@@ -313,14 +314,11 @@ async def get_system_overview(
         has_collection = False
         rag_points = 0
         try:
-            collection_name = f"workspace_{workspace.id}"
-            async with httpx.AsyncClient(timeout=5.0) as client:
-                response = await client.get(f"{settings.QDRANT_URL}/collections/{collection_name}")
-                if response.status_code == 200:
-                    has_collection = True
-                    data = response.json()
-                    rag_points = data.get("result", {}).get("points_count", 0)
-                    total_collections += 1
+            stats = await rag_service.vector_store.get_stats(workspace.id)
+            if stats.vector_count > 0:
+                has_collection = True
+                rag_points = stats.vector_count
+                total_collections += 1
         except:
             pass
         
@@ -337,7 +335,8 @@ async def get_system_overview(
     
     return SystemOverviewResponse(
         workspaces=workspaces_info,
-        total_rag_collections=total_collections
+        total_rag_collections=total_collections,
+        vector_store=rag_service.vector_store.name
     )
 
 
@@ -466,26 +465,26 @@ async def test_pdf_provider(
                 "error": str(e)
             }
     
-    elif provider == "pypdf2":
+    elif provider == "pdfplumber":
         try:
-            from PyPDF2 import PdfReader
+            import pdfplumber
             return {
                 "status": "available",
-                "provider": "pypdf2",
-                "message": "PyPDF2 is available (basic text extraction, no OCR)"
+                "provider": "pdfplumber",
+                "message": "pdfplumber is available (table extraction, better layout)"
             }
         except ImportError:
             return {
                 "status": "error",
-                "provider": "pypdf2",
-                "error": "PyPDF2 not installed"
+                "provider": "pdfplumber",
+                "error": "pdfplumber not installed"
             }
     
     else:
         return {
             "status": "error",
             "provider": provider,
-            "error": f"Unknown provider: {provider}. Use 'docling', 'marker-api', or 'pypdf2'"
+            "error": f"Unknown provider: {provider}. Use 'docling-api', 'marker-api', or 'pdfplumber'"
         }
 
 
@@ -983,6 +982,10 @@ async def update_system_setting(
     if not success:
         raise HTTPException(status_code=500, detail="Failed to update setting")
     
+    # Special handling for vector_store - switch active store
+    if key == "vector_store" and data.value in ("qdrant", "lancedb"):
+        rag_service.switch_vector_store(data.value)
+    
     return {"key": key, "value": data.value, "source": "database"}
 
 
@@ -998,6 +1001,10 @@ async def reset_system_setting(
     # Return the default value
     env_attr = ADMIN_SETTINGS[key][0]
     default_value = getattr(settings, env_attr, None)
+    
+    # Special handling for vector_store - switch back to default
+    if key == "vector_store":
+        rag_service.switch_vector_store(default_value or "qdrant")
     
     return {"key": key, "value": default_value, "source": "default"}
 
@@ -1421,14 +1428,17 @@ async def generate_test_questions(
                 tmp_path = tmp.name
             
             try:
-                # Try to extract text using PyPDF2 (simple extraction for question generation)
-                import PyPDF2
+                # Try to extract text using pdfplumber (better table extraction)
+                import pdfplumber
                 from io import BytesIO
                 
-                pdf_reader = PyPDF2.PdfReader(BytesIO(content))
-                text = ""
-                for page in pdf_reader.pages[:20]:  # Limit to first 20 pages
-                    text += page.extract_text() or ""
+                text_parts = []
+                with pdfplumber.open(BytesIO(content)) as pdf:
+                    for page in pdf.pages[:20]:  # Limit to first 20 pages
+                        page_text = page.extract_text()
+                        if page_text:
+                            text_parts.append(page_text)
+                text = "\n\n".join(text_parts)
                 
                 if text.strip():
                     all_content.append(f"=== Document: {filename} ===\n{text[:15000]}")  # Limit per doc

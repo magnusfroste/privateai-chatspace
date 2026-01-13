@@ -1,6 +1,6 @@
 """
 MCP (Model Context Protocol) Service
-Manages MCP server connections and tool execution for AutoVersio
+Manages MCP server connections and tool execution for Private AI
 """
 import asyncio
 import json
@@ -97,7 +97,7 @@ class MCPServer:
                 "protocolVersion": "2024-11-05",
                 "capabilities": {},
                 "clientInfo": {
-                    "name": "AutoVersio",
+                    "name": "PrivateAI",
                     "version": "1.0.0"
                 }
             }

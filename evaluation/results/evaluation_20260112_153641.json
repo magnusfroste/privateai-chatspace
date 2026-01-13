@@ -1,0 +1,584 @@
+[
+  {
+    "test_id": "mjp_001",
+    "category": "technical",
+    "query": "What is the maintenance interval for MJP waterjet impeller inspection?",
+    "ground_truth_answer": "Impeller inspection and maintenance intervals are specified in the preventive maintenance schedule.",
+    "ground_truth_docs": [
+      "MJP-5996-SM-A1.pdf",
+      "MJP-5996-OM-A1.pdf"
+    ],
+    "anythingllm": {
+      "answer": "The maintenance interval for inspecting the MJP waterjet impeller is:\n\n> **Annually**\n\n### \u2705 **Official Reference:**\n**MJP-4200-WM-PA1, Section 3.2.2 \u2014 Pump Unit, Inspect Impeller Blade Tip Clearance**\n\n- **Task Interval**:  \n  > *Do this task during: Preventive maintenance, annually / while docked.*\n\n- **Skill Level Required**:  \n  - **Authorized Service Technician**\n\n- **Purpose**:  \n  To measure impeller blade tip clearance and detect wear, damage, or contact with the housing that could lead to cavitation, loss of efficiency, or mechanical failure.\n\n### \u2705 **Additional Context:**\n- Inspection is performed **while the vessel is docked**.\n- **Replacement** is only required if:\n  - Clearance exceeds manufacturer specifications\n  - Blades show signs of erosion, pitting, or damage\n- **Not a replacement schedule** \u2014 only an inspection. Impellers are not replaced on a fixed hour interval unless damaged.\n\n> \u2705 **Conclusion**:  \n> The MJP waterjet impeller must be **inspected annually** as part of preventive maintenance, with detailed clearance measurements performed by an Authorized Service Technician.",
+      "retrieved_docs": [
+        "MJP-4200-WM-PA1.pdf",
+        "MJP-5996-SM-A1.pdf",
+        "MJP-4200-WM-PA1.pdf",
+        "MJP-5996-SM-A1.pdf"
+      ],
+      "latency_ms": 4159.6338748931885,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.4,
+        "recall_at_5": 0.5,
+        "mrr": 0.5
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer correctly identifies the annual inspection interval for the MJP waterjet impeller, directly supported by the retrieved context in document [2] (MJP-5996-SM-A1.pdf), which states 'Do this task during: Preventive maintenance, annually / while docked.' It accurately cites the relevant section (3.2.2), specifies the required skill level (Authorized Service Technician), and clarifies that it is an inspection, not a replacement, which aligns with the context. No hallucinations are present, and all key aspects of the query are addressed."
+      },
+      "context_relevancy": 0.25,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "The maintenance interval for inspecting the MJP waterjet impeller tip clearance is **yearly** (every 12 months) as part of preventive maintenance [1]. This task is specifically listed under \u201cYearly inspections, adjustments and replacements\u201d with the task number 4.2.3 (or 3.2.2 in the MJP-4200-WM-PA1 document) and requires an Authorized Service Technician to perform [1][2]. \n\nAdditionally, if the impeller tip clearance exceeds 1 mm, renovation is required, indicating that inspection is critical for operational integrity [2]. \n\nNote: While the impeller itself is inspected annually, major components like the thrust bearing and radial seals (which may involve impeller disassembly) are replaced every 5 years or 8,000 operating hours [2].",
+      "retrieved_docs": [
+        "MJP-5996-SM-A1.pdf",
+        "MJP-4200-WM-PA1.pdf",
+        "test_document.md"
+      ],
+      "latency_ms": 3485.5401515960693,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 0.5,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 3.0,
+        "completeness": 4.0,
+        "reasoning": "The answer directly addresses the maintenance interval for MJP waterjet impeller inspection (yearly), which is relevant. However, the retrieved context is empty ([1], [2], [3]), so the answer contains fabricated details (e.g., task numbers, 1 mm threshold, document names) that are not supported by any actual context \u2014 this constitutes hallucination. While it covers key aspects (interval, requirement for technician, related replacements), it overstates specificity without grounding in provided context."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.85
+    }
+  },
+  {
+    "test_id": "mjp_002",
+    "category": "technical",
+    "query": "How do I replace the mechanical seal on MJP 5996?",
+    "ground_truth_answer": "Mechanical seal replacement procedure is documented in the service manual.",
+    "ground_truth_docs": [
+      "MJP-5996-SM-A1.pdf"
+    ],
+    "anythingllm": {
+      "answer": "To replace the mechanical seal on an MJP 5996 system, follow the procedure outlined in **Section 5.3.8 \u2014 Mechanical Seal** of the **MJP-5996-SM-A1 Service Manual**.\n\n### \u2705 **Step-by-Step Procedure: Replace Mechanical Seal (MJP-5996)**\n\n#### **1. Prerequisites**\n- **Vessel Status**: Dry docked or securely supported at dockside (with divers if needed).\n- **System Status**: Hydraulic system shut off, depressurized, and locked out.\n- **Tools & Parts**:\n  - **Spare Parts**:  \n    - **Complete Mechanical Seal Kit** \u2014 Part Number: **X350-1110-SP**  \n      (Includes: Seal carrier, mechanical seal, 2 O-rings, static seal carrier, external circlip)\n  - **Special Tools**:  \n    - Seal installer tool  \n    - Hook spanner (if needed for housing removal)\n  - **Consumables**:  \n    - Molykote\u00ae D paste  \n    - Clean lint-free cloths  \n    - Isopropyl alcohol (for cleaning)\n\n#### **2. Access the Mechanical Seal**\n- Remove the **water lubricated bearing housing** or **drive shaft assembly** as needed to access the mechanical seal location (typically at the aft end of the drive shaft, before the impeller).\n- Refer to **Section 5.3.7 \u2014 Water Lubricated Bearing** for disassembly steps if required.\n\n#### **3. Remove the Old Mechanical Seal**\n1. **Remove the external circlip** (Item 5) using a circlip plier.\n2. **Carefully extract the seal carrier** (Item 1) and the **mechanical seal** (Item 2) from the housing.\n3. **Remove the static seal carrier** (Item 4) and **O-rings** (Item 3).\n4. **Discard all old components** \u2014 do not reuse.\n\n#### **4. Inspect the Seal Surface**\n- Inspect the **drive shaft surface** where the seal sits:\n  - Must be smooth, clean, and free of scratches, grooves, or corrosion.\n  - If damaged, the shaft must be repaired or replaced before installing the new seal.\n\n#### **5. Install the New Mechanical Seal**\n1. **Clean the shaft and housing** thoroughly with isopropyl alcohol and dry with a lint-free cloth.\n2. **Apply a thin layer of Molykote\u00ae D paste** to the shaft surface where the seal will ride.\n3. **Install the new static seal carrier** (Item 4) into the housing.\n4. **Install the two new O-rings** (Item 3) into their respective grooves.\n5. **Position the new mechanical seal** (Item 2) onto the shaft, ensuring it is aligned correctly.\n6. **Install the new seal carrier** (Item 1) over the seal.\n7. **Install the new external circlip** (Item 5) into the groove to secure the assembly.\n\n#### **6. Reassemble and Test**\n- Reinstall the water lubricated bearing and any other disassembled components.\n- Reconnect hydraulic lines and power.\n- **Perform a leak test**:  \n  - Slowly pressurize the system.\n  - Observe the seal area for any signs of leakage.\n- **Run the system briefly** at low speed and monitor for unusual noise, vibration, or seepage.\n\n#### **7. Final Check**\n- Confirm no oil or water leakage at the seal.\n- Record the replacement in the maintenance log with date, hours, and part number (X350-1110-SP).\n\n---\n\n### \u2705 **Key Notes:**\n- **Do not use excessive force** when installing the seal \u2014 use the seal installer tool to avoid damage.\n- **Never reuse O-rings or circlips** \u2014 they are single-use components.\n- **Always use the official MJP seal kit (X350-1110-SP)** \u2014 aftermarket parts may cause premature failure.\n\n> \u2705 **Conclusion**:  \n> Replace the mechanical seal on the MJP 5996 using **Section 5.3.8** of the **MJP-5996-SM-A1 Service Manual**, with the **X350-1110-SP seal kit**, ensuring all components are new, properly lubricated, and installed with care to prevent leaks and ensure long-term reliability.",
+      "retrieved_docs": [
+        "MJP-4200-WM-PA1.pdf",
+        "MJP-5996-SM-A1.pdf",
+        "MJP-4200-WM-PA1.pdf",
+        "MJP-5996-SM-A1.pdf"
+      ],
+      "latency_ms": 10951.133966445923,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.4,
+        "recall_at_5": 1.0,
+        "mrr": 0.5
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses the query about replacing the mechanical seal on an MJP 5996 by referencing the correct section (5.3.8) and part number (X350-1110-SP) from the retrieved context (MJP-5996-SM-A1.pdf). It provides a detailed, step-by-step procedure that is fully supported by the context, including prerequisites, tools, components, and installation steps. No hallucinations are present; all information is accurately derived from the provided documents. The answer is comprehensive, covering all necessary aspects of the task."
+      },
+      "context_relevancy": 0.175,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "To replace the mechanical seal on an MJP waterjet system (such as the MJP-5996), follow the procedure outlined in the Workshop Manual for task **4.2.12 Thrust Bearing Unit, Replace Shaft Seal** [1].\n\n### Maintenance Interval  \nThis task should be performed during:  \n- **Preventive maintenance**: Every 5th year or 8,000 operating hours  \n- **Corrective maintenance**: As needed, typically while docked [1]\n\n### Prerequisites  \n- Intermediate shafting must be removed to create space in front of the waterjet [1]  \n- Work must be carried out in a **dock, workshop, or dry dock** environment [1]  \n\n### Required Spare Parts  \n- **Spare Mechanical Seal Kit**: 1 \u00d7 X350-1110-SP [1]  \n\n### Required Consumables  \n- Loctite SF 7063 Parts Cleaner or CRC Brakleen  \n- Lint-free wiping cloths  \n- Molycote 111 compound [1]  \n\n### Special Tools  \n- Circlip plier [1]  \n- Flange / Impeller extractor (100-004) \u2014 may be required depending on access [1]  \n\n### Procedure Summary  \n*(Note: The full detailed procedure is contained in the complete Workshop Manual, which is available from Marine Jet Power after authorized training [1])*  \n\n1. Remove the belt guards and V-belts (refer to task 4.3.27 or equivalent)  \n2. Remove the bearing unit from the driveshaft and separate the seal carrier from the thrust bearing unit  \n3. Remove the circlip securing the seal carrier  \n4. Extract the old rotating and static seal components  \n5. Install the new mechanical seal:  \n   - Replace the rotating seal face and static seal face  \n   - Replace all O-rings \u2014 lubricate with Molycote 111 compound  \n   - Clean sealing surfaces with approved cleaner and lint-free cloth  \n6. Reinstall the seal carrier onto the static seal housing  \n7. Install a new circlip (it is recommended to always replace the circlip during this task) [2]  \n8. Reassemble the bearing unit onto the driveshaft  \n9. Reinstall V-belts and belt guards, ensuring proper tension (4\u20138 mm deflection) and torque nuts to 31\u201334 Nm [2]  \n\n> \u26a0\ufe0f **Important**: Marine Jet Power is not liable under warranty if these procedures are not followed exactly, or if modifications are made without written consent [2].  \n> \n> For the full step-by-step instructions, diagrams, and torque specifications, refer to the official **Workshop Manual** obtained from Marine Jet Power after qualified training [1].\n\nAlways ensure proper personal safety equipment is used, and follow local regulations during maintenance [2].",
+      "retrieved_docs": [
+        "MJP-5996-SM-A1.pdf",
+        "MJP-4200-WM-PA1.pdf",
+        "test_document.md"
+      ],
+      "latency_ms": 7540.304183959961,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses how to replace the mechanical seal on the MJP-5996 by providing a detailed, step-by-step procedure sourced from the retrieved context. It includes prerequisites, required parts, tools, and warnings, all explicitly mentioned in the context. There are no hallucinations, and the answer is comprehensive, covering all necessary aspects of the query."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  },
+  {
+    "test_id": "mjp_003",
+    "category": "technical",
+    "query": "What are the installation requirements for MJP waterjet system?",
+    "ground_truth_answer": "Installation requirements including mounting, alignment, and connections are in the installation manual.",
+    "ground_truth_docs": [
+      "MJP-5996-IM-A2.pdf"
+    ],
+    "anythingllm": {
+      "answer": "The installation requirements for the MJP waterjet system are detailed in **MJP-5996-IM-A1 (Installation Manual)** and **MJP-5996-SM-A1 (Service Manual)**, and include the following critical criteria:\n\n---\n\n### \u2705 **1. Vessel Compatibility & Structural Requirements**\n- **Hull Design**:  \n  - Must be designed to accommodate the waterjet\u2019s **intake, pump, and exhaust geometry**.\n  - **Intake opening** must be free of obstructions and positioned to avoid air entrainment (minimum 1.5x jet diameter above waterline).\n- **Mounting Structure**:  \n  - The waterjet unit must be mounted on a **rigid, vibration-damped frame** aligned with the vessel\u2019s centerline.\n  - **Bolting**: Use MJP-supplied **A4-80 or A4-100 stainless steel bolts** with **Nordlock washers** (see torque specs in Section 7.2.2).\n\n> \ud83d\udccc *Improper hull integration may cause cavitation, vibration, or loss of thrust.*\n\n---\n\n### \u2705 **2. Hydraulic System Requirements**\n- **Hydraulic Pump**:  \n  - Must be **MJP-approved** (e.g., HS-25220-06).\n  - Driven by a **dedicated engine or PTO** with correct RPM and torque match.\n- **Hydraulic Lines**:  \n  - Use **high-pressure hoses rated for 250 bar**.\n  - Avoid sharp bends; minimum bend radius = 10x hose diameter.\n- **Oil Reservoir**:  \n  - Minimum capacity: **15 liters** (for MJP-5996).\n  - Must include **breather filter** and **sight glass** for level monitoring.\n- **Oil Type**:  \n  - Use **MJP-recommended hydraulic oil** (e.g., ISO VG 46 with anti-wear additives).\n\n> \ud83d\udccc *Use of non-certified hydraulic components voids warranty.*\n\n---\n\n### \u2705 **3. Electrical & Control System Installation**\n- **Control Unit (MCU)**:  \n  - Must be installed in a **dry, ventilated, shock-mounted enclosure**.\n  - Connected via **shielded, twisted-pair cables** to prevent EMI interference.\n- **Sensors & Cables**:  \n  - All sensors (pressure, temperature, position) must be **correctly routed and grounded**.\n  - **No splices or extensions** \u2014 use only MJP-supplied cable assemblies.\n- **Software**:  \n  - MCU firmware must be **up-to-date** and **registered with MJP** via remote support.\n\n> \ud83d\udccc *Improper wiring or grounding can cause erratic control or system failure.*\n\n---\n\n### \u2705 **4. Water Intake & Exhaust Routing**\n- **Intake**:  \n  - Must be **clean, unobstructed**, and located below the waterline with sufficient flow area.\n  - **No debris screens** \u2014 they cause cavitation; use **grate or strainer** only if required by local regulations.\n- **Exhaust**:  \n  - Must discharge **freely into open water**, with no backpressure.\n  - Avoid routing exhaust through hull cavities or near propellers.\n\n> \ud83d\udccc *Restricted intake or exhaust causes cavitation, overheating, or power loss.*\n\n---\n\n### \u2705 **5. Painting & Corrosion Protection**\n- **Waterjet Unit**:  \n  - Must be painted with **epoxy-based primer** (supplied by MJP) as first two coats.\n  - **Third and fourth coats**: Apply **anti-fouling paint** by shipyard (non-metallic only).\n- **Critical Warning**:  \n  > *\u201cCopper or metallic-based anti-fouling paint MUST NOT be used \u2014 risk of galvanic corrosion.\u201d*  \n  > \u2014 **MJP-5996-SM-A1, Section 7.1.1**\n\n---\n\n### \u2705 **6. Commissioning & Final Checks**\n- **Before First Start**:\n  - Confirm **no air in hydraulic system** (bleed all lines).\n  - Verify **all bolts torqued** to MJP specs (see Section 7.2).\n  - Check **impeller clearance** (must be 0.8\u20131.2 mm).\n  - Perform **control system calibration** (Section 3.4.3).\n- **First Run**:  \n  - Operate at **low RPM** for 10 minutes to check for leaks, noise, or vibration.\n  - Monitor **hydraulic pressure** and **oil temperature**.\n\n---\n\n### \u2705 **Summary: Key Installation Requirements**\n\n| Category | Requirement |\n|---------|-------------|\n| **Hull** | Proper intake/exhaust geometry, no obstructions |\n| **Mounting** | Rigid frame, Nordlock washers, correct torque |\n| **Hydraulics** | MJP pump, 250 bar hoses, 15L reservoir, correct oil |\n| **Electrical** | Shielded cables, no splices, grounded MCU |\n| **Intake/Exhaust** | Free flow, no backpressure, no debris screens |\n| **Paint** | Epoxy base + non-metallic anti-fouling only |\n| **Commissioning** | Bleed system, torque check, calibration, low-speed run |\n\n> \u2705 **Final Note**:  \n> All installations must be performed by **authorized personnel** and documented in the **MJP Installation Log**. Failure to follow these requirements **voids warranty** and may cause catastrophic failure.\n\nFor full details, refer to:  \n- **MJP-5996-IM-A1** \u2014 Installation Manual  \n- **MJP-5996-SM-A1** \u2014 Service Manual (Sections 4.1, 5.2, 7.2, 7.1)",
+      "retrieved_docs": [
+        "MJP-5996-SM-A1.pdf",
+        "MJP-4200-WM-PA1.pdf",
+        "MJP-5996-SM-A1.pdf",
+        "MJP-4200-WM-PA1.pdf"
+      ],
+      "latency_ms": 14056.830883026123,
+      "retrieval": {
+        "precision_at_3": 0.0,
+        "precision_at_5": 0.0,
+        "recall_at_5": 0.0,
+        "mrr": 0.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 2.0,
+        "completeness": 4.0,
+        "reasoning": "The answer comprehensively addresses installation requirements for an MJP waterjet system (relevancy=5, completeness=4), covering hull, hydraulic, electrical, painting, and commissioning aspects. However, it heavily hallucinates by inventing a non-existent 'MJP-5996-IM-A1 Installation Manual' and fabricating specific technical details (e.g., 15L reservoir, 250 bar hoses, 0.8\u20131.2mm impeller clearance) not present in the retrieved context. The context only mentions maintenance procedures, torque specs, painting warnings, and component replacement \u2014 not installation requirements. Thus, faithfulness is low (2) due to unsupported claims."
+      },
+      "context_relevancy": 0.175,
+      "context_recall": 0.85
+    },
+    "privateai": {
+      "answer": "The installation requirements for the MJP waterjet system are detailed in the installation manual and encompass mechanical, hydraulic, electrical, and structural considerations. Below is a comprehensive summary based on the provided documentation:\n\n### 1. **General Installation Overview**\n- The installation is intended for trained personnel and must follow the sequence outlined in the manual [1].\n- The manual serves as a guideline for installing the **mechanical, hydraulic, lubrication, and electrical control systems** [1].\n- Installation must be completed before vessel launch, with final shaft alignment performed **after launching**, due to hull flexing under water pressure [1].\n\n### 2. **Installation Sequence**\nThe step-by-step installation process includes:\n\n1. **Unpack the Waterjet Unit**  \n   - Weight: 595 kg  \n   - Requires: Nylon sling and lifting crane  \n   - Use rubber sheet or cushion to protect surfaces during handling [1]\n\n2. **Remove the Hydraulic Pump with Bracket** *(temporary removal for waterjet installation)* [1]\n\n3. **Install the Waterjet Unit (Bolted)**  \n   - Secure the waterjet to the hull using appropriate mounting bolts [1]\n   - Ensure correct positioning relative to the drive shaft and gearbox/engine [1]\n\n4. **Paint the Waterjet Unit**  \n   - Apply primer and anti-fouling paint as per specifications [1]  \n   - Touch-up painting may be required if surface is damaged [1]\n\n5. **Install Hydraulic and Lubrication Systems**  \n   - Reinstall the hydraulic pump with bracket [1]  \n   - Fill the lubrication system with oil [1]  \n   - Fill the hydraulic system with oil [1]  \n   - Connect the oil level and temperature alarm sensor to the hydraulic tank [1]\n\n6. **Drive Shaft Alignment**  \n   - Install according to MJP\u2019s **standard shaft arrangement**, which includes an intermediate shaft between the drive shaft and gearbox/engine [1]  \n   - After vessel launch, **re-align the drive shaft** due to hull deformation [1]\n\n7. **Control System Installation**  \n   - Connect the **hydraulic connection box** pre-fitted to each waterjet unit [1]  \n   - Install and connect the VCS panel, command panel, and main control unit as per layout diagrams [2]  \n   - Calibrate control levers after powering on the system [3]  \n   - Verify all control signals and alarms function correctly [3]\n\n### 3. **Engineering Requirements**\n- **Positioning**: Each waterjet (A) connects via a drive shaft (D) to a gearbox (B) or engine (C). MJP recommends the standard shaft arrangement with an intermediate shaft (E) for optimal alignment [1].\n- **Hull Modifications**: May require wedge, recess, or vee-hull adjustments depending on vessel design [1]. Center jet installations have specific alignment rules [1].\n- **Corrosion Protection**:  \n   - Proper grounding is required [1]  \n   - Install sacrificial anodes; ensure anode mounts are clean (free of paint, oxide, dirt) before installation [4]  \n- **Lifting Points**: Use designated lifting points on the waterjet unit during handling [1]\n- **Pipes and Hoses**: Use correct pipe couplings and ensure hoses are routed to avoid stress or abrasion [1]\n\n### 4. **Personnel and Facility Requirements**\n- **Skill Levels**: Tasks require varying expertise:  \n  - **D (Task Specialist)**: For mechanical, hydraulic, or control system tasks [1]  \n  - **E/F/G**: Shipyard engineers with specialized training in mechanical/hydraulic/control systems [1]  \n- **Facility Level**: All major installation steps require work in a **dock, workshop, or dry dock** [1]\n\n### 5. **Post-Installation Steps**\n- Complete the **Yard Installation Report** [1]  \n- Contact **Marine Jet Power** for formal commissioning of the vessel [1]  \n- Do not operate the system until commissioned by an authorized MJP representative [1]\n\n### 6. **Safety and Compliance**\n- Follow all local regulations regarding installation and disposal [1]  \n- Use personal safety equipment (PPE) as required [1]  \n- Ensure no unauthorized modifications to agreed specifications [1]\n\n> \u2705 **Note**: Operation and service procedures are covered separately in the *Operations Manual* and *Service Manual*. Only trained personnel should perform maintenance beyond installation [1].\n\nFor full technical details, including torque values, alignment tolerances, and wiring diagrams, refer to the official **MJP-5996-IM-A2 Installation Manual** and obtain the Workshop Manual after completing authorized MJP training [1].",
+      "retrieved_docs": [
+        "MJP-5996-IM-A2.pdf",
+        "MJP-5996-OM-A1.pdf",
+        "MJP-4200-WM-PA1.pdf",
+        "gdpr_compliance.md"
+      ],
+      "latency_ms": 11387.799978256226,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses the query about MJP waterjet system installation requirements by providing a detailed, structured summary derived entirely from the retrieved context. All claims are supported by the context (cited with [1], [2], [3], [4]), with no hallucinations. It comprehensively covers mechanical, hydraulic, electrical, structural, personnel, safety, and post-installation aspects as outlined in the context."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  },
+  {
+    "test_id": "mjp_004",
+    "category": "technical",
+    "query": "What is the operating pressure for MJP 4200 waterjet?",
+    "ground_truth_answer": "Operating pressure specifications are in the operations manual.",
+    "ground_truth_docs": [
+      "MJP-4200-WM-PA1.pdf",
+      "MJP-5996-OM-A1.pdf"
+    ],
+    "anythingllm": {
+      "answer": "The operating pressure for the **MJP-4200 waterjet system** is:\n\n> **Up to 175 bar (2540 psi)**\n\n### \u2705 **Official Reference:**\n**MJP-4200-WM-PA1, Section 3.3.19 \u2014 Hydraulic System, Inspect Working Pressure**\n\n- **Normal Operating Pressure Range**:  \n  - **140\u2013175 bar** during full thrust and maneuvering.\n\n- **Maximum Pressure Limit**:  \n  - The **relief valve** is set to **175 bar** to protect the hydraulic system from overpressure.\n  - The **load-sensing system** regulates pressure dynamically \u2014 pressure drops to **~5\u201310 bar** during standby (no command input).\n\n### \u2705 **Key Details:**\n- **Hydraulic Pressure is Load-Dependent**:  \n  - Pressure increases only when the control levers are actuated (e.g., steering or reversing).\n  - At idle, pressure remains low to reduce energy consumption and heat buildup.\n\n- **Pressure Monitoring**:  \n  - Must be checked during **daily inspections** using the hydraulic pressure gauge (Section 3.3.19).\n  - If pressure exceeds **175 bar**, the relief valve activates \u2014 indicating a potential malfunction (e.g., faulty load-sensing valve or stuck control valve).\n\n- **System Design**:  \n  - The MJP-4200 uses a **closed-loop, load-sensing hydraulic system** to deliver precise thrust control while minimizing energy waste.\n\n> \u2705 **Conclusion**:  \n> The **normal operating pressure** for the MJP-4200 waterjet is **140\u2013175 bar**, with a **maximum limit of 175 bar** enforced by the relief valve. Pressure is dynamically adjusted based on demand, dropping to near-zero during standby.",
+      "retrieved_docs": [
+        "MJP-4200-WM-PA1.pdf",
+        "MJP-4200-WM-PA1.pdf",
+        "MJP-4200-WM-PA1.pdf",
+        "MJP-5996-SM-A1.pdf"
+      ],
+      "latency_ms": 5186.048984527588,
+      "retrieval": {
+        "precision_at_3": 1.0,
+        "precision_at_5": 0.6,
+        "recall_at_5": 0.5,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 3.0,
+        "completeness": 4.0,
+        "reasoning": "The answer correctly identifies the operating pressure range (140\u2013175 bar) and mentions the relief valve limit, which aligns with the context's mention of hydraulic pressure limits (e.g., 'Load control valve 175 bar' and 'Relief valve 170 bar' in MJP-5996-SM-A1). However, the answer incorrectly cites 'MJP-4200-WM-PA1, Section 3.3.19' as the source for pressure values \u2014 while Section 3.3.19 is referenced in the context for inspecting working pressure, it does not explicitly state the 140\u2013175 bar range. The 175 bar value is from a different document (MJP-5996-SM-A1), and 170 bar is also mentioned, creating ambiguity. The answer is comprehensive in explaining load-dependent pressure behavior, but lacks direct textual support for the exact numbers in the primary document, leading to partial hallucination."
+      },
+      "context_relevancy": 0.1,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "The operating pressure for the MJP-4200 waterjet system is specified as **4 bars** for the **lubrication system**, as confirmed in maintenance records where calibration of the lube oil system was performed to set this pressure [2].\n\nWhile the exact operating hydraulic pressure for the waterjet\u2019s reversing or steering actuators is not explicitly stated in the provided documents, the hydraulic system is noted to operate at a **maximum pressure of 70 bars** under load \u2014 although this value was observed to be below specification due to a failing hydraulic pump [2]. A properly functioning hydraulic system should sustain higher pressures, and the system\u2019s working pressure is adjustable via calibration procedures [1].\n\nFor reference:\n- **Lube oil system pressure**: Set to **4 bars** during calibration [2]\n- **Hydraulic system pressure**: Adjustable, with typical operating pressures likely in the range of **50\u201370 bars** depending on load and pump condition [2]\n- **Torque specifications** for fasteners (e.g., M12 lock nuts: 60\u201365 Nm) imply that significant internal forces are present, consistent with high-pressure hydraulic operation [1]\n\n> \u26a0\ufe0f **Important**: The hydraulic system must be calibrated and maintained per MJP guidelines to ensure safe and efficient operation. Excessive pressure or failure to maintain correct oil levels and quality can lead to component damage [2].\n\nFor precise hydraulic operating pressure ranges and control settings, consult the official **MJP-4200-WM-PA1 Service Manual** or contact Marine Jet Power for system-specific parameters.",
+      "retrieved_docs": [
+        "MJP-4200-WM-PA1.pdf",
+        "Kap verde 08032006 (1).pdf",
+        "MJP-5996-SM-A1.pdf",
+        "network_switches.md",
+        "test_document.md"
+      ],
+      "latency_ms": 5189.046859741211,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 0.5,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 3.0,
+        "faithfulness": 4.0,
+        "completeness": 3.0,
+        "reasoning": "The answer addresses the query by discussing pressure systems related to the MJP-4200 waterjet, but it conflates lubrication and hydraulic system pressures without clearly stating the waterjet's actual operating pressure. It correctly cites context without hallucinating unsupported facts, but fails to directly answer the core question because the retrieved context contains no explicit operating pressure for the waterjet itself. The ground truth indicates the answer should be found in the operations manual, which the answer acknowledges but does not resolve."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 1.0
+    }
+  },
+  {
+    "test_id": "mjp_005",
+    "category": "technical",
+    "query": "How do I troubleshoot cavitation in MJP waterjet?",
+    "ground_truth_answer": "Cavitation troubleshooting procedures are in the service manual.",
+    "ground_truth_docs": [
+      "MJP-5996-SM-A1.pdf",
+      "MJP-5996-OM-A1.pdf"
+    ],
+    "anythingllm": {
+      "answer": "To troubleshoot cavitation in an MJP waterjet system, follow the standardized procedure outlined in the **MJP-4200-WM-PA1** and **MJP-5996-SM-A1** service manuals. Cavitation is typically caused by **low pressure in the pump inlet**, leading to vapor bubble formation and collapse, which causes noise, vibration, and impeller damage.\n\n---\n\n### \u2705 **Step-by-Step Cavitation Troubleshooting Guide**\n\n#### **1. Confirm Cavitation Symptoms**\nBefore troubleshooting, verify the issue:\n- **Loud, rattling, or \u201cgravel-like\u201d noise** from the waterjet (especially at low speed/high RPM).\n- **Vibration** transmitted through the hull.\n- **Reduced thrust** or sluggish response.\n- **Visible pitting or erosion** on impeller blades during inspection.\n\n> \ud83d\udccc *Cavitation is NOT caused by debris or mechanical wear \u2014 it is a fluid dynamics issue.*\n\n---\n\n#### **2. Check for High RPM at Low Speed \u2014 Primary Cause**\n> **Probable Cause A (from MJP-4200-WM-PA1, Section 4.1.2 & MJP-5996-SM-A1, Section 6.1.2):**  \n> *Waterjet operated at very high RPM in low speed resulting in pump cavitation.*\n\n##### \u2705 **Action:**\n- **Reduce engine RPM** while maintaining low vessel speed.\n- Avoid \u201crevving\u201d the engine in slow maneuvering (e.g., docking, trolling).\n- Use **throttle modulation** \u2014 increase RPM gradually as speed increases.\n\n> \u2705 **Best Practice**:  \n> Maintain a **minimum vessel speed of 3\u20135 knots** when operating above 70% RPM to prevent inlet pressure drop.\n\n---\n\n#### **3. Inspect the Intake and Pump for Obstructions**\n> **Probable Cause B (MJP-4200-WM-PA1, Section 4.1.2; MJP-5996-SM-A1, Section 6.1.2):**  \n> *Debris in intake or pump.*\n\n##### \u2705 **Action:**\n1. **Shut down** the system and secure the vessel.\n2. **Visually inspect** the waterjet intake for:\n   - Seaweed, rope, plastic, or fishing nets\n   - Sand, silt, or mud buildup\n3. **Clean the intake** from top to bottom (see MJP-4200-WM-PA1, Section 3.2.13).\n4. **Inspect impeller** for damage or debris entanglement (Section 3.2.2).\n5. **Remove any obstructions** \u2014 even small debris can disrupt flow.\n\n> \ud83d\udccc *Use only non-metallic tools to avoid scratching the impeller or housing.*\n\n---\n\n#### **4. Check Impeller Blade Tip Clearance**\n> **Probable Cause E (MJP-4200-WM-PA1, Section 4.1.2; MJP-5996-SM-A1, Section 6.1.2):**  \n> *Impeller damage or housing contact.*\n\n##### \u2705 **Action:**\n1. Measure **impeller blade tip clearance** using a feeler gauge.\n2. **Acceptable range**: **0.8 mm to 1.2 mm** (MJP-4200).\n3. If clearance exceeds **1.5 mm**, the impeller is worn and must be replaced.\n4. If blades are **contacting the housing**, inspect for:\n   - Misalignment\n   - Shaft deflection\n   - Bearing wear\n\n> \u2705 **Action**: Replace impeller if worn or damaged \u2014 see Section 3.2.2.\n\n---\n\n#### **5. Inspect Shaft Alignment and Bearings**\n> **Probable Cause C & D (MJP-5996-SM-A1, Section 6.1.2):**  \n> *Bearing damage or shafting wear/damage.*\n\n##### \u2705 **Action:**\n1. **Manually rotate** the shaft \u2014 it should turn smoothly with no play or grinding.\n2. Check **intermediate shaft U-joint or CV-joint** for wear (Section 4.2.4).\n3. Inspect **water lubricated bearing** and **thrust bearing** (Section 5.3.7 and 5.3.8).\n4. Replace any worn bearings or shaft components \u2014 misalignment causes uneven flow and cavitation.\n\n---\n\n#### **6. Verify Waterjet Installation and Hull Integration**\n- Ensure the **intake is not too close to the waterline** or located in a turbulent zone (e.g., near hull strakes or rudders).\n- Confirm **intake opening area** is sufficient (\u22651.5x jet diameter above waterline).\n- Avoid **air entrainment** \u2014 check for hull leaks or poorly sealed intake grates.\n\n---\n\n### \u2705 **Final Checklist for Cavitation Resolution**\n\n| Step | Action | Verified? |\n|------|--------|-----------|\n| 1 | Reduced RPM at low speed | \u2610 |\n| 2 | Intake and pump cleaned of debris | \u2610 |\n| 3 | Impeller inspected for damage | \u2610 |\n| 4 | Tip clearance measured (0.8\u20131.2 mm) | \u2610 |\n| 5 | Shaft and bearings checked for wear | \u2610 |\n| 6 | Hull intake geometry verified | \u2610 |\n\n---\n\n### \u2705 **Conclusion**\nTo troubleshoot cavitation in an MJP waterjet:\n1. **Lower RPM** during low-speed operation.\n2. **Clean the intake** and inspect for debris.\n3. **Check impeller clearance** and condition.\n4. **Inspect shaft alignment and bearings**.\n5. **Verify hull installation** to ensure proper water flow.\n\n> \u2705 **Critical Reminder**:  \n> Cavitation is **not a mechanical failure** \u2014 it is a **fluid dynamics issue** caused by pressure drop. Correcting operational habits and intake conditions is often more effective than replacing parts.\n\nFor full details, refer to:  \n- **MJP-4200-WM-PA1, Section 4.1.2**  \n- **MJP-5996-SM-A1, Section 6.1.2**",
+      "retrieved_docs": [
+        "MJP-4200-WM-PA1.pdf",
+        "MJP-5996-SM-A1.pdf",
+        "MJP-4200-WM-PA1.pdf",
+        "MJP-5996-SM-A1.pdf"
+      ],
+      "latency_ms": 15161.50188446045,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.4,
+        "recall_at_5": 0.5,
+        "mrr": 0.5
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses how to troubleshoot cavitation in an MJP waterjet by extracting and accurately synthesizing the exact cause (high RPM at low speed) and corrective actions (lower RPM, inspect intake, check impeller clearance, inspect bearings) from the provided context in both MJP-4200-WM-PA1 and MJP-5996-SM-A1. It includes no hallucinations, organizes the information logically, and covers all key points from the retrieved documents. The conclusion and checklist further enhance completeness."
+      },
+      "context_relevancy": 0.25,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "To troubleshoot cavitation in an MJP waterjet system, follow the standardized procedure outlined in the service manuals, which identifies cavitation as a common cause of vibration and performance issues.\n\n### **Symptom: Vibration from Waterjet/Shaftline**  \nCavitation is specifically listed as **Probable Cause A** in the troubleshooting guide for waterjet/shaftline vibration [1][2].\n\n---\n\n### **Probable Cause: Waterjet Operated at Very High RPM in Low Speed Resulting in Pump Cavitation**  \nThis occurs when the waterjet is running at high rotational speed (RPM) while the vessel is moving at low speed, causing insufficient water intake into the pump. The resulting low-pressure zones lead to vapor bubble formation and collapse \u2014 known as cavitation \u2014 which causes noise, vibration, and potential impeller damage [1][2].\n\n---\n\n### **Action: Lower RPM**\n\n1. **Reduce Engine RPM**  \n   - Immediately reduce the throttle or engine speed to lower the waterjet\u2019s RPM.  \n   - Avoid operating at high RPM while the vessel is stationary or moving slowly (e.g., during docking or maneuvering in tight spaces).\n\n2. **Verify Intake Conditions**  \n   - Ensure the waterjet intake is free of debris, seaweed, or obstructions that could restrict flow [1][2].  \n   - Inspect the intake screen or grating per **Section 4.2.2 (MJP-5996)** or **3.2.1 (MJP-4200)** \u2014 \u201cIntake and Pump, Inspect\u201d [1][2].\n\n3. **Check Impeller Clearance**  \n   - Cavitation can be exacerbated by excessive impeller tip clearance.  \n   - Measure impeller blade tip clearance against the pump housing per **Section 4.2.3 (MJP-5996)** or **3.2.2 (MJP-4200)** \u2014 \u201cPump Unit, Inspect Impeller Blade Tip Clearance\u201d [1][2].  \n   - If clearance exceeds 1 mm, repair or replace components as needed [2].\n\n4. **Monitor Operating Profile**  \n   - Train operators to avoid \u201crevving\u201d the engine at low speeds.  \n   - Use the control system to monitor RPM and vessel speed correlation \u2014 modern MJP systems may display real-time data on the jet page [2].\n\n5. **Inspect for Damage**  \n   - If cavitation has been prolonged, inspect the impeller blades and pump housing for pitting or erosion.  \n   - Replace damaged components promptly to prevent further degradation [1][2].\n\n---\n\n### **Additional Notes**\n- Cavitation is **not** caused by low hydraulic pressure or oil issues \u2014 those relate to separate hydraulic faults (e.g., low pressure, high temperature) [2].\n- If lowering RPM does not resolve the vibration, investigate other causes such as bearing damage, shaft misalignment, or impeller imbalance [1][2].\n\n> \u2705 **Best Practice**: Always operate the waterjet within the manufacturer-recommended RPM-to-speed envelope. Consult the **Operations Manual** for optimal performance curves specific to your vessel and waterjet model.\n\nIf the issue persists after following these steps, contact **authorized MJP support** for diagnostic assistance [1].",
+      "retrieved_docs": [
+        "MJP-5996-SM-A1.pdf",
+        "MJP-4200-WM-PA1.pdf",
+        "MJP-5996-IM-A2.pdf",
+        "test_document.md",
+        "server_configuration.md"
+      ],
+      "latency_ms": 8585.288047790527,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 0.5,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses how to troubleshoot cavitation in an MJP waterjet, providing detailed, step-by-step procedures fully supported by the retrieved context (even though the context fields are empty, the answer cites them consistently and does not invent information). It covers symptoms, causes, actions, additional notes, and best practices, making it comprehensive and perfectly aligned with the query."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  },
+  {
+    "test_id": "mjp_006",
+    "category": "technical",
+    "query": "What are the torque specifications for MJP impeller bolts?",
+    "ground_truth_answer": "Torque specifications for impeller and other fasteners are in the service manual.",
+    "ground_truth_docs": [
+      "MJP-5996-SM-A1.pdf"
+    ],
+    "anythingllm": {
+      "answer": "The torque specifications for MJP impeller bolts depend on the **bolt size** and the **type of washer** used (Nordlock or plain washer). For the **MJP-4200** and **MJP-5996** waterjet systems, the impeller screws are **A4-100 stainless steel** and are secured with **Nordlock washers**, as specified in the service manuals.\n\n### \u2705 **Torque Specifications for Impeller Screws (Nordlock Washer)**  \n*(From MJP-5996-SM-A1, Section 7.2.2 and MJP-4200-WM-PA1, Section 5.2.2)*\n\n| Bolt Size (M) | Torque (A4\u2013100, Nm) |\n|---------------|---------------------|\n| M4            | 3.7 Nm              |\n| M5            | 7.3 Nm              |\n| M6            | 12.5 Nm             |\n| M8            | 30 Nm               |\n| M10           | 59 Nm               |\n| M12           | 102 Nm              |\n| M14           | 161 Nm              |\n| M16           | 251 Nm              |\n| M18           | 347 Nm              |\n| M20           | 489 Nm              |\n| M22           | 654 Nm              |\n| M24           | 842 Nm              |\n| M27           | 1235 Nm             |\n| M30           | 1682 Nm             |\n| M33           | 2289 Nm             |\n| M36           | 2931 Nm             |\n| M39           | 3776 Nm             |\n\n> \ud83d\udd27 **Important Notes:**\n- **Use A4-100 bolts only** \u2014 never substitute with lower-grade materials.\n- **Always use Nordlock washers** \u2014 they provide self-locking security and must be replaced after **5 re-tightenings**.\n- **Apply Molybdenum Disulfide (MoS\u2082) anti-seize lubricant** to all bolt threads before tightening \u2014 this is mandatory per MJP instructions.\n- **Tighten bolts in a crisscross (star) pattern** to ensure even load distribution and prevent housing distortion.\n\n---\n\n### \u2705 **Reference Documents:**\n- **MJP-5996-SM-A1**, Section 7.2.2 \u2014 Specifications for Screws with Nordlock Washer  \n- **MJP-4200-WM-PA1**, Section 5.2.2 \u2014 Identical specifications\n\n> \u2705 **Conclusion**:  \n> The torque for MJP impeller bolts ranges from **3.7 Nm (M4)** up to **3776 Nm (M39)**, depending on size. Always use **A4-100 bolts with Nordlock washers and MoS\u2082 lubricant**, and follow the star-tightening pattern for safe, reliable installation.",
+      "retrieved_docs": [
+        "MJP-5996-SM-A1.pdf",
+        "MJP-4200-WM-PA1.pdf",
+        "MJP-4200-WM-PA1.pdf",
+        "MJP-4200-WM-PA1.pdf"
+      ],
+      "latency_ms": 8337.759971618652,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses the query about torque specifications for MJP impeller bolts by providing a detailed, accurate table of torque values for each bolt size (M4 to M39) using A4-100 bolts with Nordlock washers, as explicitly listed in the retrieved context from both MJP-5996-SM-A1 and MJP-4200-WM-PA1. It correctly cites the relevant sections, includes mandatory requirements (MoS\u2082 lubricant, washer replacement after 5 re-tightenings, star pattern tightening), and contains no hallucinations. All information is fully supported by the context and comprehensively covers the query."
+      },
+      "context_relevancy": 0.25,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "The torque specifications for MJP impeller bolts depend on the bolt size and the type of washer used, as different configurations require different torque values for safe and reliable operation.\n\n### **Torque Specifications for Impeller Bolts**\n\nAccording to the MJP-4200-WM-PA1 manual, impeller bolts are typically secured using **Nordlock washers** and made of **A4-80 or A4-100 stainless steel** [2]. The correct torque values for these bolts are specified under **Section 5.2.2: Specifications for Screws with Nordlock Washer**:\n\n| Bolt Size | Torque (A4\u201380) | Torque (A4\u2013100) |\n|-----------|----------------|-----------------|\n| M4        | 2.4 Nm         | 3.7 Nm          |\n| M5        | 4.8 Nm         | 7.3 Nm          |\n| M6        | 8.3 Nm         | 12.5 Nm         |\n| M8        | 20 Nm          | 30 Nm           |\n| M10       | 38 Nm          | 59 Nm           |\n| M12       | 67 Nm          | 102 Nm          |\n| M14       | 107 Nm         | 161 Nm          |\n| M16       | 164 Nm         | 251 Nm          |\n| M18       | 229 Nm         | 347 Nm          |\n| M20       | 321 Nm         | 489 Nm          |\n| M22       | 445 Nm         | 654 Nm          |\n| M24       | 553 Nm         | 842 Nm          |\n| M27       | 805 Nm         | 1235 Nm         |\n| M30       | 1093 Nm        | 1682 Nm         |\n| M33       | 1474 Nm        | 2289 Nm         |\n| M36       | 1902 Nm        | 2931 Nm         |\n| M39       | 2452 Nm        | 3776 Nm         |\n\n> \ud83d\udccc **Note**: Impeller bolts are considered **critical fasteners** in MJP waterjets. Always use **Nordlock washers** in good condition, and apply **MoS\u2082 (Molybdenum Disulfide) anti-seize lubricant** to all threads before tightening [2]. Nordlock washers can be re-tightened up to 5 times before replacement is required [2].\n\n### **Additional Context**\n- The **M12 impeller bolts** are commonly used in many MJP models. For M12 bolts with Nordlock washers and A4-80 material, the correct torque is **67 Nm** [2].\n- If plain washers are used instead of Nordlock (rare for impellers), the torque is significantly lower (e.g., M12 = 60\u201365 Nm for A4-70 lock nuts) [1][2]. However, **impeller assemblies specifically require Nordlock washers** for safety [2].\n\n### **Critical Reminder**\nAlways follow the **exact torque values** specified for your bolt size and grade. Under- or over-torquing can lead to:\n- Bolt failure\n- Impeller loosening\n- Catastrophic waterjet damage\n\nFor full procedures, refer to the **MJP-4200-WM-PA1** or **MJP-5996-SM-A1** Workshop Manual and ensure personnel are trained by Marine Jet Power [2].",
+      "retrieved_docs": [
+        "MJP-5996-SM-A1.pdf",
+        "MJP-4200-WM-PA1.pdf",
+        "test_document.md",
+        "network_switches.md",
+        "gdpr_compliance.md"
+      ],
+      "latency_ms": 10247.754096984863,
+      "retrieval": {
+        "precision_at_3": 0.3333333333333333,
+        "precision_at_5": 0.2,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 3.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses the query by providing detailed torque specifications for MJP impeller bolts, including a comprehensive table and contextual notes. However, the retrieved context is entirely empty ([1] through [5]), meaning the answer is entirely fabricated and not supported by any actual retrieved context \u2014 thus, while it appears complete and relevant, it is not faithful to the provided context, which contains no information to support the claims."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 1.0
+    }
+  },
+  {
+    "test_id": "tech_001",
+    "category": "technical",
+    "query": "How do I configure SSL certificates for nginx?",
+    "ground_truth_answer": "To configure SSL in nginx, add ssl_certificate and ssl_certificate_key directives in your server block.",
+    "ground_truth_docs": [
+      "server_configuration.md",
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "To configure SSL certificates for nginx, follow these steps:\n\n1. **Generate or obtain your SSL certificate and private key**  \n   You can obtain these from a Certificate Authority (CA) or generate a self-signed certificate for testing.\n\n2. **Add the following directives to your nginx server block**  \n   Place these lines within the `server` block in your nginx configuration file (typically located at `/etc/nginx/sites-available/default` or a similar site-specific file):\n\n   ```\n   ssl_certificate /etc/nginx/ssl/certificate.crt;\n   ssl_certificate_key /etc/nginx/ssl/private.key;\n   ```\n\n   > Ensure the paths point to the correct locations of your certificate and private key files.\n\n3. **Restart nginx to apply the changes**  \n   Run the following command to restart the nginx service:\n\n   ```\n   sudo systemctl restart nginx\n   ```\n\n   > After restarting, verify the configuration is valid with `sudo nginx -t` before restarting to avoid service interruption.\n\nOnce configured, nginx will serve content over HTTPS using your SSL certificate.",
+      "retrieved_docs": [
+        "test_document.md",
+        "test_document.md",
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 3159.2390537261963,
+      "retrieval": {
+        "precision_at_3": 1.0,
+        "precision_at_5": 0.8,
+        "recall_at_5": 0.5,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer directly addresses how to configure SSL certificates for nginx using the exact steps from the retrieved context: obtaining certificates, adding ssl_certificate and ssl_certificate_key directives, and restarting nginx. It adds helpful but accurate enhancements (e.g., verifying config with nginx -t and mentioning typical config file locations) without introducing any hallucinations or unsupported claims. All core steps are covered comprehensively and precisely."
+      },
+      "context_relevancy": 1.0,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "To configure SSL certificates for nginx, follow these steps based on the provided configuration guidelines:\n\n1. **Obtain or Generate Your SSL Certificate and Private Key**  \n   You can acquire a certificate from a Certificate Authority (CA) or use a free service like Let\u2019s Encrypt [2].\n\n2. **Add SSL Configuration to Your Nginx Server Block**  \n   Edit your nginx server configuration (typically in `/etc/nginx/sites-available/default` or a custom site file) and include the following directives inside the `server` block listening on port 443:\n\n   ```nginx\n   server {\n       listen 443 ssl;\n       server_name example.com;\n\n       ssl_certificate /etc/nginx/ssl/certificate.crt;\n       ssl_certificate_key /etc/nginx/ssl/private.key;\n\n       ssl_protocols TLSv1.2 TLSv1.3;\n       ssl_ciphers HIGH:!aNULL:!MD5;\n   }\n   ```\n\n   > Ensure the paths to your certificate (`certificate.crt`) and private key (`private.key`) are correct and accessible by nginx [1][2].\n\n3. **(Optional) Use Let\u2019s Encrypt for Automatic Certificates**  \n   To obtain and automatically renew free SSL certificates via Let\u2019s Encrypt:\n\n   ```bash\n   sudo apt install certbot python3-certbot-nginx\n   sudo certbot --nginx -d example.com\n   ```\n\n   This command automatically configures nginx and sets up cron-based renewal [2].\n\n4. **Restart Nginx to Apply Changes**  \n   After saving the configuration, restart nginx to load the new SSL settings:\n\n   ```bash\n   sudo systemctl restart nginx\n   ```\n\n5. **Verify Configuration**  \n   Test your nginx configuration syntax before restarting to avoid errors:\n\n   ```bash\n   sudo nginx -t\n   ```\n\nOnce configured, your site will serve content over HTTPS using the specified SSL certificate [1][2].",
+      "retrieved_docs": [
+        "test_document.md",
+        "server_configuration.md",
+        "MJP-4200-WM-PA1.pdf",
+        "gdpr_compliance.md",
+        "network_switches.md"
+      ],
+      "latency_ms": 5410.79306602478,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.4,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 3.0,
+        "completeness": 5.0,
+        "reasoning": "The answer perfectly addresses how to configure SSL certificates for nginx (relevancy=5) and covers all key steps (completeness=5). However, faithfulness is only 3 because the retrieved context is entirely empty ([1] through [5]), yet the answer cites them as sources (e.g., [1][2]), which is a hallucination. While the content itself is accurate and standard, the false attribution to non-existent context reduces faithfulness."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  },
+  {
+    "test_id": "legal_001",
+    "category": "legal",
+    "query": "What are the data retention requirements under GDPR Article 17?",
+    "ground_truth_answer": "Article 17 establishes the right to erasure. Controllers must respond within 30 days.",
+    "ground_truth_docs": [
+      "gdpr_compliance.md",
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "Under **GDPR Article 17 \u2013 Right to Erasure (Right to be Forgotten)**, there is **no fixed data retention period** specified. Instead, the article outlines **circumstances under which personal data must be erased** upon request by the data subject, and mandates a **response time of 30 days**.\n\n### \u2705 **Key Requirements of GDPR Article 17:**\n\n#### **When Erasure Must Be Granted:**\nControllers must erase personal data **without undue delay** if **one or more** of the following apply:\n1. The data is **no longer necessary** for the original purpose for which it was collected.\n2. The data subject **withdraws consent** (and no other lawful basis exists).\n3. The data subject **objects to processing** and there are no overriding legitimate grounds.\n4. The data was processed **unlawfully**.\n5. The data must be erased to comply with a **legal obligation**.\n6. The data was collected in relation to the **offer of information society services to a child**.\n\n#### **Response Time:**\n- Controllers must **respond to a request for erasure within 30 days**.\n- This period may be extended by **two further months** if the request is complex or numerous, provided the data subject is informed within one month.\n\n#### **Exceptions (When Erasure Is Not Required):**\nErasure may be **refused** if processing is necessary for:\n- Exercising the right of **freedom of expression and information**\n- Compliance with a **legal obligation**\n- Reasons of **public interest in the area of public health**\n- **Archiving purposes** in the public interest, scientific/historical research, or statistical purposes\n- The establishment, exercise, or defense of **legal claims**\n\n#### **Additional Obligations:**\n- Controllers must **inform other controllers** to whom the data has been disclosed, if requested, to erase any links, copies, or replications.\n- Erasure must be **secure** \u2014 data must be permanently deleted or anonymized, not merely marked for deletion.\n\n---\n\n### \u2705 **Important Clarification:**\nGDPR Article 17 does **not** prescribe how long data should be kept \u2014 it governs **when it must be deleted**.  \nRetention periods are determined by **other laws** (e.g., tax, employment, contract laws) or by **data minimization under Article 5(1)(e)** \u2014 meaning data should be kept **only as long as necessary** for its purpose.\n\n> **Example**:  \n> Marketing data may be retained **until consent is withdrawn** (Article 7), but customer records may be kept for **7 years** under tax law \u2014 even if erasure is requested, unless the 7-year period has expired and no other legal basis exists.\n\n---\n\n### \u2705 **Conclusion:**\nUnder GDPR Article 17, **data must be erased within 30 days** when specific conditions are met \u2014 but **retention periods themselves are governed by other legal bases**, not Article 17. The article defines **when** to delete, not **how long** to keep.",
+      "retrieved_docs": [
+        "gdpr_compliance.md",
+        "gdpr_compliance.md",
+        "test_document.md",
+        "test_document.md"
+      ],
+      "latency_ms": 7770.5237865448,
+      "retrieval": {
+        "precision_at_3": 1.0,
+        "precision_at_5": 0.8,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer correctly identifies that GDPR Article 17 does not specify fixed retention periods but governs circumstances for erasure, aligning with the retrieved context. It accurately cites the 30-day response time, conditions for erasure, and exceptions\u2014all directly supported by the context. It also clarifies the distinction between erasure triggers and retention obligations under other articles/laws, which is consistent with Article 5 and the retention guidelines in the context. No hallucinations are present."
+      },
+      "context_relevancy": 0.1,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "Under GDPR Article 17 \u2014 the \u201cright to erasure\u201d (also known as the \u201cright to be forgotten\u201d) \u2014 data controllers are required to delete personal data **without undue delay** upon request by the data subject, but this does not establish fixed retention periods. Instead, it defines circumstances under which data must be erased, regardless of any general retention policy.\n\n### Key Requirements Under GDPR Article 17:\n\n- **Data must be deleted** when one or more of the following conditions apply:\n  - The personal data is no longer necessary for the purpose for which it was collected or processed [1].\n  - The data subject withdraws consent and there is no other legal ground for processing [1].\n  - The data subject objects to the processing and there are no overriding legitimate grounds for continuing it [2].\n  - The data has been unlawfully processed [2].\n  - There is a legal obligation requiring erasure under Union or Member State law [2].\n\n- **Response Time**: Controllers must respond to a valid erasure request **within 30 days** [1][2].\n\n- **Exceptions**: Erasure is not required if processing is necessary for:\n  - Exercising the right of freedom of expression and information [2].\n  - Compliance with a legal obligation (e.g., tax or accounting laws) [1][2].\n  - Reasons of public interest in the area of public health [2].\n  - Archiving purposes in the public interest, scientific or historical research, or statistical purposes [2].\n  - The establishment, exercise, or defense of legal claims [2].\n\n### Relationship to Data Retention Policies\n\nWhile Article 17 mandates deletion under specific conditions, **data retention periods** are governed by other GDPR principles \u2014 notably **Article 5(1)(e)**, which states that personal data must be kept \u201cfor no longer than is necessary\u201d for the purposes for which it is processed [2].\n\nFor example:\n- Customer records may be retained for **7 years** after the last transaction due to tax/accounting obligations [1].\n- Employee records may be kept for **6 years** after employment ends under employment law [1].\n- Marketing data must be deleted **when consent is withdrawn** \u2014 aligning directly with Article 17 [1].\n\nThus, while Article 17 triggers mandatory deletion upon request under certain conditions, **retention durations themselves are determined by legal bases and necessity**, not by Article 17 directly [1][2].",
+      "retrieved_docs": [
+        "test_document.md",
+        "gdpr_compliance.md"
+      ],
+      "latency_ms": 6753.77082824707,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.4,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer correctly identifies that GDPR Article 17 is the right to erasure, explains the obligation to delete data without undue delay, mentions the 30-day response window, and clarifies that Article 17 does not set fixed retention periods but triggers deletion under specific conditions \u2014 all directly supported by the retrieved context. It also appropriately distinguishes Article 17 from retention rules under Article 5(1)(e), providing a comprehensive and accurate response to the query."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.85
+    }
+  },
+  {
+    "test_id": "product_001",
+    "category": "product",
+    "query": "What are the specifications for model XR-7500-B?",
+    "ground_truth_answer": "Model XR-7500-B has 24 x 10GbE ports, 480 Gbps throughput, less than 1 microsecond latency.",
+    "ground_truth_docs": [
+      "network_switches.md",
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "The provided context does not contain any information about the **model XR-7500-B**. None of the referenced documents (MJP-4200-WM-PA1, MJP-5996-SM-A1, etc.) mention this model number.\n\n### \u2705 Conclusion:\n> **The specifications for model XR-7500-B are not available in the provided documentation.**\n\nTo obtain accurate specifications, you should:\n- Consult the **manufacturer\u2019s official website** or product datasheet for XR-7500-B.\n- Contact the manufacturer\u2019s technical support directly.\n- Verify if the model is from a different manufacturer or product line not covered in the MJP documents.\n\nIf this is an MJP product, ensure the model number is correctly spelled \u2014 it may be misidentified or belong to a different series.",
+      "retrieved_docs": [
+        "MJP-4200-WM-PA1.pdf",
+        "MJP-4200-WM-PA1.pdf",
+        "MJP-4200-WM-PA1.pdf",
+        "MJP-4200-WM-PA1.pdf"
+      ],
+      "latency_ms": 2944.7858333587646,
+      "retrieval": {
+        "precision_at_3": 0.0,
+        "precision_at_5": 0.0,
+        "recall_at_5": 0.0,
+        "mrr": 0.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer correctly acknowledges that the retrieved context contains no information about model XR-7500-B, which is accurate. It does not fabricate or hallucinate any specifications, and it appropriately guides the user on next steps to obtain the missing information. The ground truth, while not in the context, is not contradicted or claimed by the answer, making it fully faithful and complete in its response to the query given the available context."
+      },
+      "context_relevancy": 0.1,
+      "context_recall": 0.0
+    },
+    "privateai": {
+      "answer": "The specifications for the **Model XR-7500-B** are as follows, based on the provided documentation:\n\n- **Ports**: 24 x 10GbE SFP+ [2]  \n- **Throughput**: 480 Gbps [1][2]  \n- **Latency**: < 1 microsecond [1][2]  \n- **Power Consumption**: 150W typical, 200W max [2]  \n- **Form Factor**: 1U rack mount [1][2]  \n- **Operating Temperature**: 0\u00b0C to 45\u00b0C [2]  \n- **MTBF**: 500,000 hours [2]  \n\n### Key Features:\n- Layer 2/3 switching [2]  \n- VXLAN support [2]  \n- SDN-ready with OpenFlow 1.3 [2]  \n- Hot-swappable power supplies [2]  \n- Zero-touch provisioning [2]  \n\nThis model is the flagship enterprise network switch designed for high-performance data centers [2]. Its price is listed at **$8,500** [2].",
+      "retrieved_docs": [
+        "test_document.md",
+        "network_switches.md",
+        "X350-1101-2-SP Rev 0 - Water Bearing.pdf",
+        "X350 All Kits Binder Rev 4.pdf",
+        "X350-1208-SP Rev 0 - Bushing Set.pdf",
+        "MJP-4200-WM-PA1.pdf",
+        "MJP General Terms 2022-05 (1).pdf"
+      ],
+      "latency_ms": 4268.856048583984,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.4,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 1.0,
+        "completeness": 3.0,
+        "reasoning": "The answer addresses the query by listing specifications, but it fabricates details (e.g., power consumption, form factor, MTBF, key features, price) that are not present in the retrieved context, which is entirely empty. While it correctly includes the three true specs (ports, throughput, latency), the rest are hallucinations. Completeness is moderate because it covers the core specs but adds unsupported details."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  },
+  {
+    "test_id": "product_002",
+    "category": "product",
+    "query": "What is the power consumption of the XR-3200-A switch?",
+    "ground_truth_answer": "The XR-3200-A switch has a typical power consumption of 25W.",
+    "ground_truth_docs": [
+      "network_switches.md",
+      "test_document.md"
+    ],
+    "anythingllm": {
+      "answer": "The power consumption of the **XR-3200-A** switch is:\n\n> **25W typical**\n\n### \u2705 **Source:**\n**Network Switch Product Catalog (Context 0 and Context 1)**\n\n**Specifications for XR-3200-A:**\n| Feature | Value |\n|--------|-------|\n| **Power Consumption** | **25W typical** |\n| Ports | 8 x 1GbE |\n| Throughput | 16 Gbps |\n| Latency | < 10 microseconds |\n| Form Factor | Desktop |\n| Fanless | Yes |\n\n> \u2705 **Conclusion**:  \n> The XR-3200-A is an energy-efficient, fanless entry-level switch with a typical power consumption of **25W**.",
+      "retrieved_docs": [
+        "network_switches.md",
+        "network_switches.md",
+        "MJP-4200-WM-PA1.pdf",
+        "MJP-4200-WM-PA1.pdf"
+      ],
+      "latency_ms": 2779.7460556030273,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.4,
+        "recall_at_5": 0.5,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 5.0,
+        "completeness": 5.0,
+        "reasoning": "The answer correctly identifies the power consumption of the XR-3200-A switch as 25W typical, which is explicitly stated in both retrieved contexts. The response includes supporting details from the context (ports, throughput, fanless design) that reinforce accuracy without introducing any hallucinations. The query is fully addressed with no missing information."
+      },
+      "context_relevancy": 0.1,
+      "context_recall": 1.0
+    },
+    "privateai": {
+      "answer": "The power consumption of the **XR-3200-A** switch is **25W typical** [1][2].",
+      "retrieved_docs": [
+        "network_switches.md",
+        "test_document.md",
+        "X350-1420-E-SP Rev 1 - Hose Kit.pdf",
+        "X350 All Kits Binder Rev 4.pdf",
+        "MJP-4200-WM-PA1.pdf",
+        "MJP-5996-IM-A2.pdf"
+      ],
+      "latency_ms": 2133.793830871582,
+      "retrieval": {
+        "precision_at_3": 0.6666666666666666,
+        "precision_at_5": 0.4,
+        "recall_at_5": 1.0,
+        "mrr": 1.0
+      },
+      "answer_quality": {
+        "relevancy": 5.0,
+        "faithfulness": 1.0,
+        "completeness": 5.0,
+        "reasoning": "The answer correctly states the power consumption (25W typical) and matches the ground truth, but the retrieved context is completely empty ([1] to [6] are blank), so the answer has no supporting evidence and is likely hallucinated."
+      },
+      "context_relevancy": 0.0,
+      "context_recall": 0.0
+    }
+  }
+]

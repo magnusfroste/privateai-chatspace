@@ -32,6 +32,9 @@ ADMIN_SETTINGS = {
     "mcp_enabled": ("MCP_ENABLED", "bool", "Enable MCP tool calling (web search)"),
     "pdf_provider": ("PDF_PROVIDER", "string", "PDF processing provider"),
     
+    # Vector Store
+    "vector_store": ("VECTOR_STORE", "string", "Vector database: qdrant or lancedb"),
+    
     # System Prompt
     "default_system_prompt": ("DEFAULT_SYSTEM_PROMPT", "string", "Default system prompt for new workspaces"),
 }

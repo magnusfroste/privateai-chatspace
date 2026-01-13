@@ -41,6 +41,11 @@ const SETTINGS_GROUPS: SettingsGroup[] = [
     title: 'Features',
     icon: '⚡',
     keys: ['mcp_enabled', 'pdf_provider']
+  },
+  {
+    title: 'Vector Database',
+    icon: '🗄️',
+    keys: ['vector_store']
   }
 ]
 
@@ -59,6 +64,7 @@ const SETTING_LABELS: Record<string, string> = {
   rag_comprehensive_threshold: 'Comprehensive Mode: Threshold',
   mcp_enabled: 'MCP Tool Calling (Web Search)',
   pdf_provider: 'PDF Provider',
+  vector_store: 'Vector Database',
 }
 
 export default function SystemSettings() {
@@ -171,7 +177,20 @@ export default function SystemSettings() {
         >
           <option value="docling-api">Docling API (GPU)</option>
           <option value="marker-api">Marker API (GPU)</option>
-          <option value="pypdf2">PyPDF2 (Basic)</option>
+          <option value="pdfplumber">pdfplumber (Local)</option>
+        </select>
+      )
+    }
+    
+    if (key === 'vector_store') {
+      return (
+        <select
+          value={value ?? 'qdrant'}
+          onChange={(e) => setEditedValues(prev => ({ ...prev, [key]: e.target.value }))}
+          className="px-3 py-1.5 bg-dark-800 border border-dark-600 rounded text-white text-sm"
+        >
+          <option value="qdrant">Qdrant (Hybrid Search)</option>
+          <option value="lancedb">LanceDB (Simple)</option>
         </select>
       )
     }

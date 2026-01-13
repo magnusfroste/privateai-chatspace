@@ -104,7 +104,12 @@ class LLMService:
                     "- Base your answer primarily on the provided context\n"
                     "- Use inline citations like [1], [2] when referencing specific information\n"
                     "- DO NOT add a sources/källor section at the end - the system will display sources automatically\n"
-                    "- If the context doesn't contain relevant information, you may use your general knowledge but mention this\n\n"
+                    "- If the context doesn't contain relevant information, you may use your general knowledge but mention this\n"
+                    "- When creating tables, use proper markdown format with each row on its own line\n"
+                    "- Format tables like this:\n"
+                    "  | Header1 | Header2 |\n"
+                    "  |---------|----------|\n"
+                    "  | Value1  | Value2  |\n\n"
                     "CONTEXT:\n" + rag_context
                 )
         

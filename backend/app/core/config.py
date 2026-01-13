@@ -57,18 +57,26 @@ When given context or documents, use them to inform your answers."""
     EMBEDDER_API_KEY: str = ""
     EMBEDDER_MODEL: str = "default"
     
-    # Qdrant
+    # Vector Store
+    # Options: "qdrant" (default), "lancedb"
+    # - qdrant: Enterprise-grade with hybrid search (requires external container)
+    # - lancedb: Zero-config file-based (simpler deployment)
+    VECTOR_STORE: str = "qdrant"
+    
+    # Qdrant (only used when VECTOR_STORE=qdrant)
     QDRANT_URL: str = "http://172.17.0.1:6333"
+    
+    # LanceDB (only used when VECTOR_STORE=lancedb)
+    LANCEDB_PATH: str = "/data/lancedb"  # Directory for LanceDB files
     
     # Search Agent (n8n webhook for web search)
     SEARCH_AGENT_URL: str = ""  # e.g. https://agent.froste.eu/webhook/xxx/chat
     
     # PDF to Markdown Provider
-    # Options: "docling-api", "marker-api", "docling", "pypdf2"
+    # Options: "docling-api", "marker-api", "pdfplumber"
     # - docling-api: External docling-serve API (GPU-accelerated, requires DOCLING_SERVICE_URL)
     # - marker-api: External marker API service (requires OCR_SERVICE_URL)
-    # - docling: Local in-process docling (CPU, no external service needed)
-    # - pypdf2: Basic text extraction (no OCR, fallback option)
+    # - pdfplumber: Local processing with table extraction (no OCR, fallback option)
     PDF_PROVIDER: str = "docling-api"
     
     # Docling Service (GPU-accelerated docling-serve API)
@@ -104,7 +112,7 @@ When given context or documents, use them to inform your answers."""
     MCP_ENABLED: bool = False  # Enable MCP tool calling
     
     # A/B Test Configuration (for comparing with AnythingLLM)
-    ABTEST_ANYTHINGLLM_URL: str = "https://chat.autoversio.ai"
+    ABTEST_ANYTHINGLLM_URL: str = ""
     ABTEST_ANYTHINGLLM_API_KEY: str = ""
     ABTEST_ANYTHINGLLM_WORKSPACE: str = "rag-test"
     ABTEST_PRIVATEAI_URL: str = "http://localhost:8000"

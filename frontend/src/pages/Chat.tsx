@@ -506,7 +506,7 @@ export default function Chat() {
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
               <h3 className="text-xl font-medium text-white mb-2">
-                Welcome to AutoVersio
+                Welcome to Private AI
               </h3>
               <p className="text-dark-400">
                 Select or create a workspace to get started

@@ -76,23 +76,39 @@ class DocumentService:
     
     async def _convert_pdf(self, path: Path) -> str:
         """Convert PDF to markdown using configured provider"""
-        if self.pdf_provider == "docling-api" and self.docling_service_url:
+        # Get current provider from settings_service (allows admin override)
+        from app.services.settings_service import settings_service
+        from app.core.database import async_session
+        
+        pdf_provider = self.pdf_provider  # default from env
+        try:
+            async with async_session() as db:
+                db_value = await settings_service.get(db, "pdf_provider")
+                if db_value:
+                    pdf_provider = db_value.lower()
+        except Exception:
+            pass  # Use env default on error
+        
+        print(f"[PDF] Converting {path.name} with provider: {pdf_provider}")
+        
+        if pdf_provider == "docling-api" and self.docling_service_url:
             try:
                 result = await self._convert_pdf_with_docling_api(path)
                 if result and not result.startswith("Error"):
                     return result
             except Exception as e:
-                print(f"Docling API failed, falling back to PyPDF2: {e}")
+                print(f"Docling API failed, falling back to pdfplumber: {e}")
         
-        elif self.pdf_provider == "marker-api" and self.ocr_service_url:
+        elif pdf_provider == "marker-api" and self.ocr_service_url:
             try:
                 result = await self._convert_pdf_with_marker(path)
                 if result and not result.startswith("Error"):
                     return result
             except Exception as e:
-                print(f"Marker API failed, falling back to PyPDF2: {e}")
+                print(f"Marker API failed, falling back to pdfplumber: {e}")
         
-        return await self._convert_pdf_with_pypdf2(path)
+        print(f"[PDF] Using pdfplumber for {path.name}")
+        return await self._convert_pdf_with_pdfplumber(path)
     
     async def _convert_pdf_with_docling_api(self, path: Path) -> str:
         """Convert PDF to markdown using docling-serve API (GPU-accelerated microservice)
@@ -184,19 +200,66 @@ class DocumentService:
         except Exception as e:
             return f"Error converting PDF with Marker: {e}"
     
-    async def _convert_pdf_with_pypdf2(self, path: Path) -> str:
-        """Convert PDF to text using PyPDF2 (no OCR, text-based PDFs only)"""
+    async def _convert_pdf_with_pdfplumber(self, path: Path) -> str:
+        """Convert PDF to markdown using pdfplumber (better table/layout extraction)"""
         try:
-            from PyPDF2 import PdfReader
-            reader = PdfReader(str(path))
+            import pdfplumber
+            
             text_parts = []
-            for page in reader.pages:
-                text = page.extract_text()
-                if text:
-                    text_parts.append(text)
-            return "\n\n".join(text_parts)
+            with pdfplumber.open(str(path)) as pdf:
+                for i, page in enumerate(pdf.pages):
+                    page_text = []
+                    
+                    # Extract tables first
+                    tables = page.extract_tables()
+                    if tables:
+                        for table in tables:
+                            if table:
+                                # Convert table to markdown format
+                                md_table = self._table_to_markdown(table)
+                                if md_table:
+                                    page_text.append(md_table)
+                    
+                    # Extract remaining text
+                    text = page.extract_text()
+                    if text:
+                        page_text.append(text)
+                    
+                    if page_text:
+                        text_parts.append("\n\n".join(page_text))
+            
+            return "\n\n---\n\n".join(text_parts)
         except Exception as e:
             return f"Error converting PDF: {e}"
+    
+    def _table_to_markdown(self, table: list) -> str:
+        """Convert a table (list of rows) to markdown format"""
+        if not table or not table[0]:
+            return ""
+        
+        # Clean cells
+        cleaned = []
+        for row in table:
+            cleaned_row = [str(cell).strip() if cell else "" for cell in row]
+            cleaned.append(cleaned_row)
+        
+        if not cleaned:
+            return ""
+        
+        # Build markdown table
+        lines = []
+        # Header
+        lines.append("| " + " | ".join(cleaned[0]) + " |")
+        # Separator
+        lines.append("| " + " | ".join(["---"] * len(cleaned[0])) + " |")
+        # Data rows
+        for row in cleaned[1:]:
+            # Pad row if needed
+            while len(row) < len(cleaned[0]):
+                row.append("")
+            lines.append("| " + " | ".join(row[:len(cleaned[0])]) + " |")
+        
+        return "\n".join(lines)
     
     async def _convert_docx(self, path: Path) -> str:
         """Convert DOCX to markdown"""

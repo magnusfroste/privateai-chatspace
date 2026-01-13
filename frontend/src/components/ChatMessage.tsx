@@ -1,60 +1,12 @@
 import { useState } from 'react'
-import ReactMarkdown from 'react-markdown'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { Copy, Check, ChevronDown, ChevronUp, Globe, StickyNote, Database } from 'lucide-react'
+import renderMarkdown from '../utils/renderMarkdown'
 
 interface ChatMessageProps {
   role: 'user' | 'assistant'
   content: string
   sources?: Array<{ num: number; filename?: string; title?: string; url?: string; type: 'rag' | 'web' }>
   onSendToNotes?: (content: string) => void
-}
-
-function CodeBlock({ language, children }: { language: string; children: string }) {
-  const [copied, setCopied] = useState(false)
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(children)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  return (
-    <div className="relative group rounded-lg overflow-hidden my-4">
-      <div className="flex items-center justify-between bg-dark-700 px-4 py-2 text-xs">
-        <span className="text-dark-300 uppercase font-medium">{language || 'code'}</span>
-        <button
-          onClick={handleCopy}
-          className="flex items-center gap-1 text-dark-400 hover:text-white transition-colors"
-        >
-          {copied ? (
-            <>
-              <Check className="w-4 h-4" />
-              <span>Copied!</span>
-            </>
-          ) : (
-            <>
-              <Copy className="w-4 h-4" />
-              <span>Copy</span>
-            </>
-          )}
-        </button>
-      </div>
-      <SyntaxHighlighter
-        language={language || 'text'}
-        style={oneDark}
-        customStyle={{
-          margin: 0,
-          borderRadius: 0,
-          padding: '1rem',
-          fontSize: '0.875rem',
-        }}
-      >
-        {children}
-      </SyntaxHighlighter>
-    </div>
-  )
 }
 
 function UserMessage({ content }: { content: string }) {
@@ -114,47 +66,19 @@ export default function ChatMessage({ role, content, sources, onSendToNotes }: C
 
   return (
     <div className="py-3 px-4">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         {isUser ? (
           <UserMessage content={content} />
         ) : (
           <div className="group">
-            <div className="prose prose-invert prose-sm max-w-none">
+            <div className="markdown-content">
               {content ? (
-                <ReactMarkdown
-                  components={{
-                    pre: ({ children }) => <>{children}</>,
-                    code: ({ className, children, ...props }) => {
-                      const match = /language-(\w+)/.exec(className || '')
-                      const codeString = String(children).replace(/\n$/, '')
-                      
-                      if (match) {
-                        return <CodeBlock language={match[1]}>{codeString}</CodeBlock>
-                      }
-                      
-                      return (
-                        <code
-                          className="bg-dark-700 px-1.5 py-0.5 rounded text-sm"
-                          {...props}
-                        >
-                          {children}
-                        </code>
-                      )
-                    },
-                    a: ({ href, children }) => (
-                      <a
-                        href={href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-400 hover:text-blue-300 underline transition-colors"
-                      >
-                        {children}
-                      </a>
-                    ),
+                <span
+                  className="flex flex-col gap-y-1"
+                  dangerouslySetInnerHTML={{
+                    __html: renderMarkdown(content),
                   }}
-                >
-                  {content}
-                </ReactMarkdown>
+                />
               ) : (
                 <span className="inline-block w-2 h-4 bg-dark-400 animate-pulse" />
               )}
