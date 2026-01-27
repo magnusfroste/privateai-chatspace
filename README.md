@@ -91,7 +91,7 @@ Default credentials:
 ### Storage & Database
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `DATABASE_URL` | `sqlite+aiosqlite:////data/autoversio.db` | Database connection |
+| `DATABASE_URL` | `sqlite+aiosqlite:////data/chatspace.db` | Database connection |
 | `DATA_DIR` | `/data` | Data directory |
 | `DOCUMENTS_DIR` | `/data/documents` | Documents directory |
 | `ORIGINALS_DIR` | `/data/documents/originals` | Original files directory |

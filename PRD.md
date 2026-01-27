@@ -210,6 +210,27 @@ text_chunks → Qdrant vector database
 - **Similarity Search**: Configurable top-k retrieval with score thresholds
 - **Hybrid Search**: Combination of semantic (dense) and keyword (sparse) search
 
+## 11. API Integration
+
+### REST API v1
+- **Developer-Friendly Endpoints**: Simple REST API for integrations
+  - `POST /api/v1/workspace/{id}/query` - Non-streaming RAG queries
+  - `POST /api/v1/workspace/{id}/upload` - Document upload with auto-embedding
+  - `GET /api/v1/workspaces` - List available workspaces
+  - `GET /api/v1/health` - Service health check
+
+### API Key Authentication
+- **Programmatic Access**: Generate API keys for external integrations
+  - Keys prefixed with `pk_`
+  - Managed through Admin panel
+  - Bypass login for API requests
+
+### A/B Test Evaluator
+- **Performance Comparison**: GUI tool for comparing AI systems
+  - Integrated in Admin panel
+  - Database storage for test results
+  - Metrics calculation: Recall@5, MRR, latency
+
 ## Technical Architecture
 
 ### Backend (FastAPI)
@@ -398,7 +419,7 @@ All settings can be configured via environment variables in Easypanel or `.env` 
 
 Chatspace - Private AI provides a complete, production-ready LLM chat application with advanced RAG capabilities, web search integration, and sophisticated document management. The modular architecture supports various LLM and embedding services while maintaining a clean, user-friendly interface focused on productivity and ease of use.
 
-**Implementation Status**: All core features implemented and tested, successfully deployed with remote LLM, embedding, vector database, OCR, and intelligent web search integration. Recent updates include tool calling, multi-file upload, and real-time citation display.
+**Implementation Status**: All core features implemented and tested, successfully deployed with remote LLM, embedding, vector database, OCR, and intelligent web search integration. Recent updates include tool calling, multi-file upload, real-time citation display, REST API v1, API key authentication, and A/B test evaluator.
 
 ## Setup and Installation
 
@@ -566,4 +587,4 @@ Application provides a complete, production-ready LLM chat application with adva
 - **Real-time Citations**: Visual source attribution with clickable links
 - **Race-free UI**: All updates happen instantly without page refreshes
 
-**Implementation Status**: All core features implemented and tested, successfully deployed with remote LLM, embedding, vector database, OCR, and intelligent web search integration. Recent updates include tool calling, multi-file upload, and real-time citation display.
+**Implementation Status**: All core features implemented and tested, successfully deployed with remote LLM, embedding, vector database, OCR, and intelligent web search integration. Recent updates include tool calling, multi-file upload, real-time citation display, REST API v1, API key authentication, and A/B test evaluator.
